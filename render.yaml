@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: petit-bac
+    runtime: node
+    plan: free
+    buildCommand: >-
+      npm ci --include=dev &&
+      npm test &&
+      npm run check &&
+      node cleanup-frontend-build.cjs &&
+      npm run check:production &&
+      (node optimize-assets.cjs || echo "Optimisation WebP ignorée - fallback PNG actif")
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true

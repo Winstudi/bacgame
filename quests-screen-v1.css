@@ -1,0 +1,852 @@
+/* =========================================================
+   P'tit Bac — Quêtes V2
+   Refonte fidèle au prototype néon mobile
+   +3 nouvelles quêtes à 11h (Europe/Paris), sans remplacer les précédentes
+   ========================================================= */
+
+html:has(.quests-v1),
+body:has(.quests-v1){
+  width:100%;
+  min-height:100%;
+  margin:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  background:#050b31;
+}
+
+body:has(.quests-v1) #app{
+  width:100%;
+  max-width:none;
+  min-height:100%;
+  margin:0;
+  padding:0;
+  display:block;
+}
+
+body:has(.quests-v1) .economy-hud{
+  display:none!important;
+}
+
+.quests-v1,
+.quests-v1 *,
+.quests-v1 *::before,
+.quests-v1 *::after{
+  box-sizing:border-box;
+}
+
+.quests-v1{
+  --q-line:#a544ff;
+  --q-line-soft:#7259f4;
+  --q-blue:#3478ff;
+  --q-pink:#ef42dc;
+  --q-text:#fff;
+  --q-muted:#c6c9ee;
+  position:relative;
+  isolation:isolate;
+  width:min(100%,430px);
+  height:auto;
+  min-height:100svh;
+  margin:0 auto;
+  padding:max(3px,env(safe-area-inset-top)) 9px max(5px,env(safe-area-inset-bottom));
+  display:grid;
+  grid-template-rows:48px 156px auto minmax(180px,1fr);
+  gap:10px;
+  overflow:visible;
+  color:var(--q-text);
+  font-family:"DM Sans",system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 48% 2%,rgba(116,36,246,.53),transparent 21%),
+    radial-gradient(circle at 99% 35%,rgba(29,91,224,.30),transparent 34%),
+    radial-gradient(circle at -6% 58%,rgba(124,33,205,.28),transparent 28%),
+    radial-gradient(circle at 48% 96%,rgba(49,44,165,.20),transparent 28%),
+    linear-gradient(180deg,#080c43 0%,#071143 58%,#050c32 100%);
+}
+
+.quests-v1::before{
+  content:"";
+  position:absolute;
+  z-index:-2;
+  left:-25%;
+  right:-25%;
+  bottom:-94px;
+  height:220px;
+  border-radius:50% 50% 0 0 / 28% 28% 0 0;
+  background:
+    radial-gradient(ellipse at 45% 8%,rgba(57,36,166,.66),transparent 52%),
+    linear-gradient(165deg,rgba(62,38,166,.64),rgba(16,26,87,.06) 72%);
+  transform:rotate(-3deg);
+  pointer-events:none;
+}
+
+.quests-v1::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:-24%;
+  right:-18%;
+  bottom:-121px;
+  height:210px;
+  border-radius:50% 50% 0 0 / 24% 24% 0 0;
+  background:linear-gradient(172deg,rgba(66,42,177,.43),rgba(8,16,58,.08) 66%);
+  transform:rotate(5deg);
+  pointer-events:none;
+}
+
+.quests-v1 button{
+  font:inherit;
+  color:inherit;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.quests-v1 button:active:not(:disabled){
+  transform:scale(.985);
+}
+
+.quests-v1 button:disabled{
+  cursor:default;
+}
+
+.qv1-stars{
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.72;
+}
+
+.qv1-stars i{
+  position:absolute;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#7557ff;
+  box-shadow:0 0 12px #775dff;
+}
+
+.qv1-stars i:nth-child(1){left:2%;top:14%}
+.qv1-stars i:nth-child(2){left:29%;top:78%;background:#5161ff}
+.qv1-stars i:nth-child(3){right:2%;top:14.5%;background:#586cff}
+.qv1-stars i:nth-child(4){left:9%;top:87%;background:#543bd4}
+.qv1-stars i:nth-child(5){right:17%;top:80%;background:#6639ea}
+.qv1-stars i:nth-child(6){left:27%;bottom:3%;background:#5338db}
+
+/* ---------- Barre supérieure ---------- */
+
+.qv1-header{
+  width:calc(100% + 18px);
+  height:48px;
+  margin-left:-9px;
+  margin-top:0;
+  padding:0 13px;
+  border-top:1px solid rgba(195,58,255,.84);
+  border-bottom:1px solid rgba(195,58,255,.84);
+  background:
+    radial-gradient(circle at 33% 45%,rgba(136,51,255,.21),transparent 32%),
+    linear-gradient(90deg,rgba(45,13,122,.99),rgba(29,30,139,.98) 50%,rgba(8,43,116,.98));
+  box-shadow:
+    0 0 20px rgba(210,54,255,.24),
+    inset 0 0 18px rgba(107,83,255,.14);
+  display:grid;
+  grid-template-columns:31px minmax(108px,1fr) auto;
+  align-items:center;
+  gap:7px;
+}
+
+.qv1-back{
+  width:29px;
+  height:29px;
+  padding:0;
+  border:0;
+  background:transparent;
+}
+
+.qv1-back img{
+  width:29px;
+  height:29px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 7px rgba(221,69,255,.72));
+}
+
+.qv1-brand{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.qv1-brand>img{
+  width:31px;
+  height:31px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 8px rgba(235,70,255,.72));
+}
+
+.qv1-brand h1{
+  margin:0;
+  color:#fff;
+  font-size:1.42rem;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.045em;
+  text-shadow:
+    0 2px 0 #5f20b3,
+    0 0 8px #ef52ff,
+    0 0 16px rgba(130,72,255,.9);
+}
+
+/* ---------- Intro ---------- */
+
+.qv1-intro{
+  display:none;
+}
+
+.qv1-reset{
+  flex:0 0 142px;
+  height:39px;
+  padding:0 9px 0 7px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#b9c0f2;
+  font-size:.47rem;
+  line-height:1.05;
+  font-weight:800;
+  text-align:left;
+}
+
+.qv1-reset-clock{
+  flex:0 0 27px;
+  width:27px;
+  height:27px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(145deg,#b64df8,#8d42ef);
+  box-shadow:0 0 9px rgba(188,76,255,.38);
+}
+
+.qv1-reset-clock svg{
+  width:19px;
+  height:19px;
+  fill:none;
+  stroke:#311065;
+  stroke-width:2.25;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.qv1-reset-copy{
+  min-width:0;
+  display:block;
+}
+
+
+.qv1-reset-header{
+  justify-self:end;
+  margin:0;
+}
+.qv1-reset b{
+  display:block;
+  margin-top:3px;
+  color:#fff;
+  font-size:.66rem;
+  line-height:1;
+  font-weight:1000;
+  white-space:nowrap;
+}
+
+/* ---------- Coffre ---------- */
+
+.qv1-chest{
+  position:relative;
+  min-height:0;
+  width:calc(100% - 4px);
+  margin-left:4px;
+  padding:14px 4px 13px 21px;
+  border:1.6px solid #a33fff;
+  border-radius:16px;
+  background:
+    radial-gradient(circle at 82% 47%,rgba(184,52,255,.28),transparent 31%),
+    radial-gradient(circle at 18% 24%,rgba(117,52,232,.17),transparent 31%),
+    linear-gradient(135deg,rgba(47,19,122,.98),rgba(16,40,111,.97));
+  box-shadow:
+    inset 0 0 27px rgba(101,76,255,.14),
+    0 0 17px rgba(171,52,255,.17);
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 142px;
+  gap:8px;
+  overflow:hidden;
+}
+
+.qv1-chest.is-ready{
+  border-color:#ffd25c;
+  box-shadow:
+    inset 0 0 27px rgba(255,202,77,.09),
+    0 0 20px rgba(255,206,73,.25);
+}
+
+.qv1-chest-copy{
+  min-width:0;
+  align-self:center;
+}
+
+.qv1-chest-kicker{
+  display:block;
+  margin-bottom:4px;
+  color:#f25be3;
+  font-size:.52rem;
+  font-weight:1000;
+  letter-spacing:.09em;
+}
+
+.qv1-chest h2{
+  margin:0;
+  color:#fff;
+  font-size:1.28rem;
+  line-height:1.02;
+  font-weight:1000;
+  letter-spacing:-.035em;
+}
+
+.qv1-chest p{
+  margin:7px 0 13px;
+  color:#d1d3f5;
+  font-size:.64rem;
+  line-height:1.18;
+  font-weight:650;
+  white-space:nowrap;
+}
+
+.qv1-chest-milestones{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 36px;
+  align-items:center;
+  gap:8px;
+}
+
+.qv1-milestone-track{
+  position:relative;
+  min-width:0;
+  height:21px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.qv1-milestone-track::before{
+  content:"";
+  position:absolute;
+  left:9px;
+  right:9px;
+  top:50%;
+  height:2px;
+  border-radius:2px;
+  transform:translateY(-50%);
+  background:#655bcb;
+}
+
+.qv1-milestone-track i{
+  position:relative;
+  z-index:1;
+  width:19px;
+  height:19px;
+  border:2px solid #745be1;
+  border-radius:50%;
+  background:#343080;
+  box-shadow:0 0 0 1px rgba(49,41,117,.3);
+}
+
+.qv1-milestone-track i.is-hit{
+  border-color:#eb5bff;
+  background:linear-gradient(145deg,#ff43d3,#a84eff);
+  box-shadow:0 0 9px rgba(239,67,255,.54);
+}
+
+.qv1-chest-milestones>b{
+  color:#fff;
+  font-size:.78rem;
+  line-height:1;
+  font-weight:1000;
+}
+
+.qv1-chest-progress{
+  margin-top:7px;
+  padding-right:44px;
+}
+
+.qv1-chest-progress>span{
+  display:block;
+  width:100%;
+  height:13px;
+  padding:2px;
+  border:1px solid #6e62e2;
+  border-radius:7px;
+  background:#0e174e;
+  overflow:hidden;
+  box-shadow:inset 0 0 6px rgba(24,20,72,.88);
+}
+
+.qv1-chest-progress i{
+  display:block;
+  height:100%;
+  border-radius:4px;
+  background:linear-gradient(90deg,#ff38ca,#bc48ff);
+  box-shadow:0 0 8px rgba(243,53,255,.48);
+}
+
+.qv1-chest-art{
+  position:relative;
+  min-width:0;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:2px;
+}
+
+.qv1-chest-art::before{
+  content:"";
+  position:absolute;
+  width:128px;
+  height:70px;
+  border-radius:50%;
+  bottom:21px;
+  background:radial-gradient(ellipse,rgba(134,54,255,.45),rgba(45,28,131,.14) 57%,transparent 72%);
+  filter:blur(2px);
+}
+
+.qv1-chest-art img{
+  position:relative;
+  z-index:1;
+  width:126px;
+  height:115px;
+  object-fit:contain;
+  filter:
+    drop-shadow(0 0 7px rgba(255,203,66,.28))
+    drop-shadow(0 8px 10px rgba(3,5,32,.34));
+}
+
+.qv1-chest-sparkle{
+  position:absolute;
+  z-index:2;
+  color:#fff8c8;
+  font-size:1.25rem;
+  line-height:1;
+  text-shadow:0 0 10px #ffd967;
+}
+
+.qv1-sparkle-a{left:4px;top:59px}
+.qv1-sparkle-b{right:4px;top:25px;font-size:.92rem}
+
+.qv1-chest-art small{
+  position:relative;
+  z-index:2;
+  margin-top:-3px;
+  color:#dde0ff;
+  font-size:.55rem;
+  line-height:1;
+  font-weight:900;
+}
+
+.qv1-chest-art button{
+  position:relative;
+  z-index:2;
+  min-width:78px;
+  height:29px;
+  margin-top:-6px;
+  padding:0 11px;
+  border:1px solid #ffd75e;
+  border-radius:9px;
+  background:linear-gradient(180deg,#ffd34f,#e59518);
+  color:#25144d;
+  font-size:.63rem;
+  font-weight:1000;
+  box-shadow:0 0 12px rgba(255,203,59,.34);
+}
+
+/* ---------- Cartes de quête ---------- */
+
+.qv1-list{
+  min-height:0;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-auto-rows:111px;
+  gap:12px;
+  align-content:start;
+  overflow:visible;
+  overscroll-behavior-y:auto;
+}
+
+.qv1-list::-webkit-scrollbar{
+  display:none;
+}
+
+.qv1-quest{
+  position:relative;
+  min-height:0;
+  padding:12px 12px 10px;
+  border:1.55px solid #a13fff;
+  border-radius:15px;
+  background:
+    radial-gradient(circle at 6% 50%,rgba(165,55,255,.18),transparent 30%),
+    radial-gradient(circle at 92% 20%,rgba(84,86,255,.10),transparent 34%),
+    linear-gradient(120deg,rgba(49,31,124,.98),rgba(27,26,109,.98));
+  box-shadow:
+    inset 0 0 20px rgba(112,68,255,.08),
+    0 4px 12px rgba(0,0,0,.14);
+  display:grid;
+  grid-template-rows:minmax(0,1fr) auto;
+  gap:10px;
+  overflow:hidden;
+}
+
+.qv1-quest.is-complete{
+  border-color:#61f39c;
+  box-shadow:
+    inset 0 0 18px rgba(52,220,114,.09),
+    0 0 13px rgba(50,225,112,.17);
+}
+
+.qv1-quest.is-claimed{
+  opacity:.72;
+  border-color:#596bbf;
+}
+
+.qv1-quest-top{
+  min-width:0;
+  display:grid;
+  grid-template-columns:50px minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+}
+
+.qv1-quest-icon{
+  width:50px;
+  height:50px;
+  border:1px solid rgba(101,88,218,.74);
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(145deg,rgba(56,44,142,.63),rgba(20,42,112,.46));
+  box-shadow:inset 0 0 16px rgba(89,75,214,.16);
+}
+
+.qv1-quest-icon img{
+  width:42px;
+  height:42px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 8px rgba(160,80,255,.34));
+}
+
+.qv1-quest-icon svg{
+  width:33px;
+  height:33px;
+  fill:none;
+  stroke:#4eb3ff;
+  stroke-width:2.15;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 0 7px rgba(45,153,255,.64));
+}
+
+.qv1-quest-copy{
+  min-width:0;
+}
+
+.qv1-quest-copy h3{
+  margin:0;
+  color:#fff;
+  font-size:.82rem;
+  line-height:1.08;
+  font-weight:1000;
+  letter-spacing:-.02em;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+
+.qv1-quest-bottom{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:end;
+  gap:10px;
+}
+
+.qv1-progress{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:7px;
+}
+
+.qv1-progress>span{
+  height:10px;
+  padding:1px;
+  border:1px solid #9386e3;
+  border-radius:999px;
+  background:#10194d;
+  overflow:hidden;
+}
+
+.qv1-progress i{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#ff35cb,#a84eff);
+  box-shadow:0 0 7px rgba(246,55,255,.44);
+}
+
+.qv1-quest.is-complete .qv1-progress i,
+.qv1-quest.is-claimed .qv1-progress i{
+  background:linear-gradient(90deg,#29dd78,#6af79d);
+}
+
+.qv1-progress b{
+  color:#fff;
+  font-size:.58rem;
+  line-height:1;
+  font-weight:1000;
+  white-space:nowrap;
+}
+
+.qv1-quest-reward{
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-end;
+  gap:2px;
+  white-space:nowrap;
+  text-align:right;
+}
+
+.qv1-quest-reward strong{
+  display:block;
+  color:#fff;
+  font-size:.80rem;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.03em;
+}
+
+.qv1-quest-reward small{
+  display:block;
+  color:#f1f0ff;
+  font-size:.56rem;
+  line-height:1.05;
+  font-weight:900;
+}
+
+/* ---------- Décor inférieur ---------- */
+
+.qv1-bottom-art{
+  position:relative;
+  min-height:0;
+  pointer-events:none;
+  opacity:.42;
+}
+
+.qv1-bottom-art svg{
+  position:absolute;
+  fill:#4026b4;
+  filter:drop-shadow(0 0 10px rgba(86,51,214,.12));
+}
+
+.qv1-bottom-crown{
+  left:12px;
+  bottom:-2px;
+  width:69px;
+  height:52px;
+  transform:rotate(-7deg);
+}
+
+.qv1-bottom-star{
+  right:78px;
+  top:13px;
+  width:27px;
+  height:27px;
+  transform:rotate(8deg);
+}
+
+.qv1-bottom-card{
+  position:absolute;
+  right:-4px;
+  bottom:-13px;
+  width:66px;
+  height:54px;
+  border-radius:8px;
+  background:#1e1c68;
+  transform:rotate(-19deg);
+  box-shadow:0 0 18px rgba(31,27,103,.42);
+}
+
+.qv1-bottom-card::after{
+  content:"";
+  position:absolute;
+  left:14px;
+  top:21px;
+  width:34px;
+  height:7px;
+  border-radius:5px;
+  background:#272678;
+}
+
+/* ---------- Chargement ---------- */
+
+.qv1-loading{
+  grid-row:1 / -1;
+  min-height:0;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:8px;
+  color:#cdd3ff;
+  font-size:.62rem;
+}
+
+.qv1-loading span{
+  width:28px;
+  height:28px;
+  border:3px solid rgba(255,255,255,.15);
+  border-top-color:#da46ff;
+  border-radius:50%;
+  animation:qv1Spin .8s linear infinite;
+}
+
+@keyframes qv1Spin{
+  to{transform:rotate(360deg)}
+}
+
+/* ---------- Téléphones étroits ---------- */
+
+@media(max-width:390px){
+  .quests-v1{
+    padding-inline:7px;
+    grid-template-rows:46px 149px auto minmax(170px,1fr);
+    gap:10px;
+  }
+
+  .qv1-header{
+    width:calc(100% + 14px);
+    margin-left:-7px;
+    padding-inline:9px;
+    grid-template-columns:28px minmax(90px,1fr) auto;
+    gap:5px;
+  }
+
+  .qv1-back,
+  .qv1-back img{
+    width:27px;
+    height:27px;
+  }
+
+  .qv1-brand{gap:5px}
+
+  .qv1-brand>img{
+    width:28px;
+    height:28px;
+  }
+
+  .qv1-brand h1{
+    font-size:1.20rem;
+  }
+
+  .qv1-daily-copy{
+    font-size:.69rem;
+  }
+
+  .qv1-reset{
+    flex-basis:128px;
+    height:37px;
+    gap:6px;
+  }
+
+  .qv1-reset-clock{
+    flex-basis:25px;
+    width:25px;
+    height:25px;
+  }
+
+  .qv1-reset b{
+    font-size:.60rem;
+  }
+
+  .qv1-chest{
+    grid-template-columns:minmax(0,1fr) 116px;
+    padding:12px 0 12px 15px;
+  }
+
+  .qv1-chest h2{font-size:1.12rem}
+  .qv1-chest p{font-size:.57rem;margin-bottom:10px}
+
+  .qv1-chest-art img{
+    width:108px;
+    height:101px;
+  }
+
+  .qv1-chest-progress{padding-right:40px}
+
+  .qv1-list{
+    grid-auto-rows:102px;
+    gap:10px;
+  }
+
+  .qv1-quest{
+    padding:10px 10px 9px;
+    gap:8px;
+  }
+
+  .qv1-quest-top{
+    grid-template-columns:44px minmax(0,1fr);
+    gap:8px;
+  }
+
+  .qv1-quest-icon{
+    width:44px;
+    height:44px;
+    border-radius:10px;
+  }
+
+  .qv1-quest-icon img{
+    width:36px;
+    height:36px;
+  }
+
+  .qv1-quest-icon svg{
+    width:29px;
+    height:29px;
+  }
+
+  .qv1-quest-copy h3{font-size:.72rem}
+
+  .qv1-progress{gap:5px}
+  .qv1-progress>span{height:9px}
+  .qv1-progress b{font-size:.50rem}
+
+  .qv1-quest-reward strong{font-size:.73rem}
+  .qv1-quest-reward small{font-size:.50rem}
+}
+
+@media(max-height:710px){
+  .quests-v1{
+    grid-template-rows:44px 140px auto minmax(150px,1fr);
+    gap:10px;
+  }
+
+  .qv1-header{height:44px}
+  .qv1-chest{padding-block:10px}
+  .qv1-chest-art img{height:96px}
+  .qv1-list{grid-auto-rows:96px}
+  .qv1-quest{padding:8px 8px 7px;gap:7px}
+  .qv1-quest-top{grid-template-columns:40px minmax(0,1fr);gap:7px}
+  .qv1-quest-icon{height:40px;width:40px}
+  .qv1-quest-icon img{height:33px;width:33px}
+  .qv1-quest-icon svg{height:26px;width:26px}
+  .qv1-quest-copy h3{font-size:.69rem}
+  .qv1-progress>span{height:8px}
+  .qv1-quest-reward strong{font-size:.69rem}
+  .qv1-quest-reward small{font-size:.48rem}
+}

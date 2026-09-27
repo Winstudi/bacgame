@@ -1,0 +1,31 @@
+{
+  "name": "petit-bac-soiree",
+  "version": "1.48.0",
+  "private": true,
+  "description": "P'tit Bac multijoueur mobile — profils persistants, amis, chat, vies rechargeables et économie serveur.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node run-tests.cjs",
+    "check": "node ci-check.cjs",
+    "check:production": "node ci-check.cjs --production",
+    "ci": "npm test && npm run check",
+    "test:postgres": "node run-tests.cjs --postgres"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "socket.io-client": "^4.8.3"
+  },
+  "optionalDependencies": {
+    "sharp": "0.35.4"
+  }
+}

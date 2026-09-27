@@ -1,0 +1,251 @@
+/* P'tit Bac — UI runtime partagé
+   États admin, accueil et modal de sortie catégories.
+*/
+
+html:has(.admin-v1-page) #economyHud,
+body:has(.admin-v1-page) #economyHud,
+.admin-v1-page ~ #economyHud {
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+html.ptb-admin-infinite-coins #homePlaqueCoins,
+html.ptb-admin-infinite-lives #homePlaqueLives {
+  font-size:0 !important;
+  line-height:1 !important;
+}
+
+html.ptb-admin-infinite-coins #homePlaqueCoins::after,
+html.ptb-admin-infinite-lives #homePlaqueLives::after {
+  content:"∞";
+  display:inline-block;
+  font-size:1rem;
+  line-height:1;
+  font-weight:900;
+}
+
+html.ptb-admin-infinite-coins .economy-pill.coins b,
+html.ptb-admin-infinite-lives .economy-pill.life b {
+  font-size:0 !important;
+}
+
+html.ptb-admin-infinite-coins .economy-pill.coins b::after,
+html.ptb-admin-infinite-lives .economy-pill.life b::after {
+  content:"∞";
+  font-size:1rem;
+  line-height:1;
+  font-weight:900;
+}
+
+html.ptb-admin-infinite-coins .cat-v2-balance strong {
+  font-size:0 !important;
+}
+
+html.ptb-admin-infinite-coins .cat-v2-balance strong::after {
+  content:"∞";
+  font-size:.96rem;
+  line-height:1;
+  font-weight:900;
+}
+
+.home-plaque-v1 .home-plaque-top {
+  position:relative !important;
+  width:100% !important;
+}
+
+.home-plaque-v1 .home-plaque-top-left {
+  position:relative !important;
+  width:100% !important;
+  min-height:56px !important;
+  display:flex !important;
+  align-items:flex-start !important;
+}
+
+.home-plaque-v1 .home-plaque-resources {
+  position:absolute !important;
+  top:1px !important;
+  right:0 !important;
+  left:auto !important;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:8px !important;
+  margin:0 !important;
+  z-index:12 !important;
+}
+
+.home-plaque-v1 .home-plaque-resources .life-chip {
+  order:1 !important;
+}
+
+.home-plaque-v1 .home-plaque-resources .coin-chip {
+  order:2 !important;
+}
+
+.home-plaque-v1 .home-plaque-chip {
+  min-width:78px !important;
+  height:40px !important;
+  justify-content:center !important;
+  padding:0 11px !important;
+  border-radius:18px !important;
+}
+
+.home-plaque-v1 .home-plaque-chip .pb-icon {
+  width:25px !important;
+  height:25px !important;
+  object-fit:contain !important;
+}
+
+.home-plaque-v1 .home-plaque-chip strong {
+  font-size:.92rem !important;
+}
+
+.home-plaque-v1 .home-plaque-avatar {
+  position:relative !important;
+  z-index:15 !important;
+}
+
+.cat-v2 .cat-v2-exit-backdrop {
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  min-height:100dvh !important;
+  margin:0 !important;
+  padding:
+    max(18px, env(safe-area-inset-top))
+    18px
+    max(18px, env(safe-area-inset-bottom)) !important;
+  z-index:99999 !important;
+  display:grid !important;
+  place-items:center !important;
+  background:rgba(3,8,34,.78) !important;
+  -webkit-backdrop-filter:blur(12px) !important;
+  backdrop-filter:blur(12px) !important;
+  overflow:auto !important;
+  box-sizing:border-box !important;
+}
+
+.cat-v2 .cat-v2-exit-modal {
+  position:relative !important;
+  inset:auto !important;
+  box-sizing:border-box !important;
+  width:min(100%,350px) !important;
+  max-width:350px !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  margin:0 !important;
+  padding:22px 18px 18px !important;
+  transform:none !important;
+  border:1.4px solid #854cff !important;
+  border-radius:23px !important;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(142,65,255,.18),transparent 48%),
+    linear-gradient(155deg,#10245d 0%,#071947 70%,#151052 100%) !important;
+  box-shadow:
+    0 20px 55px rgba(0,0,0,.42),
+    0 0 28px rgba(128,56,255,.23) !important;
+  text-align:center !important;
+  overflow:hidden !important;
+}
+
+.cat-v2 .cat-v2-exit-modal h2 {
+  position:static !important;
+  width:auto !important;
+  margin:0 0 17px !important;
+  padding:0 !important;
+  color:#fff !important;
+  font-size:1.18rem !important;
+  line-height:1.16 !important;
+  font-weight:900 !important;
+  letter-spacing:-.025em !important;
+  transform:none !important;
+}
+
+.cat-v2 .cat-v2-exit-actions {
+  position:static !important;
+  inset:auto !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:9px !important;
+  transform:none !important;
+}
+
+.cat-v2 .cat-v2-exit-actions button {
+  position:static !important;
+  width:100% !important;
+  height:44px !important;
+  min-height:44px !important;
+  margin:0 !important;
+  padding:0 13px !important;
+  border-radius:14px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:.73rem !important;
+  line-height:1 !important;
+  font-weight:900 !important;
+  transform:none !important;
+}
+
+.cat-v2 .cat-v2-exit-no {
+  border:1px solid #4c60a9 !important;
+  background:#0a2054 !important;
+  color:#d5d1ea !important;
+}
+
+.cat-v2 .cat-v2-exit-lobby {
+  border:1px solid #744be0 !important;
+  background:#18175d !important;
+  color:#fff !important;
+}
+
+.cat-v2 .cat-v2-exit-home {
+  border:1px solid #a85dff !important;
+  background:linear-gradient(105deg,#7135ed,#a33cff) !important;
+  color:#fff !important;
+}
+
+.cat-v2:has(.cat-v2-exit-backdrop) .ptb-shared-footer {
+  z-index:1 !important;
+  pointer-events:none !important;
+}
+
+#homePlaqueCrown,
+#betaAdminTrigger {
+  cursor:default !important;
+}
+
+@media (max-width:390px) {
+  .home-plaque-v1 .home-plaque-resources {
+    gap:6px !important;
+  }
+
+  .home-plaque-v1 .home-plaque-chip {
+    min-width:70px !important;
+    height:37px !important;
+    padding:0 9px !important;
+  }
+
+  .home-plaque-v1 .home-plaque-chip .pb-icon {
+    width:23px !important;
+    height:23px !important;
+  }
+
+  .cat-v2 .cat-v2-exit-modal {
+    width:min(100%,330px) !important;
+  }
+}
+
+@supports not (height:100dvh) {
+  .cat-v2 .cat-v2-exit-backdrop {
+    height:100vh !important;
+    min-height:100vh !important;
+  }
+}

@@ -1,0 +1,10 @@
+-- P'tit Bac — compatibilité historique
+--
+-- Depuis E8, le schéma PostgreSQL n'est plus géré par des scripts SQL
+-- séparés. La source de vérité est désormais :
+--
+--   db-migrations.js
+--
+-- Ne pas ajouter de migration ici. Ce fichier est conservé uniquement pour
+-- éviter qu'une ancienne procédure de déploiement applique de nouveau le
+-- champ public.users.coins, supprimé en E8.

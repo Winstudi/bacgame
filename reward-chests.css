@@ -1,0 +1,365 @@
+html.ptb-reward-lock,body.ptb-reward-lock{overflow:hidden!important;overscroll-behavior:none}
+.ptb-reward-open{
+  position:fixed;inset:0;z-index:100080;display:grid;place-items:stretch;
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease;
+  background:#06123b;font-family:"DM Sans",system-ui,sans-serif
+}
+.ptb-reward-open.is-open{opacity:1;visibility:visible;pointer-events:auto}
+.ptb-reward-scene{
+  position:relative;width:min(100vw,520px);height:100%;margin:0 auto;overflow:hidden;isolation:isolate;
+  background:
+    linear-gradient(180deg,rgba(4,12,45,.03),rgba(5,12,45,.08)),
+    url('/reward-opening-bg.webp') center/cover no-repeat;
+  box-shadow:0 0 80px rgba(0,0,0,.35)
+}
+.ptb-reward-scene::after{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 47%,rgba(81,179,255,.08),transparent 32%),linear-gradient(180deg,rgba(2,9,34,.02),rgba(0,4,25,.16));
+}
+.ptb-reward-object{
+  position:absolute;z-index:4;left:50%;top:calc(43% - 15px);transform:translate(-50%,-50%);
+  width:min(51.2vw,240px);aspect-ratio:1;border:0;padding:0;background:transparent;cursor:pointer;
+  display:grid;place-items:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation
+}
+.ptb-reward-object:disabled{cursor:default}
+.ptb-reward-object-img{
+  position:relative;z-index:2;width:100%;height:100%;object-fit:contain;display:block;
+  filter:drop-shadow(0 0 16px rgba(69,186,255,.62)) drop-shadow(0 20px 28px rgba(0,0,0,.25));
+  animation:ptbRewardFloat 2.8s ease-in-out infinite;transform-origin:50% 58%;will-change:transform,filter,opacity
+}
+.ptb-reward-open[data-reward-type="bag"] .ptb-reward-object{width:min(48.8vw,226px);top:calc(44.5% - 15px)}
+.ptb-reward-open[data-reward-type="bag"] .ptb-reward-object-img{
+  filter:drop-shadow(0 0 15px rgba(255,199,69,.34)) drop-shadow(0 20px 28px rgba(0,0,0,.25))
+}
+.ptb-reward-open[data-reward-type="legendary"] .ptb-reward-object{width:min(54.4vw,256px);top:calc(43% - 15px)}
+.ptb-reward-open[data-reward-type="legendary"] .ptb-reward-object-img{
+  filter:drop-shadow(0 0 18px rgba(255,202,54,.65)) drop-shadow(0 0 32px rgba(202,68,255,.52)) drop-shadow(0 24px 30px rgba(0,0,0,.28))
+}
+.ptb-reward-aura{
+  position:absolute;z-index:1;left:50%;top:51%;width:78%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(74,203,255,.32),rgba(82,100,255,.12) 45%,transparent 72%);
+  filter:blur(7px);animation:ptbRewardAura 1.9s ease-in-out infinite
+}
+.ptb-reward-flash{
+  position:absolute;z-index:6;left:50%;top:43%;width:20px;height:20px;border-radius:50%;transform:translate(-50%,-50%) scale(.1);
+  background:#fff;opacity:0;pointer-events:none;box-shadow:0 0 80px 38px rgba(130,220,255,.72)
+}
+.ptb-reward-rays{
+  position:absolute;z-index:3;left:50%;top:43%;width:520px;height:520px;transform:translate(-50%,-50%) scale(.4);opacity:0;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.34) 0 3deg,transparent 3deg 18deg);
+  mask-image:radial-gradient(circle,#000 0 18%,rgba(0,0,0,.7) 35%,transparent 68%);
+  -webkit-mask-image:radial-gradient(circle,#000 0 18%,rgba(0,0,0,.7) 35%,transparent 68%)
+}
+.ptb-reward-open.is-tapping .ptb-reward-object-img{animation:ptbRewardTap .42s ease both}
+.ptb-reward-open.is-opening .ptb-reward-object-img{animation:ptbRewardOpen .62s cubic-bezier(.34,.05,.2,1) both}
+.ptb-reward-open.is-opening .ptb-reward-aura{animation:ptbRewardAuraOpen .62s ease-out both}
+.ptb-reward-open.is-opening .ptb-reward-flash{animation:ptbRewardOpenFlash .68s ease-out both}
+.ptb-reward-open.is-opening .ptb-reward-rays{animation:ptbRewardRays .86s ease-out both}
+.ptb-reward-result{
+  position:absolute;z-index:7;left:50%;top:calc(43% - 30px);transform:translate(-50%,-50%) scale(.72);opacity:0;pointer-events:none;
+  width:min(72vw,330px);display:grid;place-items:center
+}
+.ptb-reward-open.is-revealed .ptb-reward-result{animation:ptbRewardReveal .58s cubic-bezier(.17,.86,.24,1.2) forwards;pointer-events:auto}
+.ptb-reward-result-card{display:grid;place-items:center;text-align:center;gap:11px;filter:drop-shadow(0 18px 24px rgba(0,0,0,.27))}
+.ptb-reward-result-card>img{width:min(42vw,185px);height:min(42vw,185px);object-fit:contain}
+.ptb-reward-result-card strong{
+  color:#fff;font-size:clamp(2rem,9vw,3.3rem);line-height:1;font-weight:1000;letter-spacing:-.045em;
+  text-shadow:0 4px 10px rgba(0,0,0,.42),0 0 18px rgba(98,204,255,.54)
+}
+.ptb-reward-result-card.is-coins strong{color:#ffe06b;text-shadow:0 4px 10px rgba(0,0,0,.42),0 0 20px rgba(255,180,31,.68)}
+.ptb-reward-result-card.is-gems strong{color:#dffcff;text-shadow:0 4px 10px rgba(0,0,0,.42),0 0 20px rgba(66,218,255,.76)}
+.ptb-reward-item-frame{
+  width:min(48vw,205px);height:min(48vw,205px);display:grid;place-items:center;border-radius:30px;padding:18px;
+  background:linear-gradient(145deg,rgba(48,96,221,.45),rgba(109,44,193,.5));border:2px solid rgba(171,208,255,.74);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 0 26px rgba(113,116,255,.48)
+}
+.ptb-reward-item-frame img{width:100%;height:100%;object-fit:contain}
+.ptb-reward-result-card.is-item strong{font-size:clamp(1.35rem,6vw,2rem)}
+.ptb-reward-result-card.rarity-rare .ptb-reward-item-frame{box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 0 28px rgba(64,193,255,.7)}
+.ptb-reward-result-card.rarity-epique .ptb-reward-item-frame{border-color:#c684ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 0 30px rgba(178,84,255,.72)}
+.ptb-reward-result-card.rarity-ultra .ptb-reward-item-frame{border-color:#ffd35a;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 0 34px rgba(255,193,50,.8)}
+@keyframes ptbRewardFloat{0%,100%{transform:translateY(-5px) rotate(-1deg)}50%{transform:translateY(7px) rotate(1deg)}}
+@keyframes ptbRewardAura{0%,100%{transform:translate(-50%,-50%) scale(.92);opacity:.65}50%{transform:translate(-50%,-50%) scale(1.08);opacity:1}}
+@keyframes ptbRewardTap{0%{transform:scale(1)}35%{transform:scale(.91) rotate(-3deg)}70%{transform:scale(1.06) rotate(2deg)}100%{transform:scale(1)}}
+@keyframes ptbRewardOpen{0%{transform:scale(1);opacity:1}35%{transform:scale(.78) rotate(-6deg);opacity:1}58%{transform:scale(1.18) rotate(4deg);filter:brightness(2.6) drop-shadow(0 0 40px #fff)}100%{transform:scale(.2);opacity:0;filter:brightness(4)}}
+@keyframes ptbRewardAuraOpen{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.7)}}
+@keyframes ptbRewardOpenFlash{0%{opacity:0;transform:translate(-50%,-50%) scale(.1)}48%{opacity:1;transform:translate(-50%,-50%) scale(3.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(10)}}
+@keyframes ptbRewardRays{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(0)}40%{opacity:.78}100%{opacity:0;transform:translate(-50%,-50%) scale(1.35) rotate(38deg)}}
+@keyframes ptbRewardReveal{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@media(max-height:720px){
+  .ptb-reward-object{top:calc(45% - 15px);width:min(45.6vw,216px)}
+  .ptb-reward-result{top:calc(45% - 30px)}
+  .ptb-reward-flash,.ptb-reward-rays{top:45%}
+  .ptb-reward-open[data-reward-type="bag"] .ptb-reward-object{width:min(43vw,210px);top:calc(46% - 15px)}
+  .ptb-reward-open[data-reward-type="legendary"] .ptb-reward-object{width:min(50.4vw,240px);top:calc(45% - 15px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .ptb-reward-object-img,.ptb-reward-aura{animation:none!important}
+  .ptb-reward-open.is-revealed .ptb-reward-result{animation:none;opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+
+/* Coffre normal — version simple 2 images */
+.ptb-star-simple{
+  position:absolute;inset:0;z-index:2;display:none;pointer-events:none;
+  transform-origin:50% 68%;will-change:transform
+}
+.ptb-reward-open[data-reward-type="star"] .ptb-star-simple{display:block}
+.ptb-reward-open[data-reward-type="star"] .ptb-reward-object-img,
+.ptb-reward-open[data-reward-type="star"] .ptb-reward-aura{display:none}
+
+.ptb-star-simple-frame,.ptb-star-fx{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;
+  pointer-events:none;will-change:opacity,transform,filter
+}
+.ptb-star-simple-frame{
+  z-index:3;
+  filter:drop-shadow(0 15px 19px rgba(0,0,0,.25)) drop-shadow(0 0 12px rgba(80,178,255,.18));
+  transition:opacity .14s ease,transform .22s ease,filter .22s ease
+}
+.ptb-star-simple-closed{opacity:1;transform:scale(.985)}
+.ptb-star-simple-open{opacity:0;transform:scale(.975)}
+.ptb-star-fx{opacity:0;mix-blend-mode:screen}
+.ptb-star-fx-glow{z-index:1;transform:translateY(18%) scale(.9);animation:ptbStarSimpleGlow 2.2s ease-in-out infinite}
+.ptb-star-fx-rays{z-index:2;transform:translateY(-3%) scale(.78)}
+.ptb-star-fx-particles{z-index:5;transform:scale(.8)}
+.ptb-star-fx-flash{z-index:6;transform:scale(.3)}
+
+.ptb-reward-open[data-star-phase="idle"] .ptb-star-simple{
+  animation:ptbStarSimpleIdle 2.8s ease-in-out infinite
+}
+.ptb-reward-open[data-star-phase="idle"] .ptb-star-fx-glow{opacity:.16}
+.ptb-reward-open[data-star-phase="press"] .ptb-star-simple{
+  animation:ptbStarSimplePress .26s ease both
+}
+.ptb-reward-open[data-star-phase="press"] .ptb-star-fx-glow{opacity:.3}
+
+.ptb-reward-open[data-star-phase="opened"] .ptb-star-simple-closed,
+.ptb-reward-open[data-star-phase="reward"] .ptb-star-simple-closed,
+.ptb-reward-open[data-star-phase="settled"] .ptb-star-simple-closed{
+  opacity:0;transform:scale(.97)
+}
+.ptb-reward-open[data-star-phase="opened"] .ptb-star-simple-open,
+.ptb-reward-open[data-star-phase="reward"] .ptb-star-simple-open,
+.ptb-reward-open[data-star-phase="settled"] .ptb-star-simple-open{
+  opacity:1;transform:scale(1)
+}
+.ptb-reward-open[data-star-phase="opened"] .ptb-star-fx-glow,
+.ptb-reward-open[data-star-phase="reward"] .ptb-star-fx-glow{
+  opacity:.62;transform:translateY(18%) scale(1.12)
+}
+.ptb-reward-open[data-star-phase="opened"] .ptb-star-fx-rays,
+.ptb-reward-open[data-star-phase="reward"] .ptb-star-fx-rays{
+  opacity:.48;transform:translateY(-3%) scale(1)
+}
+.ptb-reward-open[data-star-phase="opened"] .ptb-star-fx-particles,
+.ptb-reward-open[data-star-phase="reward"] .ptb-star-fx-particles{
+  opacity:.72;animation:ptbStarSimpleParticles 1.25s ease-out both
+}
+.ptb-reward-open.is-star-flashing .ptb-star-fx-flash{
+  opacity:.92;animation:ptbStarSimpleFlash .46s ease-out both
+}
+.ptb-reward-open[data-star-phase="reward"] .ptb-star-simple-open,
+.ptb-reward-open[data-star-phase="settled"] .ptb-star-simple-open{
+  filter:brightness(.92) saturate(.97) drop-shadow(0 15px 19px rgba(0,0,0,.24))
+}
+.ptb-reward-open[data-star-phase="settled"] .ptb-star-fx-glow{opacity:.28;transform:translateY(18%) scale(1.02)}
+.ptb-reward-open[data-star-phase="settled"] .ptb-star-fx-rays{opacity:.12}
+.ptb-reward-open[data-star-phase="settled"] .ptb-star-fx-particles{opacity:.08;transition:opacity .4s ease}
+
+.ptb-reward-open[data-reward-type="star"] .ptb-reward-result{
+  top:calc(31.5% - 30px);z-index:10;width:min(46vw,210px)
+}
+.ptb-reward-open[data-reward-type="star"] .ptb-reward-result-card>img{
+  width:min(27vw,118px);height:min(27vw,118px)
+}
+.ptb-reward-open[data-reward-type="star"] .ptb-reward-result-card strong{
+  font-size:clamp(1.5rem,6.2vw,2.25rem)
+}
+.ptb-reward-open[data-reward-type="star"] .ptb-reward-item-frame{
+  width:min(32vw,140px);height:min(32vw,140px);padding:12px;border-radius:22px
+}
+.ptb-reward-open[data-reward-type="star"].is-revealed .ptb-reward-result{
+  animation:ptbStarSimpleReward .62s cubic-bezier(.16,.9,.22,1.15) forwards
+}
+.ptb-reward-open.is-resetting .ptb-reward-result{
+  opacity:0!important;transform:translate(-50%,-34%) scale(.9)!important;transition:opacity .16s ease,transform .16s ease
+}
+.ptb-reward-open.is-resetting .ptb-star-simple{
+  opacity:.74;transform:scale(.97)!important;transition:opacity .16s ease,transform .16s ease
+}
+
+@keyframes ptbStarSimpleIdle{
+  0%,100%{transform:translateY(-3px) rotate(-.25deg)}
+  50%{transform:translateY(5px) rotate(.25deg)}
+}
+@keyframes ptbStarSimpleGlow{
+  0%,100%{transform:translateY(18%) scale(.9)}
+  50%{transform:translateY(18%) scale(1)}
+}
+@keyframes ptbStarSimplePress{
+  0%{transform:scale(1)}
+  40%{transform:scale(.95) translateY(2px)}
+  72%{transform:scale(1.025) translateY(-2px)}
+  100%{transform:scale(1)}
+}
+@keyframes ptbStarSimpleParticles{
+  0%{opacity:0;transform:scale(.72) rotate(-5deg)}
+  42%{opacity:.82;transform:scale(1.05) rotate(1deg)}
+  100%{opacity:.68;transform:scale(1.01) rotate(4deg)}
+}
+@keyframes ptbStarSimpleFlash{
+  0%{opacity:0;transform:scale(.14)}
+  36%{opacity:.95;transform:scale(.62)}
+  100%{opacity:0;transform:scale(1.18)}
+}
+@keyframes ptbStarSimpleReward{
+  0%{opacity:0;transform:translate(-50%,58%) scale(.48)}
+  62%{opacity:1;transform:translate(-50%,-56%) scale(1.025)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+
+@media(max-height:720px){
+  .ptb-reward-open[data-reward-type="star"] .ptb-reward-result{top:calc(32.5% - 30px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .ptb-star-simple,.ptb-star-fx{animation:none!important}
+}
+
+
+/* Coffre légendaire — même logique simple fermé/ouvert que le coffre normal */
+.ptb-legendary-simple{
+  position:absolute;inset:0;z-index:2;display:none;pointer-events:none;
+  transform-origin:50% 68%;will-change:transform
+}
+.ptb-reward-open[data-reward-type="legendary"] .ptb-legendary-simple{display:block}
+.ptb-reward-open[data-reward-type="legendary"] .ptb-reward-object-img,
+.ptb-reward-open[data-reward-type="legendary"] .ptb-reward-aura{display:none}
+
+.ptb-legendary-simple-frame{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;
+  pointer-events:none;z-index:3;will-change:opacity,transform,filter;
+  filter:drop-shadow(0 16px 21px rgba(0,0,0,.27))
+         drop-shadow(0 0 18px rgba(255,204,65,.34))
+         drop-shadow(0 0 28px rgba(201,82,255,.28));
+  transition:opacity .14s ease,transform .22s ease,filter .22s ease
+}
+.ptb-legendary-simple-closed{opacity:1;transform:scale(.985)}
+.ptb-legendary-simple-open{opacity:0;transform:scale(.975)}
+
+.ptb-reward-open[data-reward-type="legendary"][data-star-phase="idle"] .ptb-legendary-simple{
+  animation:ptbStarSimpleIdle 2.8s ease-in-out infinite
+}
+.ptb-reward-open[data-reward-type="legendary"][data-star-phase="press"] .ptb-legendary-simple{
+  animation:ptbStarSimplePress .26s ease both
+}
+
+.ptb-reward-open[data-reward-type="legendary"][data-star-phase="opened"] .ptb-legendary-simple-closed,
+.ptb-reward-open[data-reward-type="legendary"][data-star-phase="reward"] .ptb-legendary-simple-closed,
+.ptb-reward-open[data-reward-type="legendary"][data-star-phase="settled"] .ptb-legendary-simple-closed{
+  opacity:0;transform:scale(.97)
+}
+.ptb-reward-open[data-reward-type="legendary"][data-star-phase="opened"] .ptb-legendary-simple-open,
+.ptb-reward-open[data-reward-type="legendary"][data-star-phase="reward"] .ptb-legendary-simple-open,
+.ptb-reward-open[data-reward-type="legendary"][data-star-phase="settled"] .ptb-legendary-simple-open{
+  opacity:1;transform:scale(1)
+}
+.ptb-reward-open[data-reward-type="legendary"][data-star-phase="reward"] .ptb-legendary-simple-open,
+.ptb-reward-open[data-reward-type="legendary"][data-star-phase="settled"] .ptb-legendary-simple-open{
+  filter:brightness(.94) saturate(.98)
+         drop-shadow(0 16px 21px rgba(0,0,0,.25))
+         drop-shadow(0 0 17px rgba(255,205,73,.3))
+}
+.ptb-reward-open[data-reward-type="legendary"] .ptb-reward-result{
+  top:calc(31.5% - 30px);z-index:10;width:min(46vw,210px)
+}
+.ptb-reward-open[data-reward-type="legendary"] .ptb-reward-result-card>img{
+  width:min(27vw,118px);height:min(27vw,118px)
+}
+.ptb-reward-open[data-reward-type="legendary"] .ptb-reward-result-card strong{
+  font-size:clamp(1.5rem,6.2vw,2.25rem)
+}
+.ptb-reward-open[data-reward-type="legendary"] .ptb-reward-item-frame{
+  width:min(32vw,140px);height:min(32vw,140px);padding:12px;border-radius:22px
+}
+.ptb-reward-open[data-reward-type="legendary"].is-revealed .ptb-reward-result{
+  animation:ptbStarSimpleReward .62s cubic-bezier(.16,.9,.22,1.15) forwards
+}
+.ptb-reward-open.is-resetting .ptb-legendary-simple{
+  opacity:.74;transform:scale(.97)!important;transition:opacity .16s ease,transform .16s ease
+}
+
+@media(max-height:720px){
+  .ptb-reward-open[data-reward-type="legendary"] .ptb-reward-result{top:calc(32.5% - 30px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .ptb-legendary-simple{animation:none!important}
+}
+
+
+/* V12 — récompenses sans cadre */
+.ptb-reward-item-frame,
+.ptb-reward-result-card.rarity-rare .ptb-reward-item-frame,
+.ptb-reward-result-card.rarity-epique .ptb-reward-item-frame,
+.ptb-reward-result-card.rarity-ultra .ptb-reward-item-frame{
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  padding:0!important;
+}
+.ptb-reward-item-frame img{
+  filter:drop-shadow(0 14px 18px rgba(0,0,0,.24));
+}
+.ptb-reward-open.is-revealed{
+  cursor:pointer;
+}
+
+
+/* V13 — affichage final uniforme des récompenses */
+.ptb-reward-open.is-revealed .ptb-reward-object{
+  opacity:0!important;
+  transform:translate(-50%,-50%) scale(.84)!important;
+  pointer-events:none!important;
+  transition:opacity .18s ease,transform .18s ease!important;
+}
+
+/* Même position finale pour Sac / coffre normal / coffre légendaire */
+.ptb-reward-open .ptb-reward-result,
+.ptb-reward-open[data-reward-type="star"] .ptb-reward-result,
+.ptb-reward-open[data-reward-type="legendary"] .ptb-reward-result{
+  top:calc(43% - 30px)!important;
+  width:min(72vw,330px)!important;
+}
+
+/* Même taille visuelle pour pièces / gemmes / objets */
+.ptb-reward-result-card{
+  width:min(38vw,160px);
+  display:grid;
+  justify-items:center;
+}
+.ptb-reward-result-card>img,
+.ptb-reward-item-frame{
+  width:min(33vw,140px)!important;
+  height:min(33vw,140px)!important;
+  box-sizing:border-box;
+}
+.ptb-reward-item-frame img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+}
+
+/* Le texte reste sous le visuel et ne change pas la taille de l'icône */
+.ptb-reward-result-card strong,
+.ptb-reward-open[data-reward-type="star"] .ptb-reward-result-card strong,
+.ptb-reward-open[data-reward-type="legendary"] .ptb-reward-result-card strong{
+  font-size:clamp(1.5rem,6.2vw,2.25rem)!important;
+}
+
+@media(max-height:720px){
+  .ptb-reward-open .ptb-reward-result,
+  .ptb-reward-open[data-reward-type="star"] .ptb-reward-result,
+  .ptb-reward-open[data-reward-type="legendary"] .ptb-reward-result{
+    top:calc(45% - 30px)!important;
+  }
+}

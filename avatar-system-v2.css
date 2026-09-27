@@ -1,0 +1,847 @@
+/* =========================================================
+   P'tit Bac — Avatar & cosmetic system V2
+   Source canonique des avatars, cadres et inventaire cosmétique.
+   ========================================================= */
+
+.home-plaque-avatar {
+  width:54px !important;height:54px !important;min-width:54px !important;min-height:54px !important;flex:0 0 54px !important;
+  position:relative !important;display:grid !important;place-items:center !important;overflow:hidden !important;
+  border:1.5px solid #9b55ff !important;border-radius:11px !important;
+  background:linear-gradient(145deg,rgba(26,22,78,.96),rgba(9,23,66,.98)) !important;
+  box-shadow:0 0 7px rgba(158,76,255,.72),0 0 18px rgba(118,58,255,.24),inset 0 0 8px rgba(139,73,255,.10) !important;
+}
+.home-plaque-avatar > span {width:88% !important;height:88% !important;display:grid !important;place-items:center !important;margin:0 !important;padding:0 !important;background:transparent !important;line-height:1 !important;}
+.home-plaque-avatar > i {display:none !important;}
+
+.friends-v2-avatar,.friends-v3-avatar,.chat-list-avatar,.chat-header-avatar,.lobby-v5-avatar,.lobby-v5-host-avatar,.lobby-v5-profile-avatar {display:grid !important;place-items:center !important;}
+.friends-v2-avatar > span,.friends-v3-avatar > span,.chat-list-avatar > span,.chat-header-avatar > span,.lobby-v5-avatar > span,.lobby-v5-host-avatar > span,.lobby-v5-profile-avatar > span {display:grid !important;place-items:center !important;width:100% !important;height:100% !important;margin:0 !important;line-height:1 !important;}
+
+.hm-avatar > img,.profile-v10-avatar-visual > img,.profile-avatar-choice > img,.friends-v2-avatar > img,.friends-v3-avatar > img,.chat-list-avatar > img,.chat-header-avatar > img,.lobby-v5-avatar > img,.lobby-v5-host-avatar > img,.lobby-v5-profile-avatar > img,.lobby-v5-invite-friend-avatar > img,.pl-avatar > img,.ptb-avatar-photo > img {
+  width:100% !important;height:100% !important;display:block;object-fit:cover !important;object-position:center center !important;margin:0 !important;padding:0 !important;
+}
+.hm-avatar > img {border-radius:8px;}
+.profile-v10-avatar-visual > img {border-radius:22px;}
+.profile-avatar-choice {overflow:hidden;}
+.profile-avatar-choice > img {border-radius:14px;}
+.friends-v2-avatar > img,.friends-v3-avatar > img,.chat-list-avatar > img,.chat-header-avatar > img,.lobby-v5-avatar > img,.lobby-v5-host-avatar > img,.lobby-v5-profile-avatar > img,.lobby-v5-invite-friend-avatar > img,.pl-avatar > img,.ptb-avatar-photo > img {border-radius:inherit;}
+
+.lobby-v5-avatar,.lobby-v5-host-avatar,.lobby-v5-profile-avatar,.lobby-v5-invite-friend-avatar,.pl-avatar,.ptb-avatar-photo {
+  position:relative !important;overflow:hidden !important;display:grid !important;place-items:center !important;padding:0 !important;box-sizing:border-box !important;line-height:1 !important;flex-shrink:0 !important;
+}
+.lobby-v5-avatar,.lobby-v5-host-avatar,.lobby-v5-profile-avatar {width:58px !important;height:58px !important;min-width:58px !important;min-height:58px !important;}
+.lobby-v5-avatar > span,.lobby-v5-host-avatar > span,.lobby-v5-profile-avatar > span,.lobby-v5-invite-friend-avatar > span,.pl-avatar > span,.ptb-avatar-photo > span {width:100% !important;height:100% !important;display:grid !important;place-items:center !important;margin:0 !important;padding:0 !important;line-height:1 !important;}
+.quick-lobby-v1 .lobby-v5-avatar {width:44px !important;height:44px !important;min-width:44px !important;min-height:44px !important;align-self:center !important;justify-self:start !important;}
+.quick-lobby-v1 .lobby-v5-avatar > img {width:100% !important;height:100% !important;}
+
+@media (max-height:680px) {
+  .home-plaque-avatar {width:50px !important;height:50px !important;min-width:50px !important;min-height:50px !important;flex-basis:50px !important;}
+}
+@media (max-width:390px) {
+  .lobby-v5-avatar,.lobby-v5-host-avatar,.lobby-v5-profile-avatar {width:54px !important;height:54px !important;min-width:54px !important;min-height:54px !important;}
+  .quick-lobby-v1 .lobby-v5-avatar {width:42px !important;height:42px !important;min-width:42px !important;min-height:42px !important;}
+}
+@media (max-width:370px) {.profile-v10-avatar-visual > img {border-radius:19px;}}
+
+/* ---------- Avatars de jeu ---------- */
+.ptb-base-avatar {overflow:hidden !important;display:grid !important;place-items:center !important;}
+.ptb-base-avatar > img,.avatar-emoji.ptb-base-avatar > img,.wsv1-avatar.ptb-base-avatar > img,.res-avatar.ptb-base-avatar > img,.fin-avatar.ptb-base-avatar > img,.lobby-v5-avatar.ptb-base-avatar > img,.pl-avatar.ptb-base-avatar > img {
+  width:100% !important;height:100% !important;max-width:100% !important;max-height:100% !important;display:block !important;object-fit:cover !important;object-position:center center !important;margin:0 !important;padding:0 !important;
+}
+.wsv1-player .wsv1-avatar.ptb-base-avatar {border-radius:10px !important;}
+.wsv1-player .wsv1-avatar.ptb-base-avatar > img {border-radius:7px !important;}
+.results-screen .res-avatar {border-radius:9px !important;}
+.results-screen .res-avatar > img {border-radius:6px !important;}
+.final-mobile .fin-avatar {border-radius:11px !important;}
+.final-mobile .fin-avatar > img {border-radius:8px !important;}
+.final-mobile .fin-podium-card > .fin-avatar {width:60px !important;height:60px !important;flex-basis:60px !important;border-radius:14px !important;border-width:3px !important;}
+.final-mobile .fin-podium-card > .fin-avatar > img {border-radius:10px !important;}
+
+.letter-prototype .pbw1-chooser .pbw1-lightning.pbw1-chooser-avatar {width:42px !important;height:42px !important;flex:0 0 42px !important;padding:0 !important;border:2px solid #a94fff !important;border-radius:11px !important;overflow:hidden !important;background:#0a1d50 !important;box-shadow:0 0 10px rgba(167,72,255,.3) !important;}
+.letter-prototype .pbw1-chooser .pbw1-lightning.pbw1-chooser-avatar > img {width:100% !important;height:100% !important;display:block !important;object-fit:cover !important;object-position:center center !important;border-radius:8px !important;}
+@media (max-width:370px) {
+  .final-mobile .fin-podium-card > .fin-avatar {width:50px !important;height:50px !important;flex-basis:50px !important;}
+  .letter-prototype .pbw1-chooser .pbw1-lightning.pbw1-chooser-avatar {width:38px !important;height:38px !important;flex-basis:38px !important;}
+}
+
+/* =========================================================
+   INVENTAIRE V2 — page plein écran
+   ========================================================= */
+html:has(.inventory-v2-page),body:has(.inventory-v2-page) {width:100%;min-height:100%;margin:0;background:#070d35;overflow:hidden;}
+body:has(.inventory-v2-page) #app {width:100%;max-width:none;min-height:100%;margin:0;padding:0;display:block;}
+body:has(.inventory-v2-page) .economy-hud {display:none !important;}
+.inventory-v2-page,.inventory-v2-page *,.inventory-v2-page *::before,.inventory-v2-page *::after {box-sizing:border-box;}
+.inventory-v2-page {
+  --inv2-card:rgba(14,24,69,.9);--inv2-line:rgba(120,79,229,.46);--inv2-purple:#9d4dff;--inv2-text:#fff;--inv2-muted:#aaa0d0;
+  position:relative;width:min(100%,480px);height:100svh;min-height:100svh;margin:0 auto;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;
+  display:flex;flex-direction:column;
+  padding:max(10px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));
+  color:var(--inv2-text);font-family:"DM Sans",system-ui,sans-serif;
+  background:radial-gradient(circle at 2% 5%,rgba(113,45,238,.30),transparent 24%),radial-gradient(circle at 98% 38%,rgba(45,82,220,.18),transparent 32%),radial-gradient(circle at 40% 100%,rgba(111,37,231,.22),transparent 28%),linear-gradient(180deg,#090d3c 0%,#07113a 48%,#070c31 100%);
+}
+.inventory-v2-page::-webkit-scrollbar {display:none;}
+.inventory-v2-page::before {content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;background-image:radial-gradient(circle at 12% 16%,#895cff 0 1px,transparent 1.6px),radial-gradient(circle at 82% 9%,#623fff 0 1px,transparent 1.5px);background-size:110px 130px,145px 160px;}
+.inventory-v2-page button {font:inherit;color:inherit;-webkit-tap-highlight-color:transparent;}
+.inventory-v2-page button:focus-visible {outline:2px solid #e8c6ff;outline-offset:3px;}
+
+.inventory-v2-header {position:relative;z-index:3;min-height:68px;display:grid;grid-template-columns:40px minmax(0,1fr) 40px;align-items:center;gap:8px;padding:2px 1px 7px;}
+.inventory-v2-back {width:38px;height:38px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;display:grid;place-items:center;cursor:pointer;}
+.inventory-v2-back img {width:30px;height:30px;object-fit:contain;}
+.inventory-v2-title {min-width:0;text-align:center;}
+.inventory-v2-title h1 {margin:0;font-size:1.58rem;line-height:1.05;font-weight:900;letter-spacing:-.035em;}
+.inventory-v2-title p {margin:3px 0 0;color:#b8a9e4;font-size:.72rem;font-weight:700;}
+.inventory-v2-header-crown {justify-self:end;color:rgba(119,73,230,.30);font-size:2.35rem;line-height:1;transform:rotate(9deg);}
+
+.inventory-v2-content {position:relative;z-index:2;display:grid;gap:9px;flex:0 0 auto;}
+.inventory-v2-preview,.inventory-v2-section {border:1.2px solid var(--inv2-line);background:linear-gradient(145deg,rgba(22,31,84,.92),rgba(9,19,59,.93));box-shadow:inset 0 0 18px rgba(116,69,231,.05),0 8px 24px rgba(0,0,0,.12);}
+.inventory-v2-preview {min-height:116px;padding:12px 14px;display:grid;grid-template-columns:88px minmax(0,1fr) 62px;align-items:center;gap:11px;border-radius:20px;overflow:hidden;position:relative;}
+.inventory-v2-preview.is-minimal {grid-template-columns:88px minmax(0,1fr);}
+.inventory-v2-preview::after {content:"♛";position:absolute;right:26px;top:-8px;color:rgba(115,74,226,.08);font-size:4.2rem;transform:rotate(-9deg);pointer-events:none;}
+.inventory-v2-preview-avatar {position:relative;z-index:2;width:84px;height:84px;display:grid;place-items:center;overflow:visible;}
+.inventory-v2-preview-avatar > img {width:80px;height:80px;display:block;object-fit:cover;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.32),0 0 14px rgba(128,62,255,.18);}
+.inventory-v2-preview-copy {position:relative;z-index:2;min-width:0;display:flex;flex-direction:column;align-items:flex-start;}
+.inventory-v2-preview-copy > small {color:#aaa0d2;font-size:.62rem;font-weight:900;letter-spacing:.09em;white-space:nowrap;}
+.inventory-v2-preview-copy > strong {max-width:100%;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:1.34rem;line-height:1.04;font-weight:900;}
+.inv-tag.inv-tag-preview {min-height:25px;margin-top:6px;padding:4px 9px;gap:5px;border-radius:9px;font-size:.60rem;}
+
+.inventory-v2-frame-preview {position:relative;z-index:2;align-self:center;display:grid;justify-items:center;gap:5px;min-width:0;}
+.inventory-v2-frame-preview > span {position:relative;width:54px;height:54px;display:grid;place-items:center;border:1.2px solid rgba(99,87,168,.52);border-radius:13px;background:rgba(10,19,58,.68);}
+.inventory-v2-frame-preview > span > img {width:42px;height:42px;object-fit:cover;border-radius:9px;}
+.inventory-v2-frame-preview.is-empty > span {border:2px dashed rgba(113,110,177,.72);}
+.inventory-v2-frame-preview.is-empty > span i {width:31px;height:2px;border-radius:999px;background:#7775a4;transform:rotate(-43deg);}
+.inventory-v2-frame-preview small {max-width:75px;color:#a49ac8;font-size:.55rem;font-weight:700;text-align:center;white-space:nowrap;}
+
+.inventory-v2-section {padding:10px 11px 11px;border-radius:18px;}
+.inventory-v2-section-head {display:grid;grid-template-columns:minmax(0,1fr) auto 14px;align-items:center;gap:8px;margin-bottom:8px;}
+.inventory-v2-section-head > div {min-width:0;}
+.inventory-v2-section-head h2 {margin:0;font-size:.96rem;line-height:1.05;font-weight:900;letter-spacing:-.02em;}
+.inventory-v2-section-head p {margin:2px 0 0;color:#a99dd2;font-size:.60rem;font-weight:700;white-space:nowrap;}
+.inventory-v2-section-head > small {color:#a99dcc;font-size:.60rem;font-weight:800;white-space:nowrap;}
+.inventory-v2-chevron {color:#b179ff;font-size:1.5rem;line-height:1;transform:translateY(-1px);}
+
+.inventory-v2-avatar-grid {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;}
+.inventory-v2-avatar-choice {position:relative;width:100%;aspect-ratio:1;padding:0;border:2px solid #6845de;border-radius:15px;background:#15194d;overflow:visible;cursor:pointer;box-shadow:0 4px 11px rgba(0,0,0,.18);}
+.inventory-v2-avatar-choice > img {width:100%;height:100%;display:block;object-fit:cover;border-radius:12px;}
+.inventory-v2-avatar-choice.is-selected {border-color:#d160ff;box-shadow:0 0 0 2px rgba(145,68,255,.22),0 0 17px rgba(194,69,255,.42);}
+.inventory-v2-check {position:absolute;z-index:8;right:-7px;top:-7px;width:27px;height:27px;display:none;place-items:center;border:2.5px solid #111442;border-radius:50%;background:linear-gradient(180deg,#a345ff,#7130df);color:#fff;font-size:.85rem;font-weight:1000;font-style:normal;box-shadow:0 0 12px rgba(163,68,255,.65);pointer-events:none;}
+.is-selected > .inventory-v2-check {display:grid;}
+
+.inventory-v2-frame-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;}
+.inventory-v2-frame-choice {position:relative;min-width:0;min-height:78px;padding:6px 5px;border:1.4px solid rgba(88,86,160,.62);border-radius:13px;background:linear-gradient(180deg,#141b4a,#10173e);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;}
+.inventory-v2-frame-choice strong {max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.60rem;font-weight:900;}
+.inventory-v2-frame-choice.is-selected {border-color:#c055ff;box-shadow:0 0 16px rgba(164,65,255,.28),inset 0 0 13px rgba(136,67,255,.08);}
+.inventory-v2-frame-swatch {position:relative;width:48px;height:48px;display:grid;place-items:center;overflow:visible;}
+.inventory-v2-frame-swatch > img {width:40px;height:40px;object-fit:cover;border-radius:9px;}
+.inventory-v2-frame-choice.is-empty .inventory-v2-frame-swatch {border:2px dashed rgba(116,112,177,.74);border-radius:14px;overflow:hidden;}
+.inventory-v2-frame-choice.is-empty .inventory-v2-frame-swatch i {width:23px;height:2px;border-radius:999px;background:#7c79a7;transform:rotate(-43deg);}
+
+.inventory-v2-tag-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.inventory-v2-tag-choice {position:relative;min-height:40px;padding:7px 11px;border:1.4px solid #555397;border-radius:12px;background:linear-gradient(180deg,#1b2558,#141c4a);display:flex;align-items:center;justify-content:center;gap:7px;color:#ddd8ef;font-size:.76rem;font-weight:800;cursor:pointer;}
+.inventory-v2-tag-choice strong {font:inherit;}
+.inventory-v2-tag-choice.is-selected {border-color:#c052ff;background:linear-gradient(110deg,#6b28d8,#9c32ed);box-shadow:0 0 16px rgba(169,54,255,.27);color:#fff;}
+.inventory-v2-tag-choice .inventory-v2-check {right:-7px;top:-10px;}
+
+.inventory-v2-footer {position:relative;z-index:5;margin-top:auto;padding:9px 24px max(2px,env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(7,12,49,0),rgba(7,12,49,.94) 30%);}
+.inventory-v2-save {width:100%;min-height:46px;padding:8px 18px;border:2px solid #cd61ff;border-radius:15px;background:linear-gradient(100deg,#a53cff,#642dff);box-shadow:0 0 16px rgba(159,53,255,.30),inset 0 0 9px rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;gap:9px;font-size:.88rem;font-weight:900;cursor:pointer;}
+.inventory-v2-save svg {width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.inventory-v2-save:disabled {opacity:.6;cursor:wait;}
+
+.inventory-v2-loading-page {display:grid;grid-template-rows:auto 1fr;}
+.inventory-v2-loading {position:relative;z-index:2;min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;color:#c6bae9;font-size:.82rem;text-align:center;}
+.inventory-v2-spinner {width:34px;height:34px;border:3px solid rgba(147,94,246,.22);border-top-color:#b757ff;border-radius:50%;animation:inventoryV2Spin .8s linear infinite;}
+@keyframes inventoryV2Spin {to {transform:rotate(360deg);}}
+
+/* ---------- Cadres et tags cosmétiques partagés ---------- */
+.inv-frame {
+  position:absolute !important;
+  z-index:5 !important;
+  inset:-15% !important;
+  display:block !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  pointer-events:none !important;
+  overflow:visible !important;
+}
+.inv-frame > .inv-frame-asset {
+  width:100% !important;
+  height:100% !important;
+  display:block !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  filter:none !important;
+  pointer-events:none !important;
+}
+.inv-frame-mini {inset:-18% !important;}
+.inv-frame-preview {inset:-17% !important;}
+
+.inv-tag {min-height:31px;margin-top:10px;padding:6px 12px;display:inline-flex;align-items:center;gap:7px;border:1.5px solid rgba(115,96,184,.6);border-radius:10px;background:#19194a;color:#fff;font-size:.72rem;font-weight:900;box-shadow:inset 0 0 12px rgba(120,72,230,.08);}
+.inv-tag-starter {border-color:#70839b;background:linear-gradient(180deg,#27314d,#1a2340);}
+.inv-tag-curious {border-color:#00a8ff;background:linear-gradient(180deg,#083d69,#142654);}
+.inv-tag-master {border-color:#b85dff;background:linear-gradient(180deg,#6625a8,#2a1a68);box-shadow:0 0 13px rgba(174,77,255,.24);}
+.inv-tag-champion {border-color:#f2a62d;background:linear-gradient(180deg,#6f3b10,#3b230e);}
+.inv-tag-legend {border-color:#c7c9d5;background:linear-gradient(180deg,#3c4154,#23283b);}
+
+/* ---------- Cadres équipés sur tous les écrans ---------- */
+/*
+ * Le cadre cosmétique devient l'unique bordure visuelle de l'avatar.
+ * Le conteneur reste le repère géométrique, sans bord/fond/ombre propre.
+ */
+.ptb-base-avatar.ptb-has-equipped-frame,
+.ptb-has-equipped-frame {
+  position:relative !important;
+  overflow:visible !important;
+  isolation:isolate !important;
+  display:grid !important;
+  place-items:center !important;
+  padding:0 !important;
+
+  border:0 !important;
+  outline:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+
+/* Retire explicitement les anciens cadres violets propres aux écrans. */
+.hm-avatar.ptb-has-equipped-frame,
+.profile-v10-avatar-visual.ptb-has-equipped-frame,
+.lobby-v5-avatar.ptb-has-equipped-frame,
+.lobby-v5-host-avatar.ptb-has-equipped-frame,
+.lobby-v5-profile-avatar.ptb-has-equipped-frame,
+.lobby-v5-invite-friend-avatar.ptb-has-equipped-frame,
+.pl-avatar.ptb-has-equipped-frame,
+.wsv1-avatar.ptb-has-equipped-frame,
+.res-avatar.ptb-has-equipped-frame,
+.fin-avatar.ptb-has-equipped-frame,
+.ptb-avatar-photo.ptb-has-equipped-frame,
+.cat-existing-chooser-avatar.ptb-has-equipped-frame,
+.pbw1-chooser-avatar.ptb-has-equipped-frame {
+  border:0 !important;
+  outline:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+
+/* Avatar carré sous le cadre. */
+.ptb-has-equipped-frame > img:not(.ptb-equipped-frame-overlay) {
+  position:relative !important;
+  z-index:1 !important;
+
+  width:84% !important;
+  height:84% !important;
+  max-width:84% !important;
+  max-height:84% !important;
+
+  margin:0 !important;
+  padding:0 !important;
+
+  object-fit:cover !important;
+  object-position:50% 50% !important;
+
+  border:0 !important;
+  outline:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  clip-path:none !important;
+
+  transform:none !important;
+}
+
+/*
+ * IMPORTANT :
+ * ne pas utiliser "inset" ici.
+ * left/top définissent le centre exact du conteneur avatar.
+ */
+.ptb-has-equipped-frame > .ptb-equipped-frame-overlay {
+  position:absolute !important;
+  z-index:7 !important;
+
+  left:50% !important;
+  top:50% !important;
+  right:auto !important;
+  bottom:auto !important;
+
+  width:138% !important;
+  height:138% !important;
+  max-width:none !important;
+  max-height:none !important;
+
+  margin:0 !important;
+  padding:0 !important;
+
+  border:0 !important;
+  outline:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+
+  object-fit:contain !important;
+  object-position:50% 50% !important;
+
+  transform:translate3d(-50%,-50%,0) !important;
+  transform-origin:50% 50% !important;
+
+  pointer-events:none !important;
+  box-sizing:border-box !important;
+}
+
+/*
+ * L'avatar de l'accueil est très proche du bord de l'écran :
+ * le cadre y est volontairement plus compact pour ne pas être rogné.
+ */
+.hm-avatar.ptb-has-equipped-frame > .ptb-equipped-frame-overlay {
+  width:122% !important;
+  height:122% !important;
+}
+
+/* Dans le header accueil, l'image remplit davantage le cadre. */
+.hm-avatar.ptb-has-equipped-frame > img:not(.ptb-equipped-frame-overlay) {
+  width:94% !important;
+  height:94% !important;
+  max-width:94% !important;
+  max-height:94% !important;
+  border-radius:0 !important;
+}
+
+/* Profil : l'avatar remplit presque entièrement l'intérieur du cadre. */
+.profile-v10-avatar-visual.ptb-has-equipped-frame > img:not(.ptb-equipped-frame-overlay) {
+  width:100% !important;
+  height:100% !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  border-radius:0 !important;
+}
+
+.profile-v10-avatar-visual.ptb-has-equipped-frame > .ptb-equipped-frame-overlay {
+  width:132% !important;
+  height:132% !important;
+}
+
+/*
+ * Choix des catégories :
+ * le CSS de l'écran possède un ancien cadre violet très spécifique.
+ * Ces règles le neutralisent uniquement lorsqu'un cadre cosmétique est équipé.
+ */
+html body .category-pick-screen.cat-v2
+.cat-existing-chooser-avatar.ptb-has-equipped-frame {
+  width:58px !important;
+  height:58px !important;
+  min-width:58px !important;
+  min-height:58px !important;
+  flex:0 0 58px !important;
+
+  padding:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+}
+
+html body .category-pick-screen.cat-v2
+.cat-existing-chooser-avatar.ptb-has-equipped-frame
+> img:not(.ptb-equipped-frame-overlay) {
+  width:92% !important;
+  height:92% !important;
+  max-width:92% !important;
+  max-height:92% !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+
+html body .category-pick-screen.cat-v2
+.cat-existing-chooser-avatar.ptb-has-equipped-frame
+> .ptb-equipped-frame-overlay {
+  width:128% !important;
+  height:128% !important;
+}
+
+/*
+ * Choix de la lettre :
+ * même traitement, avec un avatar plus grand que l'ancien carré violet.
+ */
+html body .letter-prototype .pbw1-chooser
+.pbw1-lightning.pbw1-chooser-avatar.ptb-has-equipped-frame {
+  width:54px !important;
+  height:54px !important;
+  min-width:54px !important;
+  min-height:54px !important;
+  flex:0 0 54px !important;
+
+  padding:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+}
+
+html body .letter-prototype .pbw1-chooser
+.pbw1-lightning.pbw1-chooser-avatar.ptb-has-equipped-frame
+> img:not(.ptb-equipped-frame-overlay) {
+  width:92% !important;
+  height:92% !important;
+  max-width:92% !important;
+  max-height:92% !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+
+html body .letter-prototype .pbw1-chooser
+.pbw1-lightning.pbw1-chooser-avatar.ptb-has-equipped-frame
+> .ptb-equipped-frame-overlay {
+  width:128% !important;
+  height:128% !important;
+}
+
+/* Attente : un cadre cosmétique remplace totalement le cadre violet natif. */
+html body .wsv1-screen .wsv1-player
+.wsv1-avatar.ptb-has-equipped-frame {
+  padding:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+}
+
+/* L'avatar devient carré et remplit tout son conteneur. */
+html body .wsv1-screen .wsv1-player
+.wsv1-avatar.ptb-has-equipped-frame
+> img:not(.ptb-equipped-frame-overlay) {
+  width:100% !important;
+  height:100% !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  border:0 !important;
+  outline:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+}
+
+/* Le cadre n'est plus rogné par le conteneur de l'écran d'attente. */
+html body .wsv1-screen .wsv1-player
+.wsv1-avatar.ptb-has-equipped-frame
+> .ptb-equipped-frame-overlay {
+  left:50% !important;
+  top:50% !important;
+  right:auto !important;
+  bottom:auto !important;
+  width:132% !important;
+  height:132% !important;
+  max-width:none !important;
+  max-height:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:translate3d(-50%,-50%,0) !important;
+  pointer-events:none !important;
+}
+
+@media (max-width:430px) {
+  .inventory-v2-page {width:100%;padding:6px 10px max(8px,env(safe-area-inset-bottom));}
+  .inventory-v2-header {grid-template-columns:36px minmax(0,1fr) 36px;min-height:58px;padding-bottom:5px;}
+  .inventory-v2-back {width:34px;height:34px;}
+  .inventory-v2-back img {width:28px;height:28px;}
+  .inventory-v2-title h1 {font-size:1.38rem;}
+  .inventory-v2-title p {margin-top:2px;font-size:.65rem;}
+  .inventory-v2-header-crown {font-size:2rem;}
+  .inventory-v2-content {gap:8px;}
+  .inventory-v2-preview {grid-template-columns:76px minmax(0,1fr) 52px;gap:9px;min-height:96px;padding:9px 11px;border-radius:17px;}
+  .inventory-v2-preview.is-minimal {grid-template-columns:76px minmax(0,1fr);}
+  .inventory-v2-preview-avatar {width:72px;height:72px;}
+  .inventory-v2-preview-avatar > img {width:68px;height:68px;border-radius:14px;}
+  .inventory-v2-preview-copy > small {font-size:.50rem;}
+  .inventory-v2-preview-copy > strong {font-size:1.12rem;}
+  .inv-tag.inv-tag-preview {min-height:22px;margin-top:4px;padding:3px 8px;font-size:.55rem;}
+  .inventory-v2-frame-preview > span {width:46px;height:46px;border-radius:11px;}
+  .inventory-v2-frame-preview > span > img {width:36px;height:36px;}
+  .inventory-v2-frame-preview small {font-size:.48rem;}
+  .inventory-v2-section {padding:8px 9px 9px;border-radius:16px;}
+  .inventory-v2-section-head {grid-template-columns:minmax(0,1fr) auto 11px;gap:6px;margin-bottom:6px;}
+  .inventory-v2-section-head h2 {font-size:.90rem;}
+  .inventory-v2-section-head p {font-size:.55rem;}
+  .inventory-v2-section-head > small {font-size:.54rem;}
+  .inventory-v2-chevron {font-size:1.3rem;}
+  .inventory-v2-avatar-grid {gap:5px;}
+  .inventory-v2-avatar-choice {border-radius:11px;}
+  .inventory-v2-avatar-choice > img {border-radius:8px;}
+  .inventory-v2-check {width:22px;height:22px;right:-5px;top:-6px;font-size:.70rem;border-width:2px;}
+  .inventory-v2-frame-grid {grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;}
+  .inventory-v2-frame-choice {min-height:68px;padding:5px 4px;gap:4px;}
+  .inventory-v2-frame-swatch {width:42px;height:42px;}
+  .inventory-v2-frame-swatch > img {width:35px;height:35px;}
+  .inventory-v2-frame-choice strong {font-size:.53rem;}
+  .inventory-v2-tag-grid {gap:7px;}
+  .inventory-v2-tag-choice {min-height:36px;padding:6px 9px;font-size:.69rem;}
+  .inventory-v2-footer {padding:7px 18px max(2px,env(safe-area-inset-bottom));}
+  .inventory-v2-save {min-height:42px;border-radius:14px;font-size:.82rem;}
+}
+
+@media (max-width:350px) {
+  .inventory-v2-preview {grid-template-columns:78px minmax(0,1fr) 54px;}
+  .inventory-v2-preview-avatar {width:74px;height:74px;}
+  .inventory-v2-preview-avatar > img {width:70px;height:70px;}
+  .inventory-v2-preview-copy > strong {font-size:1.05rem;}
+  .inventory-v2-frame-preview > span {width:50px;height:50px;}
+  .inventory-v2-frame-preview small {font-size:.47rem;}
+  .inventory-v2-section-head > small {display:none;}
+  .inventory-v2-section-head {grid-template-columns:minmax(0,1fr) 12px;}
+  .inventory-v2-avatar-grid {gap:4px;}
+  .inventory-v2-tag-grid {gap:7px;}
+}
+
+@media (prefers-reduced-motion:reduce) {.inventory-v2-spinner {animation:none;}}
+
+/* =========================================================
+   Bandeau Quêtes/Boutique — Inventaire
+   ========================================================= */
+.inventory-v2-header{
+  position:relative;
+  z-index:6;
+  min-height:58px;
+  grid-template-columns:42px minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+  margin-left:-16px;
+  margin-right:-26px;
+  padding:0 26px 0 16px;
+  background:linear-gradient(
+    90deg,
+    rgba(49,19,111,.98) 0%,
+    rgba(32,24,119,.97) 42%,
+    rgba(10,35,104,.96) 100%
+  );
+  box-shadow:
+    10px 0 0 rgba(10,35,104,.96),
+    inset 0 0 18px rgba(107,83,255,.14);
+  overflow:visible;
+}
+
+.inventory-v2-header::before,
+.inventory-v2-header::after{
+  content:"";
+  position:absolute;
+  left:-10px;
+  right:-10px;
+  height:1px;
+  background:rgba(195,58,255,.84);
+  box-shadow:0 0 12px rgba(210,54,255,.42);
+  pointer-events:none;
+  z-index:7;
+}
+
+.inventory-v2-header::before{top:0}
+.inventory-v2-header::after{bottom:0}
+
+.inventory-v2-back{
+  width:42px;
+  height:42px;
+}
+
+.inventory-v2-back img{
+  width:34px;
+  height:34px;
+  filter:drop-shadow(0 0 7px rgba(188,76,255,.55));
+}
+
+.inventory-v2-title{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:9px;
+  text-align:left;
+}
+
+.inventory-v2-title::before{
+  content:"";
+  flex:0 0 36px;
+  width:36px;
+  height:36px;
+  background:url("/inventaire.png") center/contain no-repeat;
+  filter:
+    drop-shadow(0 0 6px rgba(235,82,255,.54))
+    drop-shadow(0 0 10px rgba(94,91,255,.28));
+}
+
+.inventory-v2-title h1{
+  margin:0;
+  color:#fff;
+  font-size:1.40rem;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.03em;
+  text-shadow:
+    0 2px 0 #5d20b3,
+    0 0 8px #eb52ff,
+    0 0 15px rgba(129,71,255,.72);
+}
+
+.inventory-v2-title p{
+  display:none !important;
+}
+
+.inventory-v2-header-crown{
+  display:none !important;
+}
+
+@media (max-width:430px){
+  .inventory-v2-header{
+    grid-template-columns:38px minmax(0,1fr);
+    min-height:56px;
+    margin-left:-10px;
+    margin-right:-20px;
+    padding:0 20px 0 10px;
+  }
+
+  .inventory-v2-back{
+    width:38px;
+    height:38px;
+  }
+
+  .inventory-v2-back img{
+    width:31px;
+    height:31px;
+  }
+
+  .inventory-v2-title{
+    gap:7px;
+  }
+
+  .inventory-v2-title::before{
+    flex-basis:32px;
+    width:32px;
+    height:32px;
+  }
+
+  .inventory-v2-title h1{
+    font-size:1.24rem;
+  }
+}
+
+/* =========================================================
+   Inventaire — aperçu joueur / cadres / tags
+   ========================================================= */
+
+/* Aperçu joueur : retire le second aperçu avatar + cadre tout à droite. */
+.inventory-v2-frame-preview{
+  display:none !important;
+}
+
+.inventory-v2-preview,
+.inventory-v2-preview.is-minimal{
+  grid-template-columns:88px minmax(0,1fr) !important;
+}
+
+/* Centre le pseudo et le tag ensemble. */
+.inventory-v2-preview-copy{
+  align-items:center !important;
+}
+
+/* Tag sous le pseudo : aucun cadre/fond et 60% plus petit. */
+.inv-tag.inv-tag-preview{
+  min-height:0 !important;
+  margin:4px auto -14px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  transform:scale(.4) !important;
+  transform-origin:top center !important;
+  align-self:center !important;
+}
+
+/* Choix des cadres : masque uniquement l'avatar placé sous le cadre. */
+.inventory-v2-frame-choice:not(.is-empty) .inventory-v2-frame-swatch > img{
+  display:none !important;
+}
+
+/* Choix des tags : retire le titre sous chaque tag en image. */
+.inventory-v2-tag-choice:not(.is-none) > strong{
+  display:none !important;
+}
+
+/* Tags en image : 30% plus petits. */
+.inventory-v2-tag-choice:not(.is-none) > img{
+  width:70% !important;
+  max-width:154px !important;
+  height:auto !important;
+  max-height:31px !important;
+  margin:0 auto !important;
+  object-fit:contain !important;
+}
+
+/* Tags texte/emoji : même réduction visuelle de 30%. */
+.inventory-v2-tag-choice:not(.is-none) > span:not(.inventory-v2-check){
+  transform:scale(.7) !important;
+  transform-origin:center !important;
+}
+
+/* Ajustements mobile après suppression de la 3e colonne. */
+@media(max-width:430px){
+  .inventory-v2-preview,
+  .inventory-v2-preview.is-minimal{
+    grid-template-columns:76px minmax(0,1fr) !important;
+  }
+}
+
+@media(max-width:350px){
+  .inventory-v2-preview,
+  .inventory-v2-preview.is-minimal{
+    grid-template-columns:78px minmax(0,1fr) !important;
+  }
+}
+
+/* =========================================================
+   Inventaire — bandeau plus fin + aperçu joueur compact
+   ========================================================= */
+
+/* Bandeau : -10px de hauteur et collé en haut de la page. */
+.inventory-v2-page{
+  padding-top:0 !important;
+}
+
+.inventory-v2-header{
+  min-height:48px !important;
+  height:48px !important;
+  margin-top:0 !important;
+}
+
+/* Aperçu joueur : largeur réduite de 50% et bloc centré. */
+.inventory-v2-preview,
+.inventory-v2-preview.is-minimal{
+  width:50% !important;
+  max-width:50% !important;
+  min-height:96px;
+  margin-left:auto !important;
+  margin-right:auto !important;
+  padding:9px 10px !important;
+  grid-template-columns:76px minmax(0,1fr) !important;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:8px !important;
+}
+
+/* Avatar + cadre restent à gauche. */
+.inventory-v2-preview-avatar{
+  justify-self:center !important;
+}
+
+/* Pseudo centré, tag juste dessous. */
+.inventory-v2-preview-copy{
+  min-width:0;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+}
+
+.inventory-v2-preview-copy > small{
+  display:none !important;
+}
+
+.inventory-v2-preview-copy > strong{
+  width:100%;
+  max-width:100%;
+  text-align:center !important;
+}
+
+.inv-tag.inv-tag-preview{
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+/* Version mobile : bandeau toujours 10px plus bas que l'ancien 56px => 46px. */
+@media(max-width:430px){
+  .inventory-v2-page{
+    padding-top:0 !important;
+  }
+
+  .inventory-v2-header{
+    min-height:46px !important;
+    height:46px !important;
+  }
+
+  .inventory-v2-preview,
+  .inventory-v2-preview.is-minimal{
+    width:50% !important;
+    max-width:50% !important;
+    grid-template-columns:68px minmax(0,1fr) !important;
+    gap:6px !important;
+    padding:8px !important;
+  }
+
+  .inventory-v2-preview-avatar{
+    width:64px !important;
+    height:64px !important;
+  }
+
+  .inventory-v2-preview-avatar > img{
+    width:60px !important;
+    height:60px !important;
+  }
+
+  .inventory-v2-preview-copy > strong{
+    font-size:1rem !important;
+  }
+}
+
+@media(max-width:350px){
+  .inventory-v2-preview,
+  .inventory-v2-preview.is-minimal{
+    grid-template-columns:60px minmax(0,1fr) !important;
+    gap:4px !important;
+    padding:7px !important;
+  }
+
+  .inventory-v2-preview-avatar{
+    width:56px !important;
+    height:56px !important;
+  }
+
+  .inventory-v2-preview-avatar > img{
+    width:52px !important;
+    height:52px !important;
+  }
+
+  .inventory-v2-preview-copy > strong{
+    font-size:.92rem !important;
+  }
+}
+
+/* =========================================================
+   Inventaire — écart bandeau / aperçu + tag agrandi
+   ========================================================= */
+
+/* 5px entre le bandeau du haut et le bloc aperçu du joueur. */
+.inventory-v2-preview,
+.inventory-v2-preview.is-minimal{
+  margin-top:5px !important;
+}
+
+/* Le tag de l'aperçu passe de 40% à 56% de sa taille d'origine,
+   soit +40% par rapport à la version précédente. */
+.inv-tag.inv-tag-preview{
+  transform:scale(.728) !important;
+}
+
