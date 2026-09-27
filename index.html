@@ -1,0 +1,2768 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#081747" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="ptitbac-api-url" content="" />
+  <title>P'tit Bac</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/style.css?v=1.48.0" />
+  <link rel="stylesheet" href="/design-v2.css?v=1.48.0" />
+  <link rel="stylesheet" href="/friends.css?v=1.48.0" />
+  <link rel="stylesheet" href="/chat.css?v=1.48.0" />
+  <link rel="stylesheet" href="/economy.css?v=1.48.0" />
+  <link rel="stylesheet" href="/home-mobile.css?v=1.48.0-modes-v3" />
+  <link rel="stylesheet" href="/account-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/profile-screen-v2.css?v=1.48.0" />
+  <link rel="stylesheet" href="/profile-redesign-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/shop-screen-v2.css?v=1.48.0-shop-dynamic35" />
+  <link rel="stylesheet" href="/quests-screen-v1.css?v=1.48.0-quests9-page-scroll" />
+  <link rel="stylesheet" href="/lobby-screen-v4.css?v=1.48.0" />
+  <link rel="stylesheet" href="/quick-lobby-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/category-selection-v2.css?v=1.48.0" />
+  <link rel="stylesheet" href="/category-chooser-card-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/shared-footer-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/avatar-system-v2.css?v=1.48.0" />
+  <link rel="stylesheet" href="/admin-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/admin-extra-v1.css?v=1.48.0-admin-shop4" />
+  <link rel="stylesheet" href="/inbox-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/ui-runtime-v1.css?v=1.48.0" />
+  <link id="pbw1WheelFxStyles" rel="stylesheet" href="/letter-wheel-fx-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/letter-wheel-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/round-intro-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/answer-screen-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/waiting-screen-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/validation-screen-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/scoreboard-screen-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/final-screen-v1.css?v=1.48.0" />
+  <link rel="stylesheet" href="/wallet.css?v=1.48.0" />
+  <link rel="stylesheet" href="/gameplay-flow.css?v=1.48.0" />
+  <link rel="preload" as="image" href="/shared-footer-v1.png" />
+  <link rel="preload" as="image" href="/lobby-exit.png" />
+  <link rel="stylesheet" href="/category-prototype.css?v=1.48.0" />
+  <link rel="stylesheet" href="/private-lobby.css?v=1.48.0">
+  <link rel="stylesheet" href="/reward-chests.css?v=1.48.0-rewards13" />
+
+  <!-- Partie Rapide : même bandeau supérieur que la page Mon profil. -->
+  <style>
+    .lobby-v5[data-mode="quick"]{
+      padding-top:0!important;
+    }
+
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header{
+      position:relative!important;
+      z-index:20!important;
+      width:calc(100% + 24px)!important;
+      min-height:48px!important;
+      height:48px!important;
+      margin:0 -12px!important;
+      padding:0 12px!important;
+      display:grid!important;
+      grid-template-columns:42px minmax(0,1fr) 42px!important;
+      align-items:center!important;
+      gap:0!important;
+      overflow:visible!important;
+      background:linear-gradient(
+        90deg,
+        rgba(49,19,111,.98) 0%,
+        rgba(32,24,119,.97) 42%,
+        rgba(10,35,104,.96) 100%
+      )!important;
+      box-shadow:
+        10px 0 0 rgba(10,35,104,.96),
+        inset 0 0 18px rgba(107,83,255,.14)!important;
+    }
+
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header::before,
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header::after{
+      content:"";
+      position:absolute;
+      left:-10px;
+      right:-10px;
+      height:1px;
+      background:rgba(195,58,255,.84);
+      box-shadow:0 0 12px rgba(210,54,255,.42);
+      pointer-events:none;
+      z-index:7;
+    }
+
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header::before{top:0}
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header::after{bottom:0}
+
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header .lobby-v5-back,
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header .quick-lobby-back{
+      grid-column:1!important;
+      width:42px!important;
+      height:42px!important;
+      padding:0!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      display:grid!important;
+      place-items:center!important;
+      justify-self:start!important;
+    }
+
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header .lobby-v5-back img,
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header .quick-lobby-back img{
+      width:34px!important;
+      height:34px!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(188,76,255,.55))!important;
+    }
+
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header .lobby-v5-title{
+      grid-column:2!important;
+      min-width:0!important;
+      width:100%!important;
+      display:block!important;
+      text-align:center!important;
+      justify-self:stretch!important;
+    }
+
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header .lobby-v5-title h1{
+      margin:0!important;
+      color:#fff!important;
+      font-size:1.40rem!important;
+      line-height:1!important;
+      font-weight:1000!important;
+      text-align:center!important;
+      white-space:nowrap!important;
+      text-shadow:
+        0 2px 0 #5d20b3,
+        0 0 8px #eb52ff,
+        0 0 15px rgba(129,71,255,.72)!important;
+    }
+
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header .lobby-v5-code,
+    .lobby-v5[data-mode="quick"] > .lobby-v5-header .lobby-v5-coin-pill{
+      display:none!important;
+    }
+
+    @media(max-width:370px){
+      .lobby-v5[data-mode="quick"] > .lobby-v5-header{
+        grid-template-columns:38px minmax(0,1fr) 38px!important;
+      }
+
+      .lobby-v5[data-mode="quick"] > .lobby-v5-header .lobby-v5-title h1{
+        font-size:1.25rem!important;
+      }
+
+      .lobby-v5[data-mode="quick"] > .lobby-v5-header .lobby-v5-back,
+      .lobby-v5[data-mode="quick"] > .lobby-v5-header .quick-lobby-back{
+        width:38px!important;
+        height:38px!important;
+      }
+
+      .lobby-v5[data-mode="quick"] > .lobby-v5-header .lobby-v5-back img,
+      .lobby-v5[data-mode="quick"] > .lobby-v5-header .quick-lobby-back img{
+        width:31px!important;
+        height:31px!important;
+      }
+    }
+
+    /* =========================================================
+       Partie Rapide — paramètres : cadre néon + séparateurs
+       Textes et icônes conservés dans leurs couleurs d'origine.
+       ========================================================= */
+    .lobby-v5[data-mode="quick"] .lobby-v5-settings-panel{
+      border:1.5px solid #b94cff!important;
+      background:
+        radial-gradient(circle at 50% 0%,rgba(180,61,255,.10),transparent 56%),
+        linear-gradient(145deg,rgba(26,20,82,.96),rgba(11,22,68,.96))!important;
+      box-shadow:
+        0 0 12px rgba(193,66,255,.28),
+        inset 0 0 20px rgba(174,60,255,.10)!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .lobby-v5-settings-grid{
+      gap:0!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .lobby-v5-setting-card{
+      position:relative!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+
+    /* Séparateurs néon : 2px de large × 30px de haut. */
+    .lobby-v5[data-mode="quick"] .lobby-v5-setting-card:not(:last-child)::after{
+      content:"";
+      position:absolute;
+      right:-1px;
+      top:50%;
+      width:2px!important;
+      height:30px!important;
+      min-height:30px!important;
+      max-height:30px!important;
+      border-radius:999px;
+      background:#d35cff!important;
+      box-shadow:
+        0 0 4px #d35cff,
+        0 0 9px rgba(196,66,255,.88),
+        0 0 14px rgba(149,48,255,.50)!important;
+      transform:translateY(-50%);
+      pointer-events:none;
+    }
+
+    /* Restauration explicite des couleurs d'origine. */
+    .lobby-v5[data-mode="quick"] .lobby-v5-settings-panel h2{
+      color:#fff!important;
+      text-shadow:none!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .lobby-v5-settings-panel h2 img,
+    .lobby-v5[data-mode="quick"] .lobby-v5-setting-icon{
+      filter:none!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .lobby-v5-setting-card small{
+      color:#adbbe1!important;
+      text-shadow:none!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .lobby-v5-setting-value strong{
+      color:#fff!important;
+      text-shadow:none!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .lobby-v5-setting-card.is-difficulty .lobby-v5-setting-value strong{
+      color:#63e8c9!important;
+      text-shadow:none!important;
+    }
+
+
+    /* =========================================================
+       Partie Rapide — bouton Prêt en bas dès 2 joueurs
+       ========================================================= */
+    .lobby-v5[data-mode="quick"].quick-ready-bottom-active
+      .quick-self-row > .quick-ready-btn{
+      display:none!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .quick-ready-bottom-panel{
+      flex:0 0 auto!important;
+      width:100%!important;
+      min-height:96px!important;
+      margin:auto 0 0!important;
+      display:grid!important;
+      place-items:center!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .quick-ready-bottom{
+      position:static!important;
+      right:auto!important;
+      bottom:auto!important;
+      width:100%!important;
+      min-width:0!important;
+      height:58px!important;
+      min-height:58px!important;
+      margin:0!important;
+      padding:0 18px!important;
+      border:1.5px solid #a95cff!important;
+      border-radius:18px!important;
+      background:
+        linear-gradient(180deg,rgba(91,48,171,.96),rgba(48,35,122,.98))!important;
+      color:#fff!important;
+      box-shadow:
+        0 0 15px rgba(174,70,255,.20),
+        inset 0 0 15px rgba(199,111,255,.08)!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      gap:8px!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .quick-ready-bottom span{
+      font-size:1.30rem!important;
+      font-weight:1000!important;
+      line-height:1!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .quick-ready-bottom strong{
+      font-size:.95rem!important;
+      line-height:1!important;
+      font-weight:1000!important;
+      letter-spacing:.01em!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .quick-ready-bottom.is-ready{
+      border-color:#62dcb2!important;
+      background:linear-gradient(180deg,#1a6558,#154f47)!important;
+      box-shadow:
+        0 0 15px rgba(98,220,178,.20),
+        inset 0 0 14px rgba(125,255,214,.07)!important;
+    }
+
+    @media(max-height:760px){
+      .lobby-v5[data-mode="quick"] .quick-ready-bottom-panel{
+        min-height:41px!important;
+      }
+
+      .lobby-v5[data-mode="quick"] .quick-ready-bottom{
+        height:52px!important;
+        min-height:52px!important;
+      }
+    }
+
+
+    /* =========================================================
+       Partie Rapide — statut joueur, bouton carte et PNG des tags
+       ========================================================= */
+
+    /* Le statut "En attente…" se place par rapport à la carte entière. */
+    .lobby-v5[data-mode="quick"] .lobby-v5-player-copy{
+      position:static!important;
+    }
+
+    .lobby-v5[data-mode="quick"] .quick-player-state{
+      right:9px!important;
+      bottom:8px!important;
+      left:auto!important;
+      top:auto!important;
+      margin:0!important;
+    }
+
+    /* Le petit bouton Prêt dans la carte du joueur n'est jamais affiché.
+       Le vrai bouton Prêt apparaît en bas à partir de 2 joueurs. */
+    .lobby-v5[data-mode="quick"]
+      .quick-self-row > .quick-ready-btn:not(.quick-ready-bottom){
+      display:none!important;
+    }
+
+    /* Tags avec PNG : aucune pilule/cadre autour de l'image. */
+    .lobby-v5[data-mode="quick"]
+      .quick-player-title-row .pl-player-title.quick-tag-image{
+      width:auto!important;
+      max-width:100%!important;
+      min-height:20px!important;
+      height:20px!important;
+      padding:0!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+    }
+
+    .lobby-v5[data-mode="quick"]
+      .quick-player-title-row .pl-player-title.quick-tag-image > img{
+      display:block!important;
+      width:auto!important;
+      max-width:100%!important;
+      height:20px!important;
+      max-height:20px!important;
+      margin:0!important;
+      padding:0!important;
+      border:0!important;
+      object-fit:contain!important;
+      object-position:left center!important;
+    }
+
+    /* Même principe dans la petite fenêtre profil du lobby. */
+    .lobby-v5[data-mode="quick"]
+      .pl-profile-v2-title-row .pl-player-title.quick-tag-image{
+      width:auto!important;
+      max-width:100%!important;
+      min-height:25px!important;
+      height:25px!important;
+      padding:0!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+    }
+
+    .lobby-v5[data-mode="quick"]
+      .pl-profile-v2-title-row .pl-player-title.quick-tag-image > img{
+      display:block!important;
+      width:auto!important;
+      max-width:100%!important;
+      height:25px!important;
+      max-height:25px!important;
+      margin:0!important;
+      padding:0!important;
+      border:0!important;
+      object-fit:contain!important;
+    }
+
+    @media(max-width:370px){
+      .lobby-v5[data-mode="quick"]
+        .quick-player-title-row .pl-player-title.quick-tag-image{
+        min-height:16px!important;
+        height:16px!important;
+      }
+
+      .lobby-v5[data-mode="quick"]
+        .quick-player-title-row .pl-player-title.quick-tag-image > img{
+        height:16px!important;
+        max-height:16px!important;
+      }
+    }
+
+
+    /* =========================================================
+       Salon privé — bandeau / paramètres / couronne / tags PNG
+       ========================================================= */
+
+    /* ---------- Bandeau supérieur privé ---------- */
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode){
+      padding-top:4px!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header{
+      position:relative!important;
+      z-index:20!important;
+      width:calc(100% + 24px)!important;
+      min-height:48px!important;
+      height:48px!important;
+      margin:0 -12px!important;
+      padding:0 12px!important;
+      display:grid!important;
+      grid-template-columns:42px minmax(0,1fr) auto!important;
+      align-items:center!important;
+      gap:6px!important;
+      overflow:visible!important;
+      background:linear-gradient(
+        90deg,
+        rgba(49,19,111,.98) 0%,
+        rgba(32,24,119,.97) 42%,
+        rgba(10,35,104,.96) 100%
+      )!important;
+      box-shadow:
+        10px 0 0 rgba(10,35,104,.96),
+        inset 0 0 18px rgba(107,83,255,.14)!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header::before,
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header::after{
+      content:"";
+      position:absolute;
+      left:-10px;
+      right:-10px;
+      height:1px;
+      background:rgba(195,58,255,.84);
+      box-shadow:0 0 12px rgba(210,54,255,.42);
+      pointer-events:none;
+      z-index:7;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header::before{top:0}
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header::after{bottom:0}
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header > #lobbyV5Leave{
+      width:42px!important;
+      height:42px!important;
+      padding:0!important;
+      border:0!important;
+      background:transparent!important;
+      display:grid!important;
+      place-items:center!important;
+      justify-self:start!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header > #lobbyV5Leave img{
+      width:34px!important;
+      height:34px!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(188,76,255,.55))!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-title-mode{
+      min-width:0!important;
+      display:flex!important;
+      align-items:center!important;
+      gap:6px!important;
+      overflow:hidden!important;
+    }
+
+    /* Affiche exactement "Salon Privé". */
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-title-mode > h1{
+      flex:0 1 auto!important;
+      min-width:0!important;
+      margin:0!important;
+      font-size:0!important;
+      line-height:1!important;
+      white-space:nowrap!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-title-mode > h1::after{
+      content:"Salon Privé";
+      display:inline-block;
+      color:#fff;
+      font-size:1.12rem;
+      line-height:1;
+      font-weight:1000;
+      letter-spacing:-.03em;
+      white-space:nowrap;
+      text-shadow:
+        0 2px 0 #5d20b3,
+        0 0 8px #eb52ff,
+        0 0 15px rgba(129,71,255,.72);
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-mode-toggle{
+      flex:none!important;
+      min-width:54px!important;
+      height:24px!important;
+      padding:0 6px!important;
+      gap:4px!important;
+      border-color:#8d67df!important;
+      background:rgba(21,22,71,.70)!important;
+      color:#e3dcff!important;
+      font-size:9px!important;
+      box-shadow:0 0 8px rgba(168,79,255,.10)!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header .pl-header-code{
+      width:auto!important;
+      min-width:62px!important;
+      height:32px!important;
+      padding:2px 7px!important;
+      border:1px solid rgba(142,86,220,.78)!important;
+      border-radius:10px!important;
+      background:rgba(14,22,75,.68)!important;
+      display:grid!important;
+      grid-template-columns:auto 16px!important;
+      gap:0 5px!important;
+      text-align:left!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header .pl-header-code small{
+      font-size:8px!important;
+      line-height:10px!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header .pl-header-code strong{
+      font-size:11px!important;
+      line-height:13px!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      > .pl-header .pl-header-code img{
+      width:16px!important;
+      height:16px!important;
+    }
+
+    /* ---------- Paramètres : même rendu que Partie Rapide ---------- */
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-settings{
+      border:1.5px solid #b94cff!important;
+      border-radius:14px!important;
+      background:
+        radial-gradient(circle at 50% 0%,rgba(180,61,255,.10),transparent 56%),
+        linear-gradient(145deg,rgba(26,20,82,.96),rgba(11,22,68,.96))!important;
+      box-shadow:
+        0 0 12px rgba(193,66,255,.28),
+        inset 0 0 20px rgba(174,60,255,.10)!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-setting-grid{
+      gap:0!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-setting-grid .lobby-v5-setting-card{
+      position:relative!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-setting-grid .lobby-v5-setting-card:not(:last-child)::after{
+      content:"";
+      position:absolute;
+      right:-1px;
+      top:50%;
+      width:2px!important;
+      height:30px!important;
+      min-height:30px!important;
+      max-height:30px!important;
+      border-radius:999px;
+      background:#d35cff!important;
+      box-shadow:
+        0 0 4px #d35cff,
+        0 0 9px rgba(196,66,255,.88),
+        0 0 14px rgba(149,48,255,.50)!important;
+      transform:translateY(-50%);
+      pointer-events:none;
+    }
+
+    /* Garde les couleurs d'origine des textes / icônes. */
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-settings h2{
+      color:#fff!important;
+      text-shadow:none!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-settings h2 > img,
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-setting-grid .lobby-v5-setting-icon{
+      filter:none!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-setting-grid small{
+      color:#adbbe1!important;
+      text-shadow:none!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-setting-grid strong{
+      color:#fff!important;
+      text-shadow:none!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-setting-grid .is-difficulty strong{
+      color:#63e8c9!important;
+      text-shadow:none!important;
+    }
+
+    /* ---------- Couronne à droite du pseudo ---------- */
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-player-head{
+      justify-content:flex-start!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-player-head > strong{
+      flex:0 1 auto!important;
+      max-width:calc(100% - 26px)!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-player-head > .pl-host-crown-inline{
+      width:18px!important;
+      height:18px!important;
+      margin-left:5px!important;
+      flex:none!important;
+      display:block!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 5px rgba(255,196,64,.30))!important;
+    }
+
+    /* ---------- Tags PNG sans cadre ---------- */
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-player-title.private-tag-image{
+      width:auto!important;
+      max-width:100%!important;
+      min-height:20px!important;
+      height:20px!important;
+      padding:0!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-player-title.private-tag-image > img{
+      display:block!important;
+      width:auto!important;
+      max-width:100%!important;
+      height:20px!important;
+      max-height:20px!important;
+      margin:0!important;
+      padding:0!important;
+      border:0!important;
+      object-fit:contain!important;
+      object-position:left center!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-profile-v2-title-row .pl-player-title.private-tag-image{
+      min-height:25px!important;
+      height:25px!important;
+    }
+
+    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+      .pl-profile-v2-title-row .pl-player-title.private-tag-image > img{
+      height:25px!important;
+      max-height:25px!important;
+    }
+
+    @media(max-width:370px){
+      html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+        > .pl-header{
+        grid-template-columns:38px minmax(0,1fr) auto!important;
+        gap:4px!important;
+        padding-left:9px!important;
+        padding-right:9px!important;
+      }
+
+      html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+        .pl-title-mode{
+        gap:4px!important;
+      }
+
+      html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+        .pl-title-mode > h1::after{
+        font-size:.94rem;
+      }
+
+      html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+        .pl-mode-toggle{
+        min-width:48px!important;
+        height:22px!important;
+        padding:0 5px!important;
+        font-size:8px!important;
+      }
+
+      html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+        > .pl-header .pl-header-code{
+        min-width:55px!important;
+        padding-left:5px!important;
+        padding-right:5px!important;
+      }
+
+      html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+        .pl-player-title.private-tag-image,
+      html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
+        .pl-player-title.private-tag-image > img{
+        height:16px!important;
+        min-height:16px!important;
+        max-height:16px!important;
+      }
+    }
+
+
+    /* =========================================================
+       Choix des catégories — bandeau partagé des salons
+       ========================================================= */
+    html body .cat-v2.cat-prototype{
+      padding-top:0!important;
+    }
+
+    html body .cat-v2.cat-prototype > .cat-v2-top{
+      position:absolute!important;
+      z-index:80!important;
+      top:5px!important;
+      left:0!important;
+      right:0!important;
+      width:100%!important;
+      height:48px!important;
+      min-height:48px!important;
+      margin:0!important;
+      padding:0 16px!important;
+      box-sizing:border-box!important;
+
+      display:grid!important;
+      grid-template-columns:42px minmax(0,1fr) auto!important;
+      align-items:center!important;
+      gap:6px!important;
+
+      background:linear-gradient(
+        90deg,
+        rgba(49,19,111,.98) 0%,
+        rgba(32,24,119,.97) 42%,
+        rgba(10,35,104,.96) 100%
+      )!important;
+
+      box-shadow:
+        10px 0 0 rgba(10,35,104,.96),
+        inset 0 0 18px rgba(107,83,255,.14)!important;
+
+      transform:none!important;
+      overflow:visible!important;
+    }
+
+    html body .cat-v2.cat-prototype > .cat-v2-top::before,
+    html body .cat-v2.cat-prototype > .cat-v2-top::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      height:1px;
+      background:rgba(195,58,255,.84);
+      box-shadow:0 0 12px rgba(210,54,255,.42);
+      pointer-events:none;
+      z-index:3;
+    }
+
+    html body .cat-v2.cat-prototype > .cat-v2-top::before{top:0}
+    html body .cat-v2.cat-prototype > .cat-v2-top::after{bottom:0}
+
+    /* Flèche : même rendu que les salons. */
+    html body .cat-v2.cat-prototype .cat-v2-back{
+      grid-column:1!important;
+      justify-self:start!important;
+      width:42px!important;
+      height:42px!important;
+      min-width:42px!important;
+      padding:0!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      display:grid!important;
+      place-items:center!important;
+    }
+
+    html body .cat-v2.cat-prototype .cat-v2-back img{
+      width:34px!important;
+      height:34px!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(188,76,255,.55))!important;
+    }
+
+    html body .cat-v2.cat-prototype .cat-v2-back-spacer{
+      grid-column:1!important;
+      width:42px!important;
+      height:42px!important;
+    }
+
+    /* Logo strictement centré dans le bandeau. */
+    html body .cat-v2.cat-prototype > .cat-v2-top .cat-brand{
+      position:absolute!important;
+      z-index:2!important;
+      left:50%!important;
+      top:50%!important;
+      width:auto!important;
+      height:43px!important;
+      max-width:38px!important;
+      max-height:43px!important;
+      margin:0!important;
+      transform:translate(-50%,-50%)!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(189,70,255,.48))!important;
+      pointer-events:none!important;
+    }
+
+    /* Solde : pièce + nombre, sans cadre/capsule. */
+    html body .cat-v2.cat-prototype > .cat-v2-top .cat-v2-balance{
+      grid-column:3!important;
+      justify-self:end!important;
+      width:auto!important;
+      min-width:0!important;
+      height:auto!important;
+      min-height:0!important;
+      margin:0!important;
+      padding:0!important;
+      display:inline-flex!important;
+      align-items:center!important;
+      justify-content:flex-end!important;
+      gap:5px!important;
+
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      color:#fff!important;
+    }
+
+    html body .cat-v2.cat-prototype > .cat-v2-top .cat-v2-balance img{
+      width:27px!important;
+      height:27px!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 6px rgba(255,190,46,.30))!important;
+    }
+
+    html body .cat-v2.cat-prototype > .cat-v2-top .cat-v2-balance strong{
+      color:#fff!important;
+      font-size:.88rem!important;
+      line-height:1!important;
+      font-weight:900!important;
+      text-shadow:0 0 7px rgba(132,88,255,.25)!important;
+    }
+
+    /* Garde le contenu sous le nouveau bandeau. */
+    html body .cat-v2.cat-prototype .cat-steps{
+      margin-top:58px!important;
+    }
+
+    @media(max-width:370px){
+      html body .cat-v2.cat-prototype > .cat-v2-top{
+        padding-left:10px!important;
+        padding-right:10px!important;
+        grid-template-columns:38px minmax(0,1fr) auto!important;
+      }
+
+      html body .cat-v2.cat-prototype .cat-v2-back,
+      html body .cat-v2.cat-prototype .cat-v2-back-spacer{
+        width:38px!important;
+        height:38px!important;
+        min-width:38px!important;
+      }
+
+      html body .cat-v2.cat-prototype .cat-v2-back img{
+        width:31px!important;
+        height:31px!important;
+      }
+
+      html body .cat-v2.cat-prototype > .cat-v2-top .cat-brand{
+        height:40px!important;
+        max-height:40px!important;
+        max-width:84px!important;
+      }
+
+      html body .cat-v2.cat-prototype > .cat-v2-top .cat-v2-balance img{
+        width:24px!important;
+        height:24px!important;
+      }
+
+      html body .cat-v2.cat-prototype > .cat-v2-top .cat-v2-balance strong{
+        font-size:.78rem!important;
+      }
+    }
+
+
+    /* =========================================================
+       Choix de la lettre — même bandeau que Catégories / Salons
+       Bandeau descendu de 5px sans déplacer le reste de la page.
+       ========================================================= */
+
+    html body .pbw1-screen.letter-prototype > .pbw1-top{
+      position:relative!important;
+      z-index:80!important;
+
+      width:calc(100% + 32px)!important;
+      height:52px!important;
+      min-height:52px!important;
+      margin-left:-16px!important;
+      margin-right:-16px!important;
+      padding:0 16px 4px!important;
+      box-sizing:border-box!important;
+
+      display:grid!important;
+      grid-template-columns:1fr 62px 1fr!important;
+      align-items:center!important;
+      gap:0!important;
+
+      /* Le transform visuel descend seulement le bandeau de 5px.
+         Sa place dans le flux ne change pas : le reste de la page ne bouge pas. */
+      transform:translateY(-4px)!important;
+
+      background:
+        linear-gradient(rgba(195,58,255,.84),rgba(195,58,255,.84))
+          left top / 100% 1px no-repeat,
+        linear-gradient(rgba(195,58,255,.84),rgba(195,58,255,.84))
+          left bottom 4px / 100% 1px no-repeat,
+        linear-gradient(
+          90deg,
+          rgba(49,19,111,.98) 0%,
+          rgba(32,24,119,.97) 42%,
+          rgba(10,35,104,.96) 100%
+        )
+          left top / 100% 48px no-repeat!important;
+
+      box-shadow:
+        inset 0 0 18px rgba(107,83,255,.14)!important;
+      overflow:visible!important;
+    }
+
+    /* Flèche identique aux salons. */
+    html body .pbw1-screen.letter-prototype .pbw1-exit{
+      grid-column:1!important;
+      justify-self:start!important;
+      align-self:center!important;
+      width:42px!important;
+      height:42px!important;
+      min-width:42px!important;
+      padding:0!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      display:grid!important;
+      place-items:center!important;
+    }
+
+    html body .pbw1-screen.letter-prototype .pbw1-exit img{
+      width:34px!important;
+      height:34px!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(188,76,255,.55))!important;
+    }
+
+    /* Logo P'tit Bac centré. */
+    html body .pbw1-screen.letter-prototype .pbw1-brand{
+      grid-column:2!important;
+      justify-self:center!important;
+      align-self:center!important;
+      width:auto!important;
+      height:43px!important;
+      max-width:38px!important;
+      max-height:43px!important;
+      margin:0!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(189,70,255,.48))!important;
+    }
+
+    /* Solde : pièce + nombre directement dans le bandeau, sans cadre. */
+    html body .pbw1-screen.letter-prototype .pbw1-wallet{
+      grid-column:3!important;
+      justify-self:end!important;
+      align-self:center!important;
+      width:auto!important;
+      min-width:0!important;
+      height:auto!important;
+      min-height:0!important;
+      margin:0!important;
+      padding:0!important;
+
+      display:inline-flex!important;
+      align-items:center!important;
+      justify-content:flex-end!important;
+      gap:5px!important;
+
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      color:#fff!important;
+    }
+
+    html body .pbw1-screen.letter-prototype .pbw1-wallet img{
+      width:27px!important;
+      height:27px!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 6px rgba(255,190,46,.30))!important;
+    }
+
+    html body .pbw1-screen.letter-prototype .pbw1-wallet strong{
+      color:#fff!important;
+      font-size:.88rem!important;
+      line-height:1!important;
+      font-weight:900!important;
+      text-shadow:0 0 7px rgba(132,88,255,.25)!important;
+    }
+
+    html.ptb-admin-infinite-coins
+      body .pbw1-screen.letter-prototype .pbw1-wallet strong{
+      font-size:0!important;
+    }
+
+    html.ptb-admin-infinite-coins
+      body .pbw1-screen.letter-prototype .pbw1-wallet strong::after{
+      content:"∞"!important;
+      font-size:.88rem!important;
+    }
+
+    @media(max-width:370px){
+      html body .pbw1-screen.letter-prototype > .pbw1-top{
+        padding-left:10px!important;
+        padding-right:10px!important;
+        grid-template-columns:1fr 56px 1fr!important;
+      }
+
+      html body .pbw1-screen.letter-prototype .pbw1-exit{
+        width:38px!important;
+        height:38px!important;
+        min-width:38px!important;
+      }
+
+      html body .pbw1-screen.letter-prototype .pbw1-exit img{
+        width:31px!important;
+        height:31px!important;
+      }
+
+      html body .pbw1-screen.letter-prototype .pbw1-brand{
+        height:40px!important;
+        max-height:40px!important;
+        max-width:84px!important;
+      }
+
+      html body .pbw1-screen.letter-prototype .pbw1-wallet img{
+        width:24px!important;
+        height:24px!important;
+      }
+
+      html body .pbw1-screen.letter-prototype .pbw1-wallet strong{
+        font-size:.78rem!important;
+      }
+    }
+
+
+    /* =========================================================
+       Récap de manche — même bandeau que Lettre / Catégories
+       ========================================================= */
+
+    html body .pri-screen.recap-screen > .recap-top{
+      position:relative!important;
+      z-index:80!important;
+
+      width:calc(100% + 32px)!important;
+      height:52px!important;
+      min-height:52px!important;
+      margin-left:-16px!important;
+      margin-right:-16px!important;
+      padding:0 16px 4px!important;
+      box-sizing:border-box!important;
+
+      display:grid!important;
+      grid-template-columns:1fr 62px 1fr!important;
+      align-items:center!important;
+      gap:0!important;
+
+      transform:translateY(-4px)!important;
+
+      background:
+        linear-gradient(rgba(195,58,255,.84),rgba(195,58,255,.84))
+          left top / 100% 1px no-repeat,
+        linear-gradient(rgba(195,58,255,.84),rgba(195,58,255,.84))
+          left bottom 4px / 100% 1px no-repeat,
+        linear-gradient(
+          90deg,
+          rgba(49,19,111,.98) 0%,
+          rgba(32,24,119,.97) 42%,
+          rgba(10,35,104,.96) 100%
+        )
+          left top / 100% 48px no-repeat!important;
+
+      box-shadow:
+        inset 0 0 18px rgba(107,83,255,.14)!important;
+      overflow:visible!important;
+    }
+
+    /* Flèche identique aux autres pages. */
+    html body .pri-screen.recap-screen .recap-exit{
+      grid-column:1!important;
+      justify-self:start!important;
+      align-self:center!important;
+      width:42px!important;
+      height:42px!important;
+      min-width:42px!important;
+      padding:0!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      display:grid!important;
+      place-items:center!important;
+    }
+
+    html body .pri-screen.recap-screen .recap-exit img{
+      width:34px!important;
+      height:34px!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(188,76,255,.55))!important;
+    }
+
+    /* Logo centré. */
+    html body .pri-screen.recap-screen .recap-brand{
+      grid-column:2!important;
+      justify-self:center!important;
+      align-self:center!important;
+      width:auto!important;
+      height:43px!important;
+      max-width:92px!important;
+      max-height:43px!important;
+      margin:0!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(189,70,255,.48))!important;
+    }
+
+    /* Numéro de manche directement dans le bandeau. */
+    html body .pri-screen.recap-screen .recap-round{
+      grid-column:3!important;
+      justify-self:end!important;
+      align-self:center!important;
+      width:auto!important;
+      min-width:0!important;
+      height:auto!important;
+      margin:0!important;
+      padding:0!important;
+
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+
+      color:#fff!important;
+      font-size:.78rem!important;
+      line-height:1!important;
+      font-weight:900!important;
+      white-space:nowrap!important;
+      text-shadow:
+        0 0 7px rgba(197,76,255,.45),
+        0 0 12px rgba(111,69,255,.25)!important;
+    }
+
+    @media(max-width:370px){
+      html body .pri-screen.recap-screen > .recap-top{
+        padding-left:10px!important;
+        padding-right:10px!important;
+        grid-template-columns:1fr 56px 1fr!important;
+      }
+
+      html body .pri-screen.recap-screen .recap-exit{
+        width:38px!important;
+        height:38px!important;
+        min-width:38px!important;
+      }
+
+      html body .pri-screen.recap-screen .recap-exit img{
+        width:31px!important;
+        height:31px!important;
+      }
+
+      html body .pri-screen.recap-screen .recap-brand{
+        height:40px!important;
+        max-height:40px!important;
+        max-width:84px!important;
+      }
+
+      html body .pri-screen.recap-screen .recap-round{
+        font-size:.69rem!important;
+      }
+    }
+
+
+    /* =========================================================
+       Réponses — bandeau compact stable
+       Flèche + Lettre + chrono centré
+       ========================================================= */
+
+    html.gameplay-flow body .flow-screen.asv1-screen{
+      position:relative!important;
+      display:flex!important;
+      flex-direction:column!important;
+      padding:
+        0
+        14px
+        max(10px,env(safe-area-inset-bottom))!important;
+      gap:8px!important;
+      overflow:hidden!important;
+    }
+
+    /* Bandeau réel de 57px : la liste reste dessous. */
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-header{
+      position:relative!important;
+      inset:auto!important;
+      z-index:80!important;
+
+      flex:0 0 57px!important;
+      width:calc(100% + 28px)!important;
+      min-width:0!important;
+      max-width:none!important;
+      height:57px!important;
+      min-height:57px!important;
+
+      margin:0 -14px!important;
+      padding:0 14px!important;
+      box-sizing:border-box!important;
+
+      display:flex!important;
+      align-items:center!important;
+      justify-content:flex-start!important;
+
+      background:
+        linear-gradient(rgba(195,58,255,.84),rgba(195,58,255,.84))
+          left top / 100% 1px no-repeat,
+        linear-gradient(rgba(195,58,255,.84),rgba(195,58,255,.84))
+          left bottom / 100% 1px no-repeat,
+        linear-gradient(
+          90deg,
+          rgba(49,19,111,.98) 0%,
+          rgba(32,24,119,.97) 42%,
+          rgba(10,35,104,.96) 100%
+        )!important;
+
+      box-shadow:
+        inset 0 0 18px rgba(107,83,255,.14),
+        0 0 14px rgba(178,58,255,.09)!important;
+      overflow:visible!important;
+    }
+
+    /* Flèche à gauche */
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-header .asv1-quit{
+      position:relative!important;
+      z-index:84!important;
+      flex:0 0 40px!important;
+      width:40px!important;
+      height:40px!important;
+      min-width:40px!important;
+      min-height:40px!important;
+      margin:0!important;
+      padding:0!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      display:grid!important;
+      place-items:center!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-header .asv1-quit img{
+      width:32px!important;
+      height:32px!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(188,76,255,.62))!important;
+    }
+
+    /* L'ancien numéro de manche n'est plus affiché. */
+    html.gameplay-flow body
+      .flow-screen.asv1-screen .asv1-round-mini{
+      display:none!important;
+    }
+
+    /* Logo P'tit Bac au centre du bandeau. */
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-header .asv1-brand{
+      position:absolute!important;
+      z-index:83!important;
+      left:50%!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+
+      display:block!important;
+      width:auto!important;
+      height:43px!important;
+      max-width:92px!important;
+      max-height:43px!important;
+      margin:0!important;
+
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(189,70,255,.48))!important;
+      pointer-events:none!important;
+    }
+
+    /* Le hero reste dans son DOM d'origine mais se pose dans le bandeau. */
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-hero{
+      position:absolute!important;
+      z-index:82!important;
+      top:0!important;
+      left:0!important;
+      right:0!important;
+
+      width:100%!important;
+      height:57px!important;
+      min-height:57px!important;
+      margin:0!important;
+      padding:0!important;
+
+      display:block!important;
+      pointer-events:none!important;
+    }
+
+    /* Lettre à gauche, sans cadre. */
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-hero .asv1-letter-card{
+      position:absolute!important;
+      left:68px!important;
+      top:50%!important;
+      transform:translateY(-50%)!important;
+
+      width:42px!important;
+      height:49px!important;
+      min-width:42px!important;
+      min-height:49px!important;
+      margin:0!important;
+      padding:0!important;
+
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+
+      display:flex!important;
+      flex-direction:column!important;
+      align-items:center!important;
+      justify-content:center!important;
+      gap:2px!important;
+      text-align:center!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-hero .asv1-letter-card small{
+      display:block!important;
+      margin:0!important;
+      color:#d1c2e8!important;
+      font-size:.624rem!important;
+      line-height:1!important;
+      font-weight:800!important;
+      white-space:nowrap!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-hero .asv1-letter-card strong{
+      margin:0!important;
+      color:#c15cff!important;
+      font-size:1rem!important;
+      line-height:1!important;
+      font-weight:900!important;
+      text-shadow:0 0 10px rgba(192,81,255,.58)!important;
+    }
+
+    /* Chrono à droite du bandeau. */
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-hero .asv1-timer{
+      position:absolute!important;
+      left:auto!important;
+      right:14px!important;
+      top:50%!important;
+      transform:translateY(-50%)!important;
+
+      width:42px!important;
+      height:42px!important;
+      min-width:42px!important;
+      min-height:42px!important;
+      max-width:42px!important;
+      max-height:42px!important;
+      margin:0!important;
+      padding:3px!important;
+      aspect-ratio:1/1!important;
+      flex:none!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-hero .asv1-timer strong{
+      font-size:.86rem!important;
+      line-height:1!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-hero .asv1-timer span{
+      display:none!important;
+    }
+
+    /* Contenu normal sous le bandeau. */
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-list{
+      position:relative!important;
+      z-index:2!important;
+      flex:1 1 0!important;
+      width:100%!important;
+      min-height:0!important;
+      margin:0!important;
+      padding:3px!important;
+      overflow-y:auto!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.asv1-screen > .asv1-submit-wrap{
+      position:relative!important;
+      z-index:5!important;
+      flex:0 0 auto!important;
+      width:100%!important;
+      margin:0!important;
+    }
+
+    /* Même hauteur avec clavier ouvert. */
+    html.gameplay-flow body
+      .flow-screen.asv1-screen.is-keyboard-open{
+      padding-top:0!important;
+      padding-bottom:5px!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.asv1-screen.is-keyboard-open > .asv1-header{
+      flex-basis:57px!important;
+      height:57px!important;
+      min-height:57px!important;
+    }
+
+    @media(max-width:370px){
+      html.gameplay-flow body
+        .flow-screen.asv1-screen > .asv1-header{
+        flex-basis:57px!important;
+        height:57px!important;
+        min-height:57px!important;
+        padding-left:10px!important;
+        padding-right:10px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.asv1-screen > .asv1-header .asv1-quit{
+        flex-basis:36px!important;
+        width:36px!important;
+        height:36px!important;
+        min-width:36px!important;
+        min-height:36px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.asv1-screen > .asv1-header .asv1-quit img{
+        width:29px!important;
+        height:29px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.asv1-screen > .asv1-header .asv1-brand{
+        height:40px!important;
+        max-height:40px!important;
+        max-width:84px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.asv1-screen > .asv1-hero .asv1-letter-card{
+        left:56px!important;
+        width:38px!important;
+        height:47px!important;
+        min-width:38px!important;
+        min-height:47px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.asv1-screen > .asv1-hero .asv1-letter-card small{
+        font-size:.572rem!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.asv1-screen > .asv1-hero .asv1-letter-card strong{
+        font-size:1.222rem!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.asv1-screen > .asv1-hero .asv1-timer{
+        right:10px!important;
+        width:38px!important;
+        height:38px!important;
+        min-width:38px!important;
+        min-height:38px!important;
+        max-width:38px!important;
+        max-height:38px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.asv1-screen > .asv1-hero .asv1-timer strong{
+        font-size:.78rem!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.asv1-screen.is-keyboard-open > .asv1-header{
+        flex-basis:57px!important;
+        height:57px!important;
+        min-height:57px!important;
+      }
+    }
+
+
+    /* =========================================================
+       Attente des autres joueurs — bandeau partagé
+       ========================================================= */
+
+    html.gameplay-flow body
+      .flow-screen.wsv1-screen{
+      padding-top:0!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.wsv1-screen > .wsv1-brandbar{
+      position:relative!important;
+      z-index:80!important;
+
+      flex:0 0 52px!important;
+      width:calc(100% + 28px)!important;
+      height:52px!important;
+      min-height:52px!important;
+      margin:0 -14px!important;
+      padding:0 14px 4px!important;
+      box-sizing:border-box!important;
+
+      display:grid!important;
+      grid-template-columns:1fr 62px 1fr!important;
+      align-items:center!important;
+      gap:0!important;
+
+      background:
+        linear-gradient(rgba(195,58,255,.84),rgba(195,58,255,.84))
+          left top / 100% 1px no-repeat,
+        linear-gradient(rgba(195,58,255,.84),rgba(195,58,255,.84))
+          left bottom 4px / 100% 1px no-repeat,
+        linear-gradient(
+          90deg,
+          rgba(49,19,111,.98) 0%,
+          rgba(32,24,119,.97) 42%,
+          rgba(10,35,104,.96) 100%
+        )
+          left top / 100% 48px no-repeat!important;
+
+      box-shadow:
+        inset 0 0 18px rgba(107,83,255,.14)!important;
+      overflow:visible!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.wsv1-screen > .wsv1-brandbar .wsv1-exit{
+      grid-column:1!important;
+      justify-self:start!important;
+      align-self:center!important;
+
+      width:42px!important;
+      height:42px!important;
+      min-width:42px!important;
+      min-height:42px!important;
+      margin:0!important;
+      padding:0!important;
+
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+
+      display:grid!important;
+      place-items:center!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.wsv1-screen > .wsv1-brandbar .wsv1-exit img{
+      width:34px!important;
+      height:34px!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(188,76,255,.62))!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.wsv1-screen > .wsv1-brandbar .wsv1-brand{
+      grid-column:2!important;
+      justify-self:center!important;
+      align-self:center!important;
+
+      display:block!important;
+      width:auto!important;
+      height:43px!important;
+      max-width:92px!important;
+      max-height:43px!important;
+      margin:0!important;
+
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(189,70,255,.48))!important;
+      pointer-events:none!important;
+    }
+
+    @media(max-width:370px){
+      html.gameplay-flow body
+        .flow-screen.wsv1-screen > .wsv1-brandbar{
+        grid-template-columns:1fr 56px 1fr!important;
+        padding-left:10px!important;
+        padding-right:10px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.wsv1-screen > .wsv1-brandbar .wsv1-exit{
+        width:38px!important;
+        height:38px!important;
+        min-width:38px!important;
+        min-height:38px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.wsv1-screen > .wsv1-brandbar .wsv1-exit img{
+        width:31px!important;
+        height:31px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.wsv1-screen > .wsv1-brandbar .wsv1-brand{
+        height:40px!important;
+        max-height:40px!important;
+        max-width:84px!important;
+      }
+    }
+
+
+
+    /* =========================================================
+       Réponses — correctif scroll clavier iPhone / Android
+       La zone de jeu suit réellement visualViewport quand le
+       clavier est ouvert, afin que la liste reste scrollable.
+       ========================================================= */
+
+    html.gameplay-flow
+      body:has(.asv1-screen.is-keyboard-open)
+      #app{
+      position:fixed!important;
+      inset:auto!important;
+      top:var(--game-top,0px)!important;
+      right:0!important;
+      bottom:auto!important;
+      left:0!important;
+
+      width:100%!important;
+      height:var(--game-height,100dvh)!important;
+      min-height:0!important;
+      max-height:var(--game-height,100dvh)!important;
+
+      overflow:hidden!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.asv1-screen.is-keyboard-open{
+      width:min(100%,480px)!important;
+      height:100%!important;
+      min-height:0!important;
+      max-height:100%!important;
+
+      /* #app gère déjà le décalage visualViewport. */
+      transform:none!important;
+
+      overflow:hidden!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.asv1-screen.is-keyboard-open
+      > .asv1-list{
+      position:relative!important;
+      flex:1 1 0!important;
+
+      width:100%!important;
+      height:auto!important;
+      min-height:0!important;
+      max-height:none!important;
+
+      overflow-x:hidden!important;
+      overflow-y:scroll!important;
+
+      -webkit-overflow-scrolling:touch!important;
+      touch-action:pan-y!important;
+      overscroll-behavior-y:contain!important;
+
+      scroll-behavior:auto!important;
+      scroll-padding-top:8px!important;
+      scroll-padding-bottom:18px!important;
+    }
+
+    /* Les champs ne doivent jamais bloquer le geste vertical. */
+    html.gameplay-flow body
+      .flow-screen.asv1-screen.is-keyboard-open
+      .asv1-row,
+    html.gameplay-flow body
+      .flow-screen.asv1-screen.is-keyboard-open
+      .asv1-input-wrap,
+    html.gameplay-flow body
+      .flow-screen.asv1-screen.is-keyboard-open
+      .asv1-input{
+      touch-action:pan-y!important;
+    }
+
+
+    /* =========================================================
+       Résultats de manche — bandeau partagé
+       Flèche + logo P'tit Bac + Manche X/Y
+       ========================================================= */
+
+    html.gameplay-flow body
+      .flow-screen.ssv1-screen.results-screen{
+      padding-top:0!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.ssv1-screen.results-screen > .res-top{
+      position:relative!important;
+      z-index:80!important;
+
+      flex:0 0 52px!important;
+      width:calc(100% + 28px)!important;
+      height:52px!important;
+      min-height:52px!important;
+      margin:0 -14px!important;
+      padding:0 14px 4px!important;
+      box-sizing:border-box!important;
+
+      display:grid!important;
+      grid-template-columns:1fr 62px 1fr!important;
+      align-items:center!important;
+      gap:0!important;
+
+      background:
+        linear-gradient(rgba(195,58,255,.84),rgba(195,58,255,.84))
+          left top / 100% 1px no-repeat,
+        linear-gradient(rgba(195,58,255,.84),rgba(195,58,255,.84))
+          left bottom 4px / 100% 1px no-repeat,
+        linear-gradient(
+          90deg,
+          rgba(49,19,111,.98) 0%,
+          rgba(32,24,119,.97) 42%,
+          rgba(10,35,104,.96) 100%
+        )
+          left top / 100% 48px no-repeat!important;
+
+      box-shadow:
+        inset 0 0 18px rgba(107,83,255,.14)!important;
+      overflow:visible!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.ssv1-screen.results-screen
+      > .res-top .res-exit{
+      grid-column:1!important;
+      justify-self:start!important;
+      align-self:center!important;
+
+      width:42px!important;
+      height:42px!important;
+      min-width:42px!important;
+      min-height:42px!important;
+      margin:0!important;
+      padding:0!important;
+
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+
+      display:grid!important;
+      place-items:center!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.ssv1-screen.results-screen
+      > .res-top .res-exit img{
+      width:34px!important;
+      height:34px!important;
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(188,76,255,.62))!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.ssv1-screen.results-screen
+      > .res-top .res-brand{
+      grid-column:2!important;
+      justify-self:center!important;
+      align-self:center!important;
+
+      display:block!important;
+      width:auto!important;
+      height:43px!important;
+      max-width:92px!important;
+      max-height:43px!important;
+      margin:0!important;
+
+      object-fit:contain!important;
+      filter:drop-shadow(0 0 7px rgba(189,70,255,.48))!important;
+      pointer-events:none!important;
+    }
+
+    html.gameplay-flow body
+      .flow-screen.ssv1-screen.results-screen
+      > .res-top .res-pill{
+      grid-column:3!important;
+      justify-self:end!important;
+      align-self:center!important;
+
+      width:auto!important;
+      min-width:0!important;
+      height:auto!important;
+      margin:0!important;
+      padding:0!important;
+
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+
+      color:#fff!important;
+      font-size:.78rem!important;
+      line-height:1!important;
+      font-weight:900!important;
+      white-space:nowrap!important;
+      text-shadow:
+        0 0 7px rgba(197,76,255,.45),
+        0 0 12px rgba(111,69,255,.25)!important;
+    }
+
+    @media(max-width:370px){
+      html.gameplay-flow body
+        .flow-screen.ssv1-screen.results-screen > .res-top{
+        grid-template-columns:1fr 56px 1fr!important;
+        padding-left:10px!important;
+        padding-right:10px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.ssv1-screen.results-screen
+        > .res-top .res-exit{
+        width:38px!important;
+        height:38px!important;
+        min-width:38px!important;
+        min-height:38px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.ssv1-screen.results-screen
+        > .res-top .res-exit img{
+        width:31px!important;
+        height:31px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.ssv1-screen.results-screen
+        > .res-top .res-brand{
+        height:40px!important;
+        max-height:40px!important;
+        max-width:84px!important;
+      }
+
+      html.gameplay-flow body
+        .flow-screen.ssv1-screen.results-screen
+        > .res-top .res-pill{
+        font-size:.69rem!important;
+      }
+    }
+
+
+  </style>
+</head>
+
+<body>
+  <div id="app"><p role="status" style="color:#fff;text-align:center;padding:3rem;font-family:sans-serif">Chargement de P’tit Bac…</p></div>
+  <noscript>Active JavaScript pour jouer à P’tit Bac.</noscript>
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script defer src="/socket.io/socket.io.js"></script>
+  <script defer src="/mobile-runtime.js?v=1.48.0"></script>
+  <script defer src="/app.js?v=1.48.0"></script>
+  <script defer src="/account-v1.js?v=1.48.0"></script>
+  <script defer src="/avatar-system-v1.js?v=1.48.0-prestige1"></script>
+  <script defer src="/inventory-client.js?v=1.48.0-prestige1"></script>
+  <script defer src="/progression-client.js?v=1.48.0-levels-constellation12-xp-fill13"></script>
+  <script defer src="/reward-chests-client.js?v=1.48.0-rewards15-rates1"></script>
+  <script defer src="/icon-theme-v1.js?v=1.48.0"></script>
+  <script defer src="/home-screen-v1.js?v=1.48.0-modes-v3"></script>
+  <script defer src="/quests-client.js?v=1.48.0-quests8-active-first"></script>
+  <script defer src="/profile-module-v1.js?v=1.48.0-member-month-year"></script>
+  <script defer src="/friends-client.js?v=1.48.0"></script>
+  <script defer src="/chat-client.js?v=1.48.0"></script>
+  <script defer src="/economy-client.js?v=1.48.0-level-claims1"></script>
+  <script defer src="/shop-screen-v2.js?v=1.48.0-shop-dynamic17"></script>
+  <script defer src="/lobby-screen-v4.js?v=1.48.0"></script>
+  <script defer src="/quick-lobby-v1.js?v=1.48.0"></script>
+  <script defer src="/category-selection-v2.js?v=1.48.0"></script>
+  <script defer src="/admin-v1.js?v=1.48.0"></script>
+  <script defer src="/admin-extra-v1.js?v=1.48.0-admin-shop6"></script>
+  <script defer src="/inbox-v1.js?v=1.48.0"></script>
+  <script defer src="/ui-runtime-v1.js?v=1.48.0"></script>
+  <script defer src="/letter-wheel-v1.js?v=1.48.0"></script>
+  <script defer src="/answer-screen-v1.js?v=1.48.0"></script>
+  <script defer src="/round-intro-v1.js?v=1.48.0"></script>
+  <script defer src="/waiting-screen-v1.js?v=1.48.0"></script>
+  <script defer src="/validation-screen-v1.js?v=1.48.0"></script>
+  <script defer src="/scoreboard-screen-v1.js?v=1.48.0"></script>
+  <script defer src="/final-screen-v1.js?v=1.48.0"></script>
+  <script defer src="/wallet-client.js?v=1.48.0"></script>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const QUICK_COUNTDOWN_DURATION_MS = 3200;
+
+      let quickCountdownTimer = null;
+      let quickCountdownAudio = null;
+      let quickCountdownDeadline = 0;
+      let quickCountdownLastValue = "";
+
+      function quickCountdownNow() {
+        try {
+          return typeof serverNowMs === "function"
+            ? serverNowMs()
+            : Date.now();
+        } catch {
+          return Date.now();
+        }
+      }
+
+      function clearQuickLobbyCountdown() {
+        clearInterval(quickCountdownTimer);
+        quickCountdownTimer = null;
+        quickCountdownDeadline = 0;
+        quickCountdownLastValue = "";
+
+        if (quickCountdownAudio) {
+          try {
+            quickCountdownAudio.pause();
+            quickCountdownAudio.currentTime = 0;
+          } catch {}
+          quickCountdownAudio = null;
+        }
+
+        document.getElementById("lobbyStartCountdown")?.remove();
+      }
+
+      function ensureQuickLobbyCountdownOverlay() {
+        let overlay =
+          document.getElementById("lobbyStartCountdown");
+
+        if (overlay) return overlay;
+
+        overlay = document.createElement("div");
+        overlay.id = "lobbyStartCountdown";
+        overlay.className = "lobby-start-countdown";
+        overlay.setAttribute("role", "status");
+        overlay.setAttribute("aria-live", "assertive");
+
+        /* Markup strictement identique au compte à rebours du salon privé. */
+        overlay.innerHTML = `
+          <div class="lobby-start-countdown-card">
+            <div class="lobby-countdown-rocket" aria-hidden="true">🚀</div>
+            <h2>La partie commence dans</h2>
+
+            <div class="lobby-countdown-ring" aria-hidden="true">
+              <div class="lobby-countdown-ring-track"></div>
+              <div class="lobby-countdown-ring-glow"></div>
+              <strong id="lobbyCountdownNumber">3</strong>
+              <i class="spark s1"></i>
+              <i class="spark s2"></i>
+              <i class="spark s3"></i>
+              <i class="spark s4"></i>
+            </div>
+
+            <p>Préparez-vous !</p>
+          </div>
+        `;
+
+        document.body.appendChild(overlay);
+        return overlay;
+      }
+
+      function startQuickLobbyCountdown(deadline) {
+        const safeDeadline = Number(deadline || 0);
+        if (!safeDeadline) return;
+
+        if (
+          quickCountdownDeadline === safeDeadline &&
+          document.getElementById("lobbyStartCountdown")
+        ) {
+          return;
+        }
+
+        clearQuickLobbyCountdown();
+        quickCountdownDeadline = safeDeadline;
+
+        const overlay = ensureQuickLobbyCountdownOverlay();
+        const number =
+          overlay.querySelector("#lobbyCountdownNumber");
+        const card =
+          overlay.querySelector(".lobby-start-countdown-card");
+        const ring =
+          overlay.querySelector(".lobby-countdown-ring");
+
+        /* Même son que dans le salon privé. */
+        try {
+          quickCountdownAudio =
+            new Audio("/ptitbac-countdown-neon.wav");
+          quickCountdownAudio.preload = "auto";
+          quickCountdownAudio.volume = 0.78;
+          quickCountdownAudio.currentTime = 0;
+
+          const playPromise = quickCountdownAudio.play();
+          if (playPromise?.catch) {
+            playPromise.catch(() => {});
+          }
+        } catch {}
+
+        const update = () => {
+          const remaining =
+            quickCountdownDeadline - quickCountdownNow();
+
+          let nextValue = "3";
+
+          if (remaining > 2200) nextValue = "3";
+          else if (remaining > 1200) nextValue = "2";
+          else if (remaining > 250) nextValue = "1";
+          else nextValue = "!";
+
+          if (
+            number &&
+            nextValue !== quickCountdownLastValue
+          ) {
+            number.textContent = nextValue;
+            quickCountdownLastValue = nextValue;
+
+            ring?.classList.remove("pulse");
+            void ring?.offsetWidth;
+            ring?.classList.add("pulse");
+          }
+
+          if (nextValue === "!") {
+            card?.classList.add("is-go");
+          }
+
+          if (remaining < -350) {
+            clearQuickLobbyCountdown();
+          }
+        };
+
+        update();
+        quickCountdownTimer = setInterval(update, 70);
+      }
+
+      function handleQuickReadyCountdown(payload = {}) {
+        let state = null;
+
+        try {
+          state = session?.state || null;
+        } catch {}
+
+        if (
+          !state ||
+          state.mode !== "quick" ||
+          state.phase !== "lobby"
+        ) {
+          clearQuickLobbyCountdown();
+          return;
+        }
+
+        if (
+          payload.starting === true &&
+          Number(payload.deadline || 0) > 0
+        ) {
+          startQuickLobbyCountdown(payload.deadline);
+          return;
+        }
+
+        /* Un joueur annule "Prêt", quitte, ou le lancement est annulé. */
+        clearQuickLobbyCountdown();
+      }
+
+      function startQuickCountdownRuntime() {
+        try {
+          socket?.on?.(
+            "quick:ready-state",
+            handleQuickReadyCountdown
+          );
+
+          socket?.on?.("quick:error", () => {
+            clearQuickLobbyCountdown();
+          });
+
+          socket?.on?.("room:state", state => {
+            if (
+              state?.mode !== "quick" ||
+              state?.phase !== "lobby"
+            ) {
+              clearQuickLobbyCountdown();
+            }
+          });
+        } catch {}
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          startQuickCountdownRuntime,
+          { once:true }
+        );
+      } else {
+        startQuickCountdownRuntime();
+      }
+    })();
+  </script>
+
+
+  <script>
+    (() => {
+      "use strict";
+
+      let categoryHeaderScheduled = false;
+
+      function categoryHeaderSync() {
+        categoryHeaderScheduled = false;
+
+        const root = document.querySelector(".cat-v2.cat-prototype");
+        if (!root) return;
+
+        const back = root.querySelector("#returnLobbyCategoriesBtn");
+        const backImg = back?.querySelector("img");
+
+        if (backImg && backImg.getAttribute("src") !== "/back-arrow.png") {
+          backImg.src = "/back-arrow.png";
+        }
+
+        /* Fenêtre de confirmation demandée : Annuler / Quitter la partie. */
+        const cancel = root.querySelector("#categoryExitNo");
+        const quit = root.querySelector("#categoryExitHome");
+        const returnLobby = root.querySelector("#categoryExitLobby");
+
+        if (cancel) cancel.textContent = "Annuler";
+        if (quit) quit.textContent = "Quitter la partie";
+
+        /* La flèche sert à quitter la partie, pas à retourner au salon. */
+        if (returnLobby) returnLobby.remove();
+      }
+
+      function categoryHeaderSchedule() {
+        if (categoryHeaderScheduled) return;
+        categoryHeaderScheduled = true;
+        requestAnimationFrame(categoryHeaderSync);
+      }
+
+      function categoryHeaderStart() {
+        categoryHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          categoryHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          categoryHeaderSchedule
+        );
+
+        try {
+          socket?.on?.("room:state", categoryHeaderSchedule);
+        } catch {}
+
+        const app = document.getElementById("app");
+
+        if (app) {
+          new MutationObserver(categoryHeaderSchedule).observe(app, {
+            subtree:true,
+            childList:true
+          });
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          categoryHeaderStart,
+          { once:true }
+        );
+      } else {
+        categoryHeaderStart();
+      }
+    })();
+  </script>
+
+
+  <script>
+    (() => {
+      "use strict";
+
+      let letterHeaderScheduled = false;
+      let letterHeaderObserver = null;
+
+      function letterHeaderPatchExitModal() {
+        const modal = document.querySelector(".pbw1-modal-backdrop");
+        if (!modal) return;
+
+        const cancel = modal.querySelector('[data-action="cancel"]');
+        const quit = modal.querySelector('[data-action="home"]');
+        const returnLobby = modal.querySelector('[data-action="lobby"]');
+
+        if (cancel) cancel.textContent = "Annuler";
+        if (quit) quit.textContent = "Quitter la partie";
+
+        /* Comme sur Catégories : pas de bouton "Revenir au salon". */
+        returnLobby?.remove();
+      }
+
+      function letterHeaderSync() {
+        letterHeaderScheduled = false;
+
+        const root = document.querySelector(".pbw1-screen.letter-prototype");
+
+        if (root) {
+          const backImg = root.querySelector("#pbw1Exit img");
+
+          if (
+            backImg &&
+            backImg.getAttribute("src") !== "/back-arrow.png"
+          ) {
+            backImg.src = "/back-arrow.png";
+          }
+        }
+
+        letterHeaderPatchExitModal();
+      }
+
+      function letterHeaderSchedule() {
+        if (letterHeaderScheduled) return;
+
+        letterHeaderScheduled = true;
+        requestAnimationFrame(letterHeaderSync);
+      }
+
+      function letterHeaderStart() {
+        letterHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          letterHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          letterHeaderSchedule
+        );
+
+        try {
+          socket?.on?.("room:state", letterHeaderSchedule);
+        } catch {}
+
+        if (!letterHeaderObserver && document.body) {
+          letterHeaderObserver =
+            new MutationObserver(letterHeaderSchedule);
+
+          letterHeaderObserver.observe(document.body, {
+            subtree:true,
+            childList:true
+          });
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          letterHeaderStart,
+          { once:true }
+        );
+      } else {
+        letterHeaderStart();
+      }
+    })();
+  </script>
+
+
+  <script>
+    (() => {
+      "use strict";
+
+      let recapHeaderScheduled = false;
+      let recapHeaderObserver = null;
+
+      function recapHeaderPatchExitModal() {
+        const modal = document.querySelector(".pri-exit-modal-backdrop");
+        if (!modal) return;
+
+        const cancel = modal.querySelector('[data-action="cancel"]');
+        const quit = modal.querySelector('[data-action="home"]');
+        const returnLobby = modal.querySelector('[data-action="lobby"]');
+
+        if (cancel) cancel.textContent = "Annuler";
+        if (quit) quit.textContent = "Quitter la partie";
+
+        returnLobby?.remove();
+      }
+
+      function recapHeaderSync() {
+        recapHeaderScheduled = false;
+
+        const root = document.querySelector(".pri-screen.recap-screen");
+
+        if (root) {
+          const backImg = root.querySelector("#priExit img");
+
+          if (
+            backImg &&
+            backImg.getAttribute("src") !== "/back-arrow.png"
+          ) {
+            backImg.src = "/back-arrow.png";
+          }
+        }
+
+        recapHeaderPatchExitModal();
+      }
+
+      function recapHeaderSchedule() {
+        if (recapHeaderScheduled) return;
+        recapHeaderScheduled = true;
+        requestAnimationFrame(recapHeaderSync);
+      }
+
+      function recapHeaderStart() {
+        recapHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          recapHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          recapHeaderSchedule
+        );
+
+        try {
+          socket?.on?.("room:state", recapHeaderSchedule);
+        } catch {}
+
+        if (!recapHeaderObserver && document.body) {
+          recapHeaderObserver =
+            new MutationObserver(recapHeaderSchedule);
+
+          recapHeaderObserver.observe(document.body, {
+            subtree:true,
+            childList:true
+          });
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          recapHeaderStart,
+          { once:true }
+        );
+      } else {
+        recapHeaderStart();
+      }
+    })();
+  </script>
+
+  <script>
+    (() => {
+      "use strict";
+
+      let answerHeaderScheduled = false;
+      let answerHeaderObserver = null;
+
+      function answerHeaderPatchExitModal() {
+        const modal =
+          document.querySelector(".asv1-exit-modal-backdrop");
+
+        if (!modal) return;
+
+        const cancel =
+          modal.querySelector('[data-action="cancel"]');
+
+        const quit =
+          modal.querySelector('[data-action="home"]');
+
+        const returnLobby =
+          modal.querySelector('[data-action="lobby"]');
+
+        if (cancel) cancel.textContent = "Annuler";
+        if (quit) quit.textContent = "Quitter la partie";
+
+        returnLobby?.remove();
+      }
+
+      function answerHeaderSync() {
+        answerHeaderScheduled = false;
+
+        const root =
+          document.querySelector(".asv1-screen");
+
+        if (root) {
+          const hero =
+            root.querySelector(".asv1-hero");
+
+          const letterCard =
+            root.querySelector(".asv1-letter-card");
+
+          const timer =
+            root.querySelector(".asv1-timer");
+
+          const letterLabel =
+            letterCard?.querySelector("small");
+
+          if (letterLabel) {
+            letterLabel.textContent = "Lettre";
+          }
+
+          const backImg =
+            root.querySelector("#leaveGameBtn img");
+
+          if (
+            backImg &&
+            backImg.getAttribute("src") !== "/back-arrow.png"
+          ) {
+            backImg.src = "/back-arrow.png";
+          }
+
+          /* Ajoute le logo au centre du bandeau sans déplacer
+             la lettre ni le chrono de leur bloc d'origine. */
+          const header =
+            root.querySelector(".asv1-header");
+
+          if (
+            header &&
+            !header.querySelector(".asv1-brand")
+          ) {
+            const logo =
+              document.createElement("img");
+
+            logo.className = "asv1-brand";
+            logo.src = "/ptitbac.logo.png";
+            logo.alt = "P’tit Bac";
+            logo.width = 62;
+            logo.height = 52;
+
+            header.appendChild(logo);
+          }
+
+          /* Sécurité pour une mise à jour à chaud :
+             si l'ancienne version avait déplacé lettre/chrono dans le
+             header, on les remet dans leur bloc d'origine. */
+          if (
+            hero &&
+            letterCard &&
+            letterCard.parentElement !== hero
+          ) {
+            hero.appendChild(letterCard);
+          }
+
+          if (
+            hero &&
+            timer &&
+            timer.parentElement !== hero
+          ) {
+            hero.appendChild(timer);
+          }
+
+          hero?.removeAttribute("aria-hidden");
+        }
+
+        answerHeaderPatchExitModal();
+      }
+
+      function answerHeaderSchedule() {
+        if (answerHeaderScheduled) return;
+
+        answerHeaderScheduled = true;
+        requestAnimationFrame(answerHeaderSync);
+      }
+
+      function answerHeaderStart() {
+        answerHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          answerHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          answerHeaderSchedule
+        );
+
+        try {
+          socket?.on?.(
+            "room:state",
+            answerHeaderSchedule
+          );
+        } catch {}
+
+        if (
+          !answerHeaderObserver &&
+          document.body
+        ) {
+          answerHeaderObserver =
+            new MutationObserver(
+              answerHeaderSchedule
+            );
+
+          answerHeaderObserver.observe(
+            document.body,
+            {
+              subtree:true,
+              childList:true
+            }
+          );
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          answerHeaderStart,
+          { once:true }
+        );
+      } else {
+        answerHeaderStart();
+      }
+    })();
+  </script>
+
+
+  <script>
+    (() => {
+      "use strict";
+
+      let waitingHeaderScheduled = false;
+      let waitingHeaderObserver = null;
+
+      function waitingHeaderSync() {
+        waitingHeaderScheduled = false;
+
+        const root =
+          document.querySelector(".wsv1-screen");
+
+        if (!root) return;
+
+        const backImg =
+          root.querySelector("#wsv1Exit img");
+
+        if (
+          backImg &&
+          backImg.getAttribute("src") !== "/back-arrow.png"
+        ) {
+          backImg.src = "/back-arrow.png";
+        }
+      }
+
+      function waitingHeaderSchedule() {
+        if (waitingHeaderScheduled) return;
+
+        waitingHeaderScheduled = true;
+        requestAnimationFrame(waitingHeaderSync);
+      }
+
+      function waitingHeaderStart() {
+        waitingHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          waitingHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          waitingHeaderSchedule
+        );
+
+        try {
+          socket?.on?.(
+            "room:state",
+            waitingHeaderSchedule
+          );
+        } catch {}
+
+        if (
+          !waitingHeaderObserver &&
+          document.body
+        ) {
+          waitingHeaderObserver =
+            new MutationObserver(
+              waitingHeaderSchedule
+            );
+
+          waitingHeaderObserver.observe(
+            document.body,
+            {
+              subtree:true,
+              childList:true
+            }
+          );
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          waitingHeaderStart,
+          { once:true }
+        );
+      } else {
+        waitingHeaderStart();
+      }
+    })();
+  </script>
+
+
+  <script>
+    (() => {
+      "use strict";
+
+      let resultsHeaderScheduled = false;
+      let resultsHeaderObserver = null;
+
+      function resultsHeaderSync() {
+        resultsHeaderScheduled = false;
+
+        const root =
+          document.querySelector(".ssv1-screen.results-screen");
+
+        if (!root) return;
+
+        const backImg =
+          root.querySelector("#resExit img");
+
+        if (
+          backImg &&
+          backImg.getAttribute("src") !== "/back-arrow.png"
+        ) {
+          backImg.src = "/back-arrow.png";
+        }
+      }
+
+      function resultsHeaderSchedule() {
+        if (resultsHeaderScheduled) return;
+
+        resultsHeaderScheduled = true;
+        requestAnimationFrame(resultsHeaderSync);
+      }
+
+      function resultsHeaderStart() {
+        resultsHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          resultsHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          resultsHeaderSchedule
+        );
+
+        try {
+          socket?.on?.(
+            "room:state",
+            resultsHeaderSchedule
+          );
+        } catch {}
+
+        if (
+          !resultsHeaderObserver &&
+          document.body
+        ) {
+          resultsHeaderObserver =
+            new MutationObserver(
+              resultsHeaderSchedule
+            );
+
+          resultsHeaderObserver.observe(
+            document.body,
+            {
+              subtree:true,
+              childList:true
+            }
+          );
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          resultsHeaderStart,
+          { once:true }
+        );
+      } else {
+        resultsHeaderStart();
+      }
+    })();
+  </script>
+
+</body>
+</html>
