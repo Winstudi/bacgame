@@ -1,6 +1,8 @@
 (() => {
   "use strict";
 
+  window.PtitBacVoiceGameBuild = "V2.1";
+
   const adminState = {
     admin: false,
     infiniteCoins: false,
