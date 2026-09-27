@@ -5,7 +5,6 @@ const {
   isEconomyMode,
   isPublicRoomDiscoverable
 } = require("./room-mode-rules.js");
-const { calculateRewards } = require("./game-economy.js");
 
 function room(overrides = {}) {
   return {
@@ -66,18 +65,4 @@ test("cinq humains plus un filler restent découvrables", () => {
   }));
   players.push({ id:"filler", isHost:false, isBot:true, botKind:"matchmaking", connected:true });
   assert.equal(isPublicRoomDiscoverable(room({ players }), Date.now()), true);
-});
-
-test("aucun mode ne distribue de pièces en fin de partie", () => {
-  const base = {
-    phase:"finished", entryDebited:true, roundIndex:0, rounds:1,
-    paidPlayerIds:["a","b"],
-    players:[
-      { id:"a", walletToken:"wa", score:4, isBot:false },
-      { id:"b", walletToken:"wb", score:2, isBot:false }
-    ]
-  };
-  assert.deepEqual(calculateRewards({ ...base, mode:"private" }), { a:0, b:0 });
-  assert.deepEqual(calculateRewards({ ...base, mode:"public" }), { a:0, b:0 });
-  assert.deepEqual(calculateRewards({ ...base, mode:"quick" }), { a:0, b:0 });
 });

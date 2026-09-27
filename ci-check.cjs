@@ -212,7 +212,6 @@ function checkCoreFiles() {
     "socket-security.js",
     "letter-wheel-spin.wav",
     "room-mode-rules.js",
-    "game-economy.js",
     "game-loop-rules.js",
     "inventory-service.js",
     "progression-service.js"

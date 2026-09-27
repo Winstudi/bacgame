@@ -3827,3 +3827,580 @@ try{renderScoreboard=render;}catch{}
       renderFinishedV2;
   } catch {}
 })();
+
+/* ==== Bandeau de partie 1 ==== */
+    (() => {
+      "use strict";
+
+      let categoryHeaderScheduled = false;
+
+      function categoryHeaderSync() {
+        categoryHeaderScheduled = false;
+
+        const root = document.querySelector(".cat-v2.cat-prototype");
+        if (!root) return;
+
+        const back = root.querySelector("#returnLobbyCategoriesBtn");
+        const backImg = back?.querySelector("img");
+
+        if (backImg && backImg.getAttribute("src") !== "/back-arrow.png") {
+          backImg.src = "/back-arrow.png";
+        }
+
+        /* Fenêtre de confirmation demandée : Annuler / Quitter la partie. */
+        const cancel = root.querySelector("#categoryExitNo");
+        const quit = root.querySelector("#categoryExitHome");
+        const returnLobby = root.querySelector("#categoryExitLobby");
+
+        if (cancel) cancel.textContent = "Annuler";
+        if (quit) quit.textContent = "Quitter la partie";
+
+        /* La flèche sert à quitter la partie, pas à retourner au salon. */
+        if (returnLobby) returnLobby.remove();
+      }
+
+      function categoryHeaderSchedule() {
+        if (categoryHeaderScheduled) return;
+        categoryHeaderScheduled = true;
+        requestAnimationFrame(categoryHeaderSync);
+      }
+
+      function categoryHeaderStart() {
+        categoryHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          categoryHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          categoryHeaderSchedule
+        );
+
+        try {
+          socket?.on?.("room:state", categoryHeaderSchedule);
+        } catch {}
+
+        const app = document.getElementById("app");
+
+        if (app) {
+          new MutationObserver(categoryHeaderSchedule).observe(app, {
+            subtree:true,
+            childList:true
+          });
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          categoryHeaderStart,
+          { once:true }
+        );
+      } else {
+        categoryHeaderStart();
+      }
+    })();
+
+/* ==== Bandeau de partie 2 ==== */
+    (() => {
+      "use strict";
+
+      let letterHeaderScheduled = false;
+      let letterHeaderObserver = null;
+
+      function letterHeaderPatchExitModal() {
+        const modal = document.querySelector(".pbw1-modal-backdrop");
+        if (!modal) return;
+
+        const cancel = modal.querySelector('[data-action="cancel"]');
+        const quit = modal.querySelector('[data-action="home"]');
+        const returnLobby = modal.querySelector('[data-action="lobby"]');
+
+        if (cancel) cancel.textContent = "Annuler";
+        if (quit) quit.textContent = "Quitter la partie";
+
+        /* Comme sur Catégories : pas de bouton "Revenir au salon". */
+        returnLobby?.remove();
+      }
+
+      function letterHeaderSync() {
+        letterHeaderScheduled = false;
+
+        const root = document.querySelector(".pbw1-screen.letter-prototype");
+
+        if (root) {
+          const backImg = root.querySelector("#pbw1Exit img");
+
+          if (
+            backImg &&
+            backImg.getAttribute("src") !== "/back-arrow.png"
+          ) {
+            backImg.src = "/back-arrow.png";
+          }
+        }
+
+        letterHeaderPatchExitModal();
+      }
+
+      function letterHeaderSchedule() {
+        if (letterHeaderScheduled) return;
+
+        letterHeaderScheduled = true;
+        requestAnimationFrame(letterHeaderSync);
+      }
+
+      function letterHeaderStart() {
+        letterHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          letterHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          letterHeaderSchedule
+        );
+
+        try {
+          socket?.on?.("room:state", letterHeaderSchedule);
+        } catch {}
+
+        if (!letterHeaderObserver && document.body) {
+          letterHeaderObserver =
+            new MutationObserver(letterHeaderSchedule);
+
+          letterHeaderObserver.observe(document.body, {
+            subtree:true,
+            childList:true
+          });
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          letterHeaderStart,
+          { once:true }
+        );
+      } else {
+        letterHeaderStart();
+      }
+    })();
+
+/* ==== Bandeau de partie 3 ==== */
+    (() => {
+      "use strict";
+
+      let recapHeaderScheduled = false;
+      let recapHeaderObserver = null;
+
+      function recapHeaderPatchExitModal() {
+        const modal = document.querySelector(".pri-exit-modal-backdrop");
+        if (!modal) return;
+
+        const cancel = modal.querySelector('[data-action="cancel"]');
+        const quit = modal.querySelector('[data-action="home"]');
+        const returnLobby = modal.querySelector('[data-action="lobby"]');
+
+        if (cancel) cancel.textContent = "Annuler";
+        if (quit) quit.textContent = "Quitter la partie";
+
+        returnLobby?.remove();
+      }
+
+      function recapHeaderSync() {
+        recapHeaderScheduled = false;
+
+        const root = document.querySelector(".pri-screen.recap-screen");
+
+        if (root) {
+          const backImg = root.querySelector("#priExit img");
+
+          if (
+            backImg &&
+            backImg.getAttribute("src") !== "/back-arrow.png"
+          ) {
+            backImg.src = "/back-arrow.png";
+          }
+        }
+
+        recapHeaderPatchExitModal();
+      }
+
+      function recapHeaderSchedule() {
+        if (recapHeaderScheduled) return;
+        recapHeaderScheduled = true;
+        requestAnimationFrame(recapHeaderSync);
+      }
+
+      function recapHeaderStart() {
+        recapHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          recapHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          recapHeaderSchedule
+        );
+
+        try {
+          socket?.on?.("room:state", recapHeaderSchedule);
+        } catch {}
+
+        if (!recapHeaderObserver && document.body) {
+          recapHeaderObserver =
+            new MutationObserver(recapHeaderSchedule);
+
+          recapHeaderObserver.observe(document.body, {
+            subtree:true,
+            childList:true
+          });
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          recapHeaderStart,
+          { once:true }
+        );
+      } else {
+        recapHeaderStart();
+      }
+    })();
+
+/* ==== Bandeau de partie 4 ==== */
+    (() => {
+      "use strict";
+
+      let answerHeaderScheduled = false;
+      let answerHeaderObserver = null;
+
+      function answerHeaderPatchExitModal() {
+        const modal =
+          document.querySelector(".asv1-exit-modal-backdrop");
+
+        if (!modal) return;
+
+        const cancel =
+          modal.querySelector('[data-action="cancel"]');
+
+        const quit =
+          modal.querySelector('[data-action="home"]');
+
+        const returnLobby =
+          modal.querySelector('[data-action="lobby"]');
+
+        if (cancel) cancel.textContent = "Annuler";
+        if (quit) quit.textContent = "Quitter la partie";
+
+        returnLobby?.remove();
+      }
+
+      function answerHeaderSync() {
+        answerHeaderScheduled = false;
+
+        const root =
+          document.querySelector(".asv1-screen");
+
+        if (root) {
+          const hero =
+            root.querySelector(".asv1-hero");
+
+          const letterCard =
+            root.querySelector(".asv1-letter-card");
+
+          const timer =
+            root.querySelector(".asv1-timer");
+
+          const letterLabel =
+            letterCard?.querySelector("small");
+
+          if (letterLabel) {
+            letterLabel.textContent = "Lettre";
+          }
+
+          const backImg =
+            root.querySelector("#leaveGameBtn img");
+
+          if (
+            backImg &&
+            backImg.getAttribute("src") !== "/back-arrow.png"
+          ) {
+            backImg.src = "/back-arrow.png";
+          }
+
+          /* Ajoute le logo au centre du bandeau sans déplacer
+             la lettre ni le chrono de leur bloc d'origine. */
+          const header =
+            root.querySelector(".asv1-header");
+
+          if (
+            header &&
+            !header.querySelector(".asv1-brand")
+          ) {
+            const logo =
+              document.createElement("img");
+
+            logo.className = "asv1-brand";
+            logo.src = "/ptitbac.logo.png";
+            logo.alt = "P’tit Bac";
+            logo.width = 62;
+            logo.height = 52;
+
+            header.appendChild(logo);
+          }
+
+          /* Sécurité pour une mise à jour à chaud :
+             si l'ancienne version avait déplacé lettre/chrono dans le
+             header, on les remet dans leur bloc d'origine. */
+          if (
+            hero &&
+            letterCard &&
+            letterCard.parentElement !== hero
+          ) {
+            hero.appendChild(letterCard);
+          }
+
+          if (
+            hero &&
+            timer &&
+            timer.parentElement !== hero
+          ) {
+            hero.appendChild(timer);
+          }
+
+          hero?.removeAttribute("aria-hidden");
+        }
+
+        answerHeaderPatchExitModal();
+      }
+
+      function answerHeaderSchedule() {
+        if (answerHeaderScheduled) return;
+
+        answerHeaderScheduled = true;
+        requestAnimationFrame(answerHeaderSync);
+      }
+
+      function answerHeaderStart() {
+        answerHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          answerHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          answerHeaderSchedule
+        );
+
+        try {
+          socket?.on?.(
+            "room:state",
+            answerHeaderSchedule
+          );
+        } catch {}
+
+        if (
+          !answerHeaderObserver &&
+          document.body
+        ) {
+          answerHeaderObserver =
+            new MutationObserver(
+              answerHeaderSchedule
+            );
+
+          answerHeaderObserver.observe(
+            document.body,
+            {
+              subtree:true,
+              childList:true
+            }
+          );
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          answerHeaderStart,
+          { once:true }
+        );
+      } else {
+        answerHeaderStart();
+      }
+    })();
+
+/* ==== Bandeau de partie 5 ==== */
+    (() => {
+      "use strict";
+
+      let waitingHeaderScheduled = false;
+      let waitingHeaderObserver = null;
+
+      function waitingHeaderSync() {
+        waitingHeaderScheduled = false;
+
+        const root =
+          document.querySelector(".wsv1-screen");
+
+        if (!root) return;
+
+        const backImg =
+          root.querySelector("#wsv1Exit img");
+
+        if (
+          backImg &&
+          backImg.getAttribute("src") !== "/back-arrow.png"
+        ) {
+          backImg.src = "/back-arrow.png";
+        }
+      }
+
+      function waitingHeaderSchedule() {
+        if (waitingHeaderScheduled) return;
+
+        waitingHeaderScheduled = true;
+        requestAnimationFrame(waitingHeaderSync);
+      }
+
+      function waitingHeaderStart() {
+        waitingHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          waitingHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          waitingHeaderSchedule
+        );
+
+        try {
+          socket?.on?.(
+            "room:state",
+            waitingHeaderSchedule
+          );
+        } catch {}
+
+        if (
+          !waitingHeaderObserver &&
+          document.body
+        ) {
+          waitingHeaderObserver =
+            new MutationObserver(
+              waitingHeaderSchedule
+            );
+
+          waitingHeaderObserver.observe(
+            document.body,
+            {
+              subtree:true,
+              childList:true
+            }
+          );
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          waitingHeaderStart,
+          { once:true }
+        );
+      } else {
+        waitingHeaderStart();
+      }
+    })();
+
+/* ==== Bandeau de partie 6 ==== */
+    (() => {
+      "use strict";
+
+      let resultsHeaderScheduled = false;
+      let resultsHeaderObserver = null;
+
+      function resultsHeaderSync() {
+        resultsHeaderScheduled = false;
+
+        const root =
+          document.querySelector(".ssv1-screen.results-screen");
+
+        if (!root) return;
+
+        const backImg =
+          root.querySelector("#resExit img");
+
+        if (
+          backImg &&
+          backImg.getAttribute("src") !== "/back-arrow.png"
+        ) {
+          backImg.src = "/back-arrow.png";
+        }
+      }
+
+      function resultsHeaderSchedule() {
+        if (resultsHeaderScheduled) return;
+
+        resultsHeaderScheduled = true;
+        requestAnimationFrame(resultsHeaderSync);
+      }
+
+      function resultsHeaderStart() {
+        resultsHeaderSchedule();
+
+        document.addEventListener(
+          "ptitbac:screen-rendered",
+          resultsHeaderSchedule
+        );
+
+        document.addEventListener(
+          "ptitbac:dom-updated",
+          resultsHeaderSchedule
+        );
+
+        try {
+          socket?.on?.(
+            "room:state",
+            resultsHeaderSchedule
+          );
+        } catch {}
+
+        if (
+          !resultsHeaderObserver &&
+          document.body
+        ) {
+          resultsHeaderObserver =
+            new MutationObserver(
+              resultsHeaderSchedule
+            );
+
+          resultsHeaderObserver.observe(
+            document.body,
+            {
+              subtree:true,
+              childList:true
+            }
+          );
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener(
+          "DOMContentLoaded",
+          resultsHeaderStart,
+          { once:true }
+        );
+      } else {
+        resultsHeaderStart();
+      }
+    })();

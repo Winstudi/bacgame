@@ -238,7 +238,6 @@ app.use((req, res, next) => {
   return servePublicFile(req, res, next);
 });
 
-const GAME_COST = 0; // Economie: entree payee en vies, pas en pièces.
 const HOST_RECONNECT_GRACE_MS = 15 * 1000;
 const ROOM_SNAPSHOT_TTL_MS = 3 * 60 * 60 * 1000;
 const ADMIN_DIAGNOSTIC_CODE = String(process.env.PTITBAC_ADMIN_CODE || "").trim();
@@ -3816,7 +3815,6 @@ function createGameRoom(socket, { name, rounds = 1, duration = 60, categoryCount
     if (!safeName) return cb({ ok: false, error: "Choisis un prénom." });
     const walletResult = ensureWallet(walletToken || socket.data.walletToken);
     socket.data.walletToken = walletResult.token;
-    if (walletResult.wallet.coins < GAME_COST) return cb({ ok: false, error: `Il te faut ${GAME_COST} pièces pour jouer.` });
 
     if (hasActiveRoom(walletResult.token)) return cb({ok:false,error:"Quitte ta partie actuelle avant d’en créer une autre."});
     const code = roomCode();
@@ -3892,7 +3890,6 @@ function joinGameRoom(socket, { code, name, avatar, frameId, friendCode, walletT
     const walletResult = ensureWallet(walletToken || socket.data.walletToken);
     if (hasActiveRoom(walletResult.token)) return cb({ok:false,error:"Quitte ta partie actuelle avant d’en rejoindre une autre."});
     socket.data.walletToken = walletResult.token;
-    if (walletResult.wallet.coins < GAME_COST) return cb({ ok: false, error: `Il te faut ${GAME_COST} pièces pour jouer.` });
     if (room.players.some(p => !p.isBot && p.walletToken === walletResult.token)) return cb({ ok: false, error: "Ce profil est déjà dans le salon." });
 
     const duplicateName = room.players.some(
