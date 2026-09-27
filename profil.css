@@ -1,0 +1,1204 @@
+/* ==== profile-screen-v2.css ==== */
+/* =========================================================
+   P'tit Bac — Sélecteur d'avatar
+   Remplace l'ancienne page "Modifier mon profil".
+   ========================================================= */
+
+html.profile-avatar-picker-open {
+  overflow:hidden !important;
+}
+
+.profile-avatar-picker-backdrop {
+  position:fixed;
+  inset:0;
+  z-index:120000;
+  padding:
+    max(18px,env(safe-area-inset-top))
+    14px
+    max(18px,env(safe-area-inset-bottom));
+  background:rgba(2,7,28,.76);
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+  display:grid;
+  place-items:center;
+  opacity:0;
+  transition:opacity .16s ease;
+}
+
+.profile-avatar-picker-backdrop.is-open {
+  opacity:1;
+}
+
+.profile-avatar-picker {
+  width:min(100%,370px);
+  max-height:min(620px,calc(100dvh - 38px));
+  overflow:auto;
+  padding:18px;
+  border:1.4px solid #8747f4;
+  border-radius:25px;
+  background:
+    radial-gradient(circle at 15% 0,rgba(111,52,255,.22),transparent 32%),
+    linear-gradient(155deg,#0b2158,#071746 68%,#08143d);
+  color:#fff;
+  font-family:"DM Sans",system-ui,sans-serif;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.42),
+    0 0 30px rgba(126,58,255,.24),
+    inset 0 0 28px rgba(102,62,214,.07);
+  transform:translateY(12px) scale(.985);
+  transition:transform .16s ease;
+  scrollbar-width:none;
+}
+
+.profile-avatar-picker::-webkit-scrollbar {
+  display:none;
+}
+
+.profile-avatar-picker-backdrop.is-open .profile-avatar-picker {
+  transform:none;
+}
+
+.profile-avatar-picker *,
+.profile-avatar-picker *::before,
+.profile-avatar-picker *::after {
+  box-sizing:border-box;
+}
+
+.profile-avatar-picker-head {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 38px;
+  align-items:start;
+  gap:12px;
+}
+
+.profile-avatar-picker-head small {
+  display:block;
+  margin-bottom:4px;
+  color:#9e8bd7;
+  font-size:.52rem;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+
+.profile-avatar-picker-head h2 {
+  margin:0;
+  color:#fff;
+  font-size:1.28rem;
+  line-height:1.1;
+  font-weight:900;
+  letter-spacing:-.025em;
+}
+
+.profile-avatar-picker-close {
+  width:36px;
+  height:36px;
+  padding:0;
+  border:1px solid #6244ce;
+  border-radius:12px;
+  background:#0b2056;
+  color:#cbb7ff;
+  font:800 1.4rem/1 "DM Sans",system-ui,sans-serif;
+}
+
+.profile-avatar-picker-subtitle {
+  margin:8px 0 15px;
+  color:#aaa1d1;
+  font-size:.65rem;
+  line-height:1.35;
+}
+
+.profile-avatar-picker-grid {
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:9px;
+}
+
+.profile-avatar-choice {
+  position:relative;
+  aspect-ratio:1;
+  min-width:0;
+  padding:0;
+  border:1.1px solid #34509d;
+  border-radius:16px;
+  background:
+    radial-gradient(circle at 50% 30%,rgba(85,62,187,.16),transparent 60%),
+    #071c50;
+  color:#fff;
+  display:grid;
+  place-items:center;
+  box-shadow:inset 0 0 12px rgba(72,66,181,.04);
+  transition:transform .1s ease,border-color .1s ease,background .1s ease;
+}
+
+.profile-avatar-choice:active {
+  transform:scale(.95);
+}
+
+.profile-avatar-choice > span {
+  font-size:1.85rem;
+  line-height:1;
+}
+
+.profile-avatar-choice > i {
+  display:none;
+  position:absolute;
+  right:-5px;
+  top:-5px;
+  width:23px;
+  height:23px;
+  border:2px solid #d6c5ff;
+  border-radius:50%;
+  background:linear-gradient(145deg,#753df7,#a34cff);
+  color:#fff;
+  place-items:center;
+  font-style:normal;
+  font-size:.67rem;
+  font-weight:900;
+  box-shadow:0 0 10px rgba(149,71,255,.55);
+}
+
+.profile-avatar-choice.is-selected {
+  border:2px solid #a157ff;
+  background:
+    radial-gradient(circle at 50% 35%,rgba(139,72,255,.31),transparent 60%),
+    linear-gradient(145deg,#28166f,#3c1e90);
+  box-shadow:
+    0 0 14px rgba(133,63,255,.25),
+    inset 0 0 16px rgba(129,62,255,.12);
+}
+
+.profile-avatar-choice.is-selected > i {
+  display:grid;
+}
+
+@media (max-width:350px) {
+  .profile-avatar-picker {
+    padding:15px;
+  }
+
+  .profile-avatar-picker-grid {
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:8px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .profile-avatar-picker-backdrop,
+  .profile-avatar-picker {
+    transition:none;
+  }
+}
+
+/* ==== profile-redesign-v1.css ==== */
+/* =========================================================
+   P'tit Bac — Profil V13
+   Page principale simplifiée :
+   - identité centrée
+   - aucun bloc Amis / Paramètres / Boutique
+   - choix d'avatar en pop-up
+   ========================================================= */
+
+html:has(.profile-v10),
+body:has(.profile-v10) {
+  width:100%;
+  min-height:100%;
+  overflow:hidden !important;
+  background:#06143e;
+}
+
+body:has(.profile-v10) .economy-hud,
+body:has(.profile-v10) .economy-floating,
+body:has(.profile-v10) .wallet-hud,
+body:has(.profile-v10) [data-economy-hud] {
+  display:none !important;
+}
+
+.profile-v10 {
+  --profile-line:#6747f4;
+  position:relative;
+  isolation:isolate;
+  box-sizing:border-box;
+  width:min(100%,430px);
+  height:100dvh;
+  min-height:100dvh;
+  margin:0 auto;
+  padding:
+    max(12px,env(safe-area-inset-top))
+    18px
+    max(150px,calc(env(safe-area-inset-bottom) + 138px));
+  overflow-y:auto;
+  overflow-x:hidden;
+  color:#fff;
+  font-family:"DM Sans",system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 0 4%,rgba(75,43,205,.28),transparent 24%),
+    radial-gradient(circle at 100% 28%,rgba(33,91,217,.11),transparent 27%),
+    radial-gradient(circle at 50% 66%,rgba(42,36,170,.08),transparent 36%),
+    linear-gradient(180deg,#07133a 0%,#07194b 51%,#06143e 100%);
+  scrollbar-width:none;
+}
+
+.profile-v10::-webkit-scrollbar {
+  display:none;
+}
+
+.profile-v10::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.24;
+  background-image:
+    radial-gradient(circle at 12% 10%,rgba(111,75,255,.44) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 86% 16%,rgba(78,126,255,.34) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 24% 59%,rgba(107,75,255,.22) 0 1px,transparent 1.5px),
+    radial-gradient(circle at 76% 74%,rgba(107,75,255,.24) 0 1px,transparent 1.5px);
+  background-size:92px 112px,126px 142px,138px 160px,156px 172px;
+}
+
+.profile-v10 *,
+.profile-v10 *::before,
+.profile-v10 *::after {
+  box-sizing:border-box;
+}
+
+.profile-v10 button,
+.profile-v10 input {
+  font-family:inherit;
+}
+
+.profile-v10 button {
+  -webkit-tap-highlight-color:transparent;
+}
+
+.profile-v10-top {
+  position:relative;
+  z-index:6;
+  min-height:58px;
+  display:grid;
+  grid-template-columns:54px minmax(0,1fr) 54px;
+  align-items:center;
+  gap:8px;
+}
+
+.profile-v10-top h1 {
+  margin:0;
+  text-align:center;
+  font-size:1.53rem;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:-.035em;
+}
+
+.profile-v10-back {
+  width:50px;
+  height:50px;
+  padding:0;
+  border:0;
+  background:transparent;
+  display:grid;
+  place-items:center;
+}
+
+.profile-v10-back img {
+  width:46px;
+  height:46px;
+  display:block;
+  object-fit:contain;
+}
+
+.profile-v10-admin-space {
+  width:50px;
+  height:50px;
+}
+
+.profile-v10-card {
+  position:relative;
+  z-index:3;
+  border:1.35px solid var(--profile-line);
+  border-radius:23px;
+  background:
+    radial-gradient(circle at 12% 12%,rgba(76,60,194,.12),transparent 32%),
+    linear-gradient(180deg,rgba(7,31,87,.985),rgba(6,24,69,.99));
+  box-shadow:
+    inset 0 0 28px rgba(80,60,210,.055),
+    0 1px 0 rgba(255,255,255,.015);
+}
+
+/* =========================
+   IDENTITÉ : centrage V13
+   ========================= */
+
+.profile-v10-identity-card {
+  margin-top:15px;
+  min-height:182px;
+  padding:18px 16px;
+  display:grid;
+  grid-template-columns:124px minmax(0,210px);
+  justify-content:center;
+  align-items:center;
+  gap:22px;
+}
+
+.profile-v10-avatar {
+  position:relative;
+  justify-self:center;
+  align-self:center;
+  width:124px;
+  height:124px;
+  padding:0;
+  border:2px solid #a054ff;
+  border-radius:25px;
+  background:
+    radial-gradient(circle at 50% 38%,rgba(107,55,255,.42),transparent 54%),
+    #071a4c;
+  box-shadow:
+    0 0 20px rgba(133,64,255,.35),
+    0 0 4px rgba(117,76,255,.8),
+    inset 0 0 24px rgba(111,57,221,.08);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+
+.profile-v10-avatar:active {
+  transform:scale(.985);
+}
+
+.profile-v10-avatar-visual {
+  width:100%;
+  height:100%;
+  border-radius:22px;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+}
+
+.profile-v10-avatar-visual > span {
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  font-size:3.75rem;
+  line-height:1;
+}
+
+.profile-v10-avatar-edit {
+  position:absolute;
+  right:-9px;
+  bottom:-9px;
+  width:39px;
+  height:39px;
+  border:2px solid #d8c6ff;
+  border-radius:50%;
+  background:linear-gradient(145deg,#7140f8,#9e48ff);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  box-shadow:
+    0 0 15px rgba(147,72,255,.68),
+    inset 0 0 8px rgba(255,255,255,.09);
+}
+
+.profile-v10-avatar-edit svg {
+  width:19px;
+  height:19px;
+  fill:currentColor;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.profile-v10-identity-copy {
+  min-width:0;
+  width:100%;
+  max-width:210px;
+  display:grid;
+  align-content:center;
+  gap:11px;
+}
+
+.profile-v13-field {
+  min-width:0;
+  width:100%;
+}
+
+.profile-v13-field > label {
+  display:block;
+  margin:0 0 5px 3px;
+  color:#aba1d3;
+  font-size:.66rem;
+  font-weight:600;
+}
+
+.profile-v10-name-row,
+.profile-v10-code-row {
+  width:100%;
+  min-height:48px;
+  border:1.25px solid #6947e7;
+  border-radius:15px;
+  background:#071944;
+  overflow:hidden;
+}
+
+.profile-v10-name-row {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 46px;
+}
+
+.profile-v10-name-row input {
+  min-width:0;
+  width:100%;
+  border:0;
+  outline:0;
+  padding:0 13px;
+  background:transparent;
+  color:#fff;
+  caret-color:#b774ff;
+  font-size:1.03rem;
+  font-weight:900;
+}
+
+.profile-v10-name-row input[readonly] {
+  cursor:default;
+}
+
+.profile-v10-name-row button {
+  border:0;
+  border-left:1px solid #343b8f;
+  background:linear-gradient(180deg,rgba(60,49,145,.68),rgba(47,42,123,.68));
+  color:#c0a1ff;
+  display:grid;
+  place-items:center;
+}
+
+.profile-v10-name-row button.is-editing {
+  color:#fff;
+  background:linear-gradient(145deg,#6d3af2,#8d44ff);
+}
+
+.profile-v10-name-row button svg,
+.profile-v10-code-row svg {
+  width:20px;
+  height:20px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2.2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.profile-v10-code-row {
+  padding:0 7px 0 14px;
+  color:#b69cff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.profile-v10-code-row strong {
+  font-size:.93rem;
+  letter-spacing:.045em;
+  font-weight:900;
+}
+
+.profile-v10-code-row > span {
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  border-radius:11px;
+  background:linear-gradient(145deg,rgba(72,47,173,.62),rgba(50,43,135,.6));
+  color:#cdbbff;
+  display:grid;
+  place-items:center;
+}
+
+/* =========================
+   STATISTIQUES
+   ========================= */
+
+.profile-v10-stats {
+  margin-top:18px;
+  padding:14px;
+}
+
+.profile-v10-stats h2 {
+  margin:0 0 12px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:.94rem;
+  line-height:1;
+  font-weight:900;
+}
+
+.profile-v10-bars {
+  width:34px;
+  height:29px;
+  display:flex;
+  align-items:flex-end;
+  gap:3px;
+}
+
+.profile-v10-bars i {
+  width:7px;
+  border-radius:3px 3px 1px 1px;
+  background:linear-gradient(180deg,#be79ff,#6c3dff);
+  box-shadow:0 0 7px rgba(145,75,255,.52);
+}
+
+.profile-v10-bars i:nth-child(1) { height:10px; }
+.profile-v10-bars i:nth-child(2) { height:19px; }
+.profile-v10-bars i:nth-child(3) { height:28px; }
+
+.profile-v10-stats-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+}
+
+.profile-v10-stats-grid article {
+  min-width:0;
+  min-height:78px;
+  padding:9px 8px;
+  border:1px solid #3150a0;
+  border-radius:14px;
+  background:
+    radial-gradient(circle at 20% 15%,rgba(49,71,176,.13),transparent 36%),
+    linear-gradient(145deg,rgba(8,35,92,.99),rgba(7,26,72,.99));
+  display:grid;
+  grid-template-columns:35px minmax(0,1fr);
+  align-items:center;
+  gap:7px;
+}
+
+.profile-v10-stats-grid article > div {
+  min-width:0;
+}
+
+.profile-v10-stats-grid article strong {
+  display:block;
+  color:#fff;
+  font-size:1.02rem;
+  line-height:1.05;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.profile-v10-stats-grid article small {
+  display:block;
+  margin-top:4px;
+  color:#a8a1ca;
+  font-size:.51rem;
+  line-height:1.15;
+}
+
+.profile-v10-stat-icon {
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+}
+
+.profile-v10-stat-icon svg {
+  width:32px;
+  height:32px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.85;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 0 5px currentColor);
+}
+
+.profile-v10-stat-icon.stat-games,
+.profile-v10-stat-icon.stat-wins {
+  color:#ffb524;
+}
+
+.profile-v10-stat-icon.stat-rate {
+  color:#4f92ff;
+}
+
+.profile-v10-stat-icon.stat-correct {
+  color:#a64dff;
+}
+
+.profile-v10-stat-icon.stat-friends {
+  color:#5f8fff;
+}
+
+.profile-v10-stat-icon.stat-member {
+  color:#b45bff;
+}
+
+.profile-v10-date {
+  font-size:.78rem !important;
+}
+
+/* L'ancien menu de 3 blocs n'existe plus en V13. */
+.profile-v10-menu {
+  display:none !important;
+}
+
+@media (max-width:370px) {
+  .profile-v10 {
+    padding-left:13px;
+    padding-right:13px;
+  }
+
+  .profile-v10-identity-card {
+    padding:15px 12px;
+    grid-template-columns:108px minmax(0,1fr);
+    gap:14px;
+  }
+
+  .profile-v10-avatar {
+    width:108px;
+    height:108px;
+    border-radius:22px;
+  }
+
+  .profile-v10-avatar-visual {
+    border-radius:19px;
+  }
+
+  .profile-v10-avatar-visual > span {
+    font-size:3.2rem;
+  }
+
+  .profile-v10-identity-copy {
+    max-width:none;
+    gap:9px;
+  }
+
+  .profile-v10-name-row,
+  .profile-v10-code-row {
+    min-height:44px;
+    border-radius:13px;
+  }
+
+  .profile-v10-name-row {
+    grid-template-columns:minmax(0,1fr) 42px;
+  }
+
+  .profile-v10-name-row input {
+    padding:0 10px;
+    font-size:.92rem;
+  }
+
+  .profile-v10-code-row {
+    padding-left:10px;
+  }
+
+  .profile-v10-code-row strong {
+    font-size:.84rem;
+  }
+
+  .profile-v10-stats {
+    padding:11px;
+  }
+
+  .profile-v10-stats-grid {
+    gap:6px;
+  }
+
+  .profile-v10-stats-grid article {
+    min-height:72px;
+    padding:7px 6px;
+    grid-template-columns:29px minmax(0,1fr);
+    gap:5px;
+  }
+
+  .profile-v10-stat-icon,
+  .profile-v10-stat-icon svg {
+    width:28px;
+    height:28px;
+  }
+
+  .profile-v10-stats-grid article strong {
+    font-size:.91rem;
+  }
+
+  .profile-v10-stats-grid article small {
+    font-size:.46rem;
+  }
+}
+
+@media (max-width:335px) {
+  .profile-v10-identity-card {
+    grid-template-columns:1fr;
+    justify-items:center;
+    gap:14px;
+  }
+
+  .profile-v10-identity-copy {
+    width:min(100%,230px);
+  }
+}
+
+@media (max-height:720px) {
+  .profile-v10 {
+    padding-bottom:max(126px,calc(env(safe-area-inset-bottom) + 114px));
+  }
+
+  .profile-v10-identity-card {
+    margin-top:8px;
+    min-height:154px;
+    padding-top:12px;
+    padding-bottom:12px;
+  }
+
+  .profile-v10-avatar {
+    width:108px;
+    height:108px;
+  }
+
+  .profile-v10-avatar-visual > span {
+    font-size:3.15rem;
+  }
+
+  .profile-v10-stats {
+    margin-top:10px;
+  }
+}
+
+
+/* =========================================================
+   Profil V16 — confirmation changement de pseudo
+   ========================================================= */
+
+.profile-v16-confirm-layer {
+  position:fixed;
+  inset:0;
+  z-index:150000;
+  padding:
+    max(16px,env(safe-area-inset-top))
+    18px
+    max(16px,env(safe-area-inset-bottom));
+  background:rgba(2,7,30,.72);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+  display:grid;
+  place-items:center;
+}
+
+.profile-v16-confirm {
+  position:relative;
+  width:min(100%,310px);
+  padding:18px 17px 16px;
+  border:1.4px solid #8450f1;
+  border-radius:20px;
+  background:
+    radial-gradient(
+      circle at 50% 0,
+      rgba(120,58,245,.16),
+      transparent 42%
+    ),
+    linear-gradient(
+      160deg,
+      #10245d,
+      #081848
+    );
+  color:#fff;
+  box-shadow:
+    0 18px 48px rgba(0,0,0,.34),
+    0 0 24px rgba(119,56,235,.24);
+  text-align:center;
+  font-family:
+    "DM Sans",
+    system-ui,
+    sans-serif;
+}
+
+.profile-v16-confirm-close {
+  position:absolute;
+  top:9px;
+  right:9px;
+  width:31px;
+  height:31px;
+  padding:0;
+  border:1px solid #6548c8;
+  border-radius:10px;
+  background:#111f56;
+  color:#cbbaff;
+  display:grid;
+  place-items:center;
+  font-size:1.15rem;
+  line-height:1;
+}
+
+.profile-v16-confirm-gem {
+  width:max-content;
+  min-height:34px;
+  margin:0 auto 9px;
+  padding:4px 9px 4px 6px;
+  border:1px solid #6948d5;
+  border-radius:999px;
+  background:#151b58;
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.profile-v16-confirm-gem img {
+  width:25px;
+  height:25px;
+  object-fit:contain;
+}
+
+.profile-v16-confirm-gem strong {
+  color:#d99aff;
+  font-size:.76rem;
+  font-weight:900;
+}
+
+.profile-v16-confirm h2 {
+  margin:0;
+  font-size:1rem;
+  line-height:1.15;
+  font-weight:900;
+}
+
+.profile-v16-confirm p {
+  margin:10px auto 0;
+  max-width:255px;
+  color:#bcb4d2;
+  font-size:.66rem;
+  line-height:1.45;
+}
+
+.profile-v16-confirm p strong {
+  color:#fff;
+  font-weight:900;
+}
+
+.profile-v16-confirm p b {
+  color:#c778ff;
+  font-weight:900;
+}
+
+.profile-v16-confirm-actions {
+  margin-top:15px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+
+.profile-v16-confirm-actions button {
+  min-height:40px;
+  border-radius:11px;
+  font-size:.62rem;
+  font-weight:900;
+}
+
+.profile-v16-cancel {
+  border:1px solid #4d5fa2;
+  background:#0b1c50;
+  color:#aaa3bf;
+}
+
+.profile-v16-confirm-btn {
+  border:1px solid #ba63ff;
+  background:
+    linear-gradient(
+      95deg,
+      #7338ee,
+      #b63df2
+    );
+  color:#fff;
+  box-shadow:
+    0 0 13px
+    rgba(143,58,242,.24);
+}
+
+/* =========================================================
+   Bandeau Quêtes/Boutique — page Mon profil
+   ========================================================= */
+.profile-v10-top{
+  min-height:58px;
+  margin-left:-18px;
+  margin-right:-28px;
+  padding:0 28px 0 18px;
+  background:linear-gradient(
+    90deg,
+    rgba(49,19,111,.98) 0%,
+    rgba(32,24,119,.97) 42%,
+    rgba(10,35,104,.96) 100%
+  );
+  box-shadow:
+    10px 0 0 rgba(10,35,104,.96),
+    inset 0 0 18px rgba(107,83,255,.14);
+  overflow:visible;
+}
+
+.profile-v10-top::before,
+.profile-v10-top::after{
+  content:"";
+  position:absolute;
+  left:-10px;
+  right:-10px;
+  height:1px;
+  background:rgba(195,58,255,.84);
+  box-shadow:0 0 12px rgba(210,54,255,.42);
+  pointer-events:none;
+  z-index:7;
+}
+
+.profile-v10-top::before{top:0}
+.profile-v10-top::after{bottom:0}
+
+.profile-v10-top h1{
+  color:#fff;
+  font-size:1.40rem;
+  font-weight:1000;
+  text-shadow:
+    0 2px 0 #5d20b3,
+    0 0 8px #eb52ff,
+    0 0 15px rgba(129,71,255,.72);
+}
+
+.profile-v10-back{
+  width:42px;
+  height:42px;
+}
+
+.profile-v10-back img{
+  width:34px;
+  height:34px;
+  filter:drop-shadow(0 0 7px rgba(188,76,255,.55));
+}
+
+.profile-v10-admin-space{
+  width:42px;
+  height:42px;
+}
+
+@media (max-width:370px){
+  .profile-v10-top{
+    margin-left:-13px;
+    margin-right:-23px;
+    padding-left:13px;
+    padding-right:23px;
+  }
+}
+
+/* =========================================================
+   Profil — retirer l'accès admin du haut de page
+   ========================================================= */
+.profile-v10 > .admin-v1-crown-btn,
+.profile-v13 > .admin-v1-crown-btn{
+  display:none !important;
+}
+
+/* =========================================================
+   Bandeau partagé — Profil plus fin + page Niveaux
+   ========================================================= */
+
+/* Profil : même bandeau, hauteur réduite de 10px. */
+.profile-v10-top{
+  min-height:48px !important;
+  height:48px !important;
+}
+
+/* Niveaux : adaptation du bandeau Quêtes/Boutique. */
+.ptb-levels-header{
+  position:relative !important;
+  z-index:20 !important;
+  width:calc(100% + 26px) !important;
+  min-height:48px !important;
+  height:48px !important;
+  margin:-4px -13px 8px !important;
+  padding:0 13px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  overflow:visible !important;
+  background:linear-gradient(
+    90deg,
+    rgba(49,19,111,.98) 0%,
+    rgba(32,24,119,.97) 42%,
+    rgba(10,35,104,.96) 100%
+  ) !important;
+  box-shadow:
+    10px 0 0 rgba(10,35,104,.96),
+    inset 0 0 18px rgba(107,83,255,.14) !important;
+}
+
+/* Les deux lignes violettes du bandeau. */
+.ptb-levels-header::before{
+  content:"" !important;
+  position:absolute !important;
+  left:-10px !important;
+  right:-10px !important;
+  top:0 !important;
+  height:1px !important;
+  display:block !important;
+  background:rgba(195,58,255,.84) !important;
+  box-shadow:0 0 12px rgba(210,54,255,.42) !important;
+  pointer-events:none !important;
+  z-index:21 !important;
+}
+
+/* Remplace l'ancienne étoile décorative par la ligne basse. */
+.ptb-levels-header::after{
+  content:"" !important;
+  position:absolute !important;
+  left:-10px !important;
+  right:-10px !important;
+  top:auto !important;
+  bottom:0 !important;
+  width:auto !important;
+  height:1px !important;
+  display:block !important;
+  opacity:1 !important;
+  background:rgba(195,58,255,.84) !important;
+  clip-path:none !important;
+  filter:none !important;
+  transform:none !important;
+  box-shadow:0 0 12px rgba(210,54,255,.42) !important;
+  pointer-events:none !important;
+  z-index:21 !important;
+}
+
+.ptb-levels-back{
+  left:7px !important;
+  top:5px !important;
+  width:38px !important;
+  height:38px !important;
+  padding:0 !important;
+  z-index:22 !important;
+}
+
+.ptb-levels-back img{
+  width:30px !important;
+  height:30px !important;
+  filter:drop-shadow(0 0 7px rgba(188,76,255,.55)) !important;
+}
+
+.ptb-levels-title{
+  margin:0 !important;
+  color:#fff !important;
+  font-size:1.40rem !important;
+  line-height:1 !important;
+  font-weight:1000 !important;
+  letter-spacing:-.035em !important;
+  text-align:center !important;
+  text-shadow:
+    0 2px 0 #5d20b3,
+    0 0 8px #eb52ff,
+    0 0 15px rgba(129,71,255,.72) !important;
+}
+
+@media(max-width:370px){
+  .ptb-levels-header{
+    width:calc(100% + 20px) !important;
+    margin:-4px -10px 8px !important;
+    padding:0 10px !important;
+  }
+
+  .ptb-levels-back{
+    left:5px !important;
+  }
+
+  .ptb-levels-title{
+    font-size:1.24rem !important;
+  }
+}
+
+/* =========================================================
+   Page Niveaux — nouveau fond visuel simplifié
+   ========================================================= */
+
+/* Fond global de la page Niveaux : remplace l'ancien décor chargé
+   par le nouveau fond spatial validé. */
+html:has(.ptb-levels-header),
+body:has(.ptb-levels-header){
+  background:#06143e !important;
+}
+
+body:has(.ptb-levels-header)::before{
+  content:"" !important;
+  position:fixed !important;
+  inset:0 !important;
+  z-index:-2 !important;
+  pointer-events:none !important;
+  background:
+    url("/levels-bg-v2.png") center top / cover no-repeat !important;
+}
+
+/* On neutralise les anciens fonds de la page Niveaux pour ne garder
+   que le nouveau fond image en arrière-plan. */
+body:has(.ptb-levels-header) .ptb-levels-page,
+body:has(.ptb-levels-header) .ptb-levels-screen,
+body:has(.ptb-levels-header) .ptb-levels-root,
+body:has(.ptb-levels-header) .ptb-levels,
+body:has(.ptb-levels-header) .progression-screen,
+body:has(.ptb-levels-header) .progression-page{
+  background:transparent !important;
+  background-image:none !important;
+}
+
+/* Les overlays décoratifs éventuels passent en transparents
+   pour qu'on voie bien les récompenses sur le nouveau fond. */
+body:has(.ptb-levels-header) .ptb-levels-page::before,
+body:has(.ptb-levels-header) .ptb-levels-page::after,
+body:has(.ptb-levels-header) .ptb-levels-screen::before,
+body:has(.ptb-levels-header) .ptb-levels-screen::after,
+body:has(.ptb-levels-header) .ptb-levels-root::before,
+body:has(.ptb-levels-header) .ptb-levels-root::after,
+body:has(.ptb-levels-header) .ptb-levels::before,
+body:has(.ptb-levels-header) .ptb-levels::after,
+body:has(.ptb-levels-header) .progression-screen::before,
+body:has(.ptb-levels-header) .progression-screen::after,
+body:has(.ptb-levels-header) .progression-page::before,
+body:has(.ptb-levels-header) .progression-page::after{
+  background:transparent !important;
+  opacity:0 !important;
+}
+
+/* =========================================================
+   NIVEAUX — correction réelle du fond V2
+   progression-client.js injecte après coup un fond !important
+   directement sur .ptb-levels-panel. On surcharge donc CE panneau
+   avec une spécificité supérieure + une URL versionnée anti-cache.
+   ========================================================= */
+
+body:has(.ptb-levels-header)
+.ptb-levels-overlay
+.ptb-levels-panel{
+  background-color:#050d35 !important;
+  background-image:url("/level-background-v1.png?v=levels-bg-v2-20260920") !important;
+  background-position:center center !important;
+  background-size:cover !important;
+  background-repeat:no-repeat !important;
+}
+
+/* Les anciens décors injectés par progression-client.js ne doivent
+   plus recouvrir le nouveau fond. */
+body:has(.ptb-levels-header)
+.ptb-levels-overlay
+.ptb-levels-panel::before,
+body:has(.ptb-levels-header)
+.ptb-levels-overlay
+.ptb-levels-panel::after{
+  content:none !important;
+  display:none !important;
+  background:none !important;
+  opacity:0 !important;
+}
+
+/* Le conteneur qui défile reste transparent :
+   le nouveau fond reste visible derrière les niveaux/récompenses. */
+body:has(.ptb-levels-header)
+.ptb-levels-overlay
+.ptb-levels-scroll{
+  background:transparent !important;
+  background-image:none !important;
+}
+
+

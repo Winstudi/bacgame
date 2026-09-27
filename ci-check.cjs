@@ -315,7 +315,7 @@ function checkIntegratedBackend() {
 
 function checkIntegratedFrontend() {
   const app = read("app.js");
-  const wheel = read("letter-wheel-v1.js");
+  const wheel = read("partie.js");
   const style = read("style.css");
 
   for (const marker of [

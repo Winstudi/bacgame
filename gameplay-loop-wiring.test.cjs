@@ -5,8 +5,15 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const source = name =>
-  fs.readFileSync(path.join(__dirname, name), "utf8");
+const PARTIE_SOURCES = new Set(["category-selection-v2.js", "letter-wheel-v1.js", "answer-screen-v1.js", "round-intro-v1.js", "waiting-screen-v1.js", "validation-screen-v1.js", "scoreboard-screen-v1.js", "final-screen-v1.js", "category-selection-v2.css", "category-chooser-card-v1.css", "letter-wheel-fx-v1.css", "letter-wheel-v1.css", "round-intro-v1.css", "answer-screen-v1.css", "waiting-screen-v1.css", "validation-screen-v1.css", "scoreboard-screen-v1.css", "final-screen-v1.css", "gameplay-flow.css", "category-prototype.css"]);
+const source = name => {
+  if (PARTIE_SOURCES.has(name)) {
+    const merged = name.endsWith(".js") ? "partie.js" : "partie.css";
+    const content = fs.readFileSync(path.join(__dirname, merged), "utf8");
+    return content.split(`/* ==== ${name} ==== */`)[1]?.split(/\n\n\/\* ==== [^\n]+\.(?:js|css) ==== \*\//)[0] || "";
+  }
+  return fs.readFileSync(path.join(__dirname, name), "utf8");
+};
 
 test("quitter pendant catégories ou lettre ne rembourse pas la vie", () => {
   const server = source("server.js");

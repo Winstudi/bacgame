@@ -6,7 +6,15 @@ const path = require("node:path");
 const test = require("node:test");
 
 const root = __dirname;
-const read = name => fs.readFileSync(path.join(root, name), "utf8");
+const PARTIE_SOURCES = new Set(["category-selection-v2.js", "letter-wheel-v1.js", "answer-screen-v1.js", "round-intro-v1.js", "waiting-screen-v1.js", "validation-screen-v1.js", "scoreboard-screen-v1.js", "final-screen-v1.js", "category-selection-v2.css", "category-chooser-card-v1.css", "letter-wheel-fx-v1.css", "letter-wheel-v1.css", "round-intro-v1.css", "answer-screen-v1.css", "waiting-screen-v1.css", "validation-screen-v1.css", "scoreboard-screen-v1.css", "final-screen-v1.css", "gameplay-flow.css", "category-prototype.css"]);
+const read = name => {
+  if (PARTIE_SOURCES.has(name)) {
+    const merged = name.endsWith(".js") ? "partie.js" : "partie.css";
+    const content = fs.readFileSync(path.join(root, merged), "utf8");
+    return content.split(`/* ==== ${name} ==== */`)[1]?.split(/\n\n\/\* ==== [^\n]+\.(?:js|css) ==== \*\//)[0] || "";
+  }
+  return fs.readFileSync(path.join(root, name), "utf8");
+};
 const exists = name => fs.existsSync(path.join(root, name));
 
 test("le runtime mobile est chargé avant le noyau client", () => {
@@ -262,7 +270,7 @@ test("un navigateur neuf ne crée pas de portefeuille avant le choix du joueur",
 test("les données joueur sont isolées lors d'un changement de compte", () => {
   const account = read("account-v1.js");
   const inventory = read("inventory-client.js");
-  const friends = read("friends-client.js");
+  const friends = read("amis.js");
   const profile = read("profile-module-v1.js");
 
   assert.match(account, /ptitbac:identity-changed/);
@@ -365,8 +373,9 @@ test("la phase round a un seul propriétaire et l'écran réponses n'écrase plu
   const answer = read("answer-screen-v1.js");
   const intro = read("round-intro-v1.js");
 
-  const answerOrder = html.indexOf('/answer-screen-v1.js');
-  const introOrder = html.indexOf('/round-intro-v1.js');
+  const merged = fs.readFileSync(path.join(root, "partie.js"), "utf8");
+  const answerOrder = merged.indexOf("/* ==== answer-screen-v1.js ==== */");
+  const introOrder = merged.indexOf("/* ==== round-intro-v1.js ==== */");
   assert.ok(answerOrder >= 0 && introOrder >= 0 && answerOrder < introOrder,
     "answer-screen-v1.js doit charger avant round-intro-v1.js");
 
