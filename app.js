@@ -481,7 +481,7 @@ function renderBombResults() {
   const maximum = Math.max(0, ...ranking.map(count));
   const leaders = ranking.filter(player => count(player) === maximum);
   const top = ranking.slice(0, 3);
-  const podiumOrder = top.length >= 3 ? [top[1], top[0], top[2]] : top.length > 1 ? [top[1], top[0]] : top;
+  const podiumOrder = top.length >= 3 ? [top[1], top[0], top[2]] : top;
   const podium = podiumOrder.map(player => {
     const place = rank(player);
     return `<article class="fin-podium-card place-${Math.min(place, 3)}">
