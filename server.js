@@ -1311,7 +1311,7 @@ function normalizeRestoredRoom(raw, persistedAt = Date.now()) {
     code,
     phase,
     // Les salons créés avant le choix du mode restent des parties classiques.
-    gameType:"classic",
+    gameType:source.gameType === "bombe" && source.mode === "private" && phase === "lobby" ? "bombe" : "classic",
     createdAt:Number(source.createdAt) || Number(persistedAt) || Date.now(),
     economyStartPending:false,
     categoryRerollPending:"",
@@ -1790,6 +1790,8 @@ function publicRoom(room, viewerPlayerId = null) {
     code: room.code,
     mode: room.mode || "private",
     gameType: room.gameType || "classic",
+    bombLives: room.bombLives || 3,
+    bombSpeed: room.bombSpeed || "medium",
     economyEnabled: isEconomyMode(room.mode),
     progressionEnabled: isEconomyMode(room.mode),
     quickJoinable: isPublicRoomDiscoverable(room),
@@ -3809,7 +3811,7 @@ function hasActiveRoom(token) {
   return [...rooms.values()].some(room => room.phase !== "finished" && room.players.some(p => p.walletToken === token));
 }
 
-function createGameRoom(socket, { name, rounds = 1, duration = 60, categoryCount = 6, categoryDifficulty = "medium", avatar, frameId, friendCode, walletToken }, cb = () => {}, mode = "private") {
+function createGameRoom(socket, { name, rounds = 1, duration = 60, categoryCount = 6, categoryDifficulty = "medium", gameType = "classic", bombLives = 3, bombSpeed = "medium", avatar, frameId, friendCode, walletToken }, cb = () => {}, mode = "private") {
     const safeName = cleanName(name);
     const safeRounds = [1, 3, 5].includes(Number(rounds)) ? Number(rounds) : 1;
     const safeDuration = [30, 60, 90, 120].includes(Number(duration)) ? Number(duration) : 60;
@@ -3841,7 +3843,9 @@ function createGameRoom(socket, { name, rounds = 1, duration = 60, categoryCount
     const room = {
       code,
       mode,
-      gameType:"classic",
+      gameType: mode === "private" && gameType === "bombe" ? "bombe" : "classic",
+      bombLives: [1, 2, 3].includes(Number(bombLives)) ? Number(bombLives) : 3,
+      bombSpeed: ["fast", "medium", "slow"].includes(bombSpeed) ? bombSpeed : "medium",
       phase: "lobby",
       players: [player],
       categoryCount: safeCategoryCount,
@@ -3935,6 +3939,7 @@ function joinGameRoom(socket, { code, name, avatar, frameId, friendCode, walletT
 async function startGame(socket, payload, automatic = false) {
     const { room, player } = requireMember(socket, payload);
     if (!room || !player?.isHost || room.phase !== "lobby" || room.economyStartPending) return;
+    if (room.gameType === "bombe") return socket.emit("toast", "Le mode Bombe sera bientôt jouable.");
     if (room.mode === "quick" && !automatic) return false;
     if (room.mode !== "quick" && !privateLobbyReady(room)) return socket.emit("toast", "Tous les joueurs doivent être prêts.");
     if (room.players.length < 2) {
@@ -4304,6 +4309,7 @@ io.on("connection", socket => {
     if (!player.isHost) {
       return cb({ ok: false, error: "Seul l’hôte peut lancer la partie." });
     }
+    if (room.gameType === "bombe") return cb({ ok: false, error: "Le mode Bombe sera bientôt jouable." });
 
     if (room.phase !== "lobby") {
       return cb({ ok: false, error: "La partie a déjà commencé." });
@@ -4430,8 +4436,7 @@ io.on("connection", socket => {
     }
   });
   socket.on("room:create", async (payload = {}, cb = () => {}) => {
-    // Un nouveau mode ne doit pas ouvrir un salon avant que son jeu soit prêt.
-    if (payload.gameType != null && payload.gameType !== "classic") {
+    if (payload.gameType != null && !["classic", "bombe"].includes(payload.gameType)) {
       return cb({ok:false,error:"Ce mode de jeu n'est pas encore disponible."});
     }
     if (!quickMatch.cancel(socket)) {
@@ -4478,6 +4483,7 @@ io.on("connection", socket => {
     if (room.phase !== "lobby" || room.mode === "quick" || room.economyStartPending) {
       return cb({ ok: false, error: "Le type du salon ne peut plus être modifié." });
     }
+    if (room.gameType === "bombe") return cb({ ok: false, error: "Le salon Bombe reste privé pour le moment." });
 
     const nextMode = payload.mode === "public" ? "public" :
       payload.mode === "private" ? "private" : "";
@@ -4514,12 +4520,22 @@ io.on("connection", socket => {
     cb({ ok: true, mode: room.mode, state });
     emitRoom(room);
   });
-  socket.on("room:updateSettings", ({ code, playerId, rounds, duration, categoryCount, categoryDifficulty }, cb = () => {}) => {
+  socket.on("room:updateSettings", ({ code, playerId, rounds, duration, categoryCount, categoryDifficulty, bombLives, bombSpeed }, cb = () => {}) => {
     const { room, player } = requireMember(socket, { code, playerId });
     if (!room || !player?.isHost) return cb({ ok: false, error: "Seul l’hôte peut modifier les paramètres." });
     if (room.phase !== "lobby") return cb({ ok: false, error: "Les paramètres ne peuvent être modifiés que dans le salon." });
 
     if (room.mode === "quick") return cb({ok:false,error:"Le format rapide est fixe."});
+    if (room.gameType === "bombe") {
+      resetPrivateReady(room);
+      room.rounds = [1, 3, 5].includes(Number(rounds)) ? Number(rounds) : room.rounds;
+      room.bombLives = [1, 2, 3].includes(Number(bombLives)) ? Number(bombLives) : room.bombLives;
+      room.bombSpeed = ["fast", "medium", "slow"].includes(bombSpeed) ? bombSpeed : room.bombSpeed;
+      room.categoryDifficulty = ["beginner", "medium", "hard"].includes(categoryDifficulty) ? categoryDifficulty : room.categoryDifficulty;
+      cb({ ok: true, state: publicRoom(room, player.id) });
+      emitRoom(room);
+      return;
+    }
     const safeRounds = [1, 3, 5].includes(Number(rounds)) ? Number(rounds) : room.rounds;
     const safeDuration = [30, 60, 90, 120].includes(Number(duration)) ? Number(duration) : room.duration;
     const safeCategoryCount = [6, 8, 10].includes(Number(categoryCount)) ? Number(categoryCount) : (room.categoryCount || room.categories.length || 6);
@@ -5253,5 +5269,3 @@ process.once("SIGTERM", () => { void shutdownApplication("SIGTERM"); });
 process.once("SIGINT", () => { void shutdownApplication("SIGINT"); });
 
 startApplication();
-
-

@@ -339,13 +339,15 @@
       });
     });
 
-    const createClassicRoom = () => {
+    const createPrivateRoom = gameType => {
       const profile = ensureProfile();
       if (!profile) return;
 
       runAfterOldRoomCleanup(() => {
         socket.emit("room:create", {
-          gameType: "classic",
+          gameType,
+          bombLives: 3,
+          bombSpeed: "medium",
           name: profile.name.trim(),
           rounds: 1,
           categoryCount: 6,
@@ -364,7 +366,12 @@
 
     document.getElementById("homeCreateClassic")?.addEventListener("click", () => {
       document.getElementById("homeGameModeDialog")?.close();
-      createClassicRoom();
+      createPrivateRoom("classic");
+    });
+
+    document.getElementById("homeCreateBomb")?.addEventListener("click", () => {
+      document.getElementById("homeGameModeDialog")?.close();
+      createPrivateRoom("bombe");
     });
 
     const codeInput = document.getElementById("homePlaqueCode");
@@ -653,8 +660,8 @@
           <button id="homeCreateClassic" class="hm-game-picker-choice" type="button">
             <strong>Baccalauréat</strong><span>Créer le salon</span>
           </button>
-          <button class="hm-game-picker-choice" type="button" disabled>
-            <strong>Bombe</strong><span>À venir</span>
+          <button id="homeCreateBomb" class="hm-game-picker-choice" type="button">
+            <strong>Bombe</strong><span>Créer le salon</span>
           </button>
           <button class="hm-game-picker-choice" type="button" disabled>
             <strong>Troisième mode</strong><span>À venir</span>

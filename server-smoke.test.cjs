@@ -231,6 +231,46 @@ test(
 );
 
 
+test("un salon Bombe garde ses réglages et ne lance pas le jeu classique", { timeout:20_000 }, async () => {
+  const port = await freePort();
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "ptitbac-bombe-"));
+  const child = spawn(process.execPath, ["server.js"], {
+    cwd:__dirname,
+    env:{ ...process.env, PORT:String(port), DATABASE_URL:"", OPENAI_API_KEY:"", OPENAI_BOT_API_KEY:"", BOT_AI_ENABLED:"false", RENDER:"false", PTITBAC_WALLET_FILE:path.join(tempDir,"wallets.json"), PTITBAC_ROOM_FILE:path.join(tempDir,"rooms.json") },
+    stdio:["ignore", "pipe", "pipe"]
+  });
+  let host;
+  let guest;
+  try {
+    await waitForHealth(`http://127.0.0.1:${port}/health`, child);
+    host = await connectGameClient(`http://127.0.0.1:${port}`);
+    guest = await connectGameClient(`http://127.0.0.1:${port}`);
+    const hostWallet = await emitAck(host, "wallet:init");
+    const guestWallet = await emitAck(guest, "wallet:init");
+    const created = await emitAck(host, "room:create", { name:"Alice", gameType:"bombe", bombLives:2, bombSpeed:"fast", walletToken:hostWallet.token });
+    assert.equal(created.ok, true);
+    assert.equal(created.state.gameType, "bombe");
+    assert.equal(created.state.mode, "private");
+    const joined = await emitAck(guest, "room:join", { code:created.code, name:"Bob", walletToken:guestWallet.token });
+    assert.equal(joined.state.gameType, "bombe");
+    const settings = await emitAck(host, "room:updateSettings", { code:created.code, playerId:created.playerId, bombLives:1, bombSpeed:"slow", rounds:5, categoryDifficulty:"hard" });
+    assert.equal(settings.state.bombLives, 1);
+    assert.equal(settings.state.bombSpeed, "slow");
+    assert.equal(settings.state.rounds, 5);
+    assert.equal(settings.state.categoryDifficulty, "hard");
+    const publicMode = await emitAck(host, "room:setMode", { code:created.code, playerId:created.playerId, mode:"public" });
+    assert.equal(publicMode.ok, false);
+    const launch = await emitAck(host, "lobby:startCountdown", { code:created.code, playerId:created.playerId });
+    assert.equal(launch.ok, false);
+    assert.equal(settings.state.phase, "lobby");
+  } finally {
+    host?.close();
+    guest?.close();
+    await stopChild(child);
+    fs.rmSync(tempDir, { recursive:true, force:true });
+  }
+});
+
 test(
   "un salon survit à un crash serveur et les joueurs peuvent le reprendre",
   { timeout: 32_000 },
@@ -795,4 +835,3 @@ test("la reprise des salons est aussi configurée pour PostgreSQL", () => {
     "les suppressions de salons doivent passer par removeRoom()"
   );
 });
-

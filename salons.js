@@ -140,6 +140,7 @@
   }
 
   function roomModeToggleMarkup(state, user) {
+    if (state.gameType === "bombe") return `<div class="pl-title-mode"><h1>Bombe - Salon Privé</h1></div>`;
     const publicMode = state.mode === "public";
     const host = user?.isHost === true;
     const label = publicMode ? "Public" : "Privé";
@@ -165,7 +166,7 @@
   }
 
   function changeRoomMode(state, user) {
-    if (!user?.isHost || lobbyModeSwitching || state.mode === "quick") return;
+    if (!user?.isHost || lobbyModeSwitching || state.mode === "quick" || state.gameType === "bombe") return;
 
     const nextMode = state.mode === "public" ? "private" : "public";
     lobbyModeSwitching = true;
@@ -333,6 +334,8 @@
 
     const difficulty = difficultyInfo(state.categoryDifficulty);
     const categoryCount = Number(state.categoryCount || state.categories?.length || 6);
+    const bomb = state.gameType === "bombe";
+    const speedLabel = { fast: "Rapide", medium: "Moyen", slow: "Lent" }[state.bombSpeed] || "Moyen";
 
     const card = ({ key, label, value, icon, difficultyClass = "" }) => `
       <article class="lobby-v5-edit-card ${difficultyClass}">
@@ -368,13 +371,13 @@
               value: state.rounds,
               icon: "/lightning.png"
             })}
-            ${card({
+            ${bomb ? card({ key: "bombLives", label: "Vies", value: state.bombLives || 3, icon: "/lobby-categories.png" }) : card({
               key: "categoryCount",
               label: "Catégories",
               value: categoryCount,
               icon: "/lobby-categories.png"
             })}
-            ${card({
+            ${bomb ? card({ key: "bombSpeed", label: "Bombe", value: speedLabel, icon: "/lobby-clock.png" }) : card({
               key: "duration",
               label: "Temps",
               value: `${Number(state.duration || 60)}s`,
@@ -1541,8 +1544,9 @@
 
           <div class="pl-setting-grid">
             ${settingCard({label:"Manches",value:state.rounds,icon:"/lightning.png"})}
-            ${settingCard({label:"Catégories",value:state.categoryCount || 6,icon:"/lobby-categories.png"})}
-            ${settingCard({label:"Temps",value:state.duration+"s",icon:"/lobby-clock.png"})}
+            ${state.gameType === "bombe"
+              ? `${settingCard({label:"Vies",value:state.bombLives || 3,icon:"/lobby-categories.png"})}${settingCard({label:"Bombe",value:({fast:"Rapide",medium:"Moyen",slow:"Lent"})[state.bombSpeed] || "Moyen",icon:"/lobby-clock.png"})}`
+              : `${settingCard({label:"Catégories",value:state.categoryCount || 6,icon:"/lobby-categories.png"})}${settingCard({label:"Temps",value:state.duration+"s",icon:"/lobby-clock.png"})}`}
             ${settingCard({label:"Difficulté",value:difficulty.label,icon:difficulty.icon,difficulty:true})}
           </div>
         </section>
@@ -1576,8 +1580,8 @@
             ${quickMode
               ? ""
               : user?.isHost
-                ? `<button id="startBtn" type="button" ${allReady ? "" : "disabled"}>▶ Lancer la partie</button>`
-                : `<span class="pl-wait">L’hôte lancera la partie.</span>`}
+                ? `<button id="startBtn" type="button" ${allReady && state.gameType !== "bombe" ? "" : "disabled"}>${state.gameType === "bombe" ? "Mode Bombe en préparation" : "▶ Lancer la partie"}</button>`
+                : `<span class="pl-wait">${state.gameType === "bombe" ? "Mode Bombe en préparation" : "L’hôte lancera la partie."}</span>`}
           </div>
 
           ${!quickMode && user?.isHost && state.mode === "private"
@@ -1697,6 +1701,9 @@
       const rounds = [1, 3, 5];
       const durations = [30, 60, 90, 120];
       const difficulties = ["beginner", "medium", "hard"];
+      const bomb = state.gameType === "bombe";
+      let nextBombLives = Number(state.bombLives || 3);
+      let nextBombSpeed = state.bombSpeed || "medium";
 
       let nextRounds = Number(state.rounds || 1);
       let nextDuration = Number(state.duration || 60);
@@ -1711,6 +1718,8 @@
       };
 
       if (setting === "rounds") nextRounds = cycle(rounds, nextRounds, dir);
+      if (bomb && setting === "bombLives") nextBombLives = cycle([1, 2, 3], nextBombLives, dir);
+      if (bomb && setting === "bombSpeed") nextBombSpeed = cycle(["fast", "medium", "slow"], nextBombSpeed, dir);
       if (setting === "duration") nextDuration = cycle(durations, nextDuration, dir);
       if (setting === "categoryDifficulty") nextDifficulty = cycle(difficulties, nextDifficulty, dir);
       if (setting === "categoryCount") {
@@ -1728,7 +1737,9 @@
         rounds: nextRounds,
         duration: nextDuration,
         categoryCount: nextCategoryCount,
-        categoryDifficulty: nextDifficulty
+        categoryDifficulty: nextDifficulty,
+        bombLives: nextBombLives,
+        bombSpeed: nextBombSpeed
       }, res => {
         if (!res?.ok) {
           lobbyDifficultyLockUntil = 0;
@@ -3048,6 +3059,13 @@
       state?.categoryDifficulty === "medium" ? "Moyen" :
       "Facile";
 
+    if (state?.gameType === "bombe") return [
+      { key: "rounds", label: "Manches", value: String(state.rounds || 1), icon: "/lightning.png" },
+      { key: "bombLives", label: "Vies", value: String(state.bombLives || 3), icon: "/lobby-categories.png" },
+      { key: "bombSpeed", label: "Bombe", value: ({ fast: "Rapide", medium: "Moyen", slow: "Lent" })[state.bombSpeed] || "Moyen", icon: "/lobby-clock.png" },
+      { key: "categoryDifficulty", label: "Difficulté", value: difficulty, icon: "/difficulty.png", difficulty: true }
+    ];
+
     return [
       {
         key: "rounds",
@@ -4236,7 +4254,9 @@
     const subtitle = overlay.querySelector("#plRoomChatSubtitle");
     if (subtitle) {
       subtitle.textContent =
-        state.mode === "quick"
+        state.gameType === "bombe"
+          ? "Bombe - Salon Privé"
+          : state.mode === "quick"
           ? "Baccalauréat - Partie Rapide"
           : state.mode === "public"
             ? "Baccalauréat - Salon Public"
@@ -5011,7 +5031,9 @@
       const roomTitle = root.querySelector(".pl-title-mode > h1");
       if (roomTitle) {
         roomTitle.textContent =
-          liveMode === "quick"
+          currentLobbyState()?.gameType === "bombe"
+            ? "Bombe - Salon Privé"
+            : liveMode === "quick"
             ? "Baccalauréat - Partie Rapide"
             : liveMode === "public"
               ? "Baccalauréat - Salon Public"
@@ -5092,9 +5114,15 @@
     );
     let nextDuration = Number(state.duration || 60);
     let nextDifficulty = state.categoryDifficulty || "medium";
+    let nextBombLives = Number(state.bombLives || 3);
+    let nextBombSpeed = state.bombSpeed || "medium";
 
     if (setting === "rounds") {
       nextRounds = cycleValue(rounds, nextRounds, direction);
+    } else if (state.gameType === "bombe" && setting === "bombLives") {
+      nextBombLives = cycleValue([1, 2, 3], nextBombLives, direction);
+    } else if (state.gameType === "bombe" && setting === "bombSpeed") {
+      nextBombSpeed = cycleValue(["fast", "medium", "slow"], nextBombSpeed, direction);
     } else if (setting === "categoryCount") {
       const normalized = categoryCounts.includes(nextCategoryCount)
         ? nextCategoryCount
@@ -5133,7 +5161,9 @@
         rounds: nextRounds,
         duration: nextDuration,
         categoryCount: nextCategoryCount,
-        categoryDifficulty: nextDifficulty
+        categoryDifficulty: nextDifficulty,
+        bombLives: nextBombLives,
+        bombSpeed: nextBombSpeed
       },
       res => {
         privateLobbyV3State.busy = false;
