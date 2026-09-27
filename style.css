@@ -2280,11 +2280,11 @@ html body .screen.bomb-screen {
 .bomb-header .bomb-brand { position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:48px;height:42px;object-fit:contain; }
 .bomb-header span { grid-column:3;text-align:right;font-size:11px;font-weight:800;color:#e0d6ff; }
 .bomb-content,.bomb-result-content { width:100%;max-width:410px;margin:0 auto;text-align:center; }
-.bomb-prompt { display:grid;width:min(60%,300px);box-sizing:border-box;grid-template-columns:minmax(0,1fr) 52px;align-items:center;gap:8px;text-align:center;margin:8px auto 0;padding:5px 10px;border:1px solid #aa78ff66;border-radius:8px;background:#ffffff08;box-shadow:0 0 12px #8f56f318; }
+.bomb-prompt { display:grid;width:min(60%,300px);box-sizing:border-box;grid-template-columns:minmax(0,1fr) 52px;align-items:start;gap:8px;text-align:center;margin:8px auto 0;padding:5px 10px;border:1px solid #a759ff;border-radius:8px;background:linear-gradient(110deg,#20124e,#101743);box-shadow:0 0 14px #9d49ff40,inset 0 0 12px #ad52ff18; }
 .bomb-category { text-align:center; }
 .bomb-prompt span { display:block;font-size:8px;line-height:1;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#af9efa; }
 .bomb-prompt strong { display:block;margin-top:1px;font-size:13px;line-height:1.1;overflow-wrap:anywhere; }
-.bomb-prompt b { display:block;margin-top:0;font-size:24px;line-height:1;color:#ffe4a2;text-shadow:0 0 12px #ffbf4970; }
+.bomb-prompt b { display:block;margin-top:0;font-size:24px;line-height:1;color:#fff;text-shadow:0 0 10px #ffffff45; }
 .bomb-letter { text-align:center;border-left:1px solid #aa78ff66; }
 .bomb-letter b { display:grid;width:32px;height:30px;margin:2px auto 0;place-items:center;border:1px solid #ac66ff99;border-radius:6px;background:#39206e88;box-shadow:0 0 10px #ab49ff45;font-size:18px; }
 .bomb-arena { position:relative;width:min(100%,410px,max(280px,calc(100dvh - 285px)));aspect-ratio:1;margin:24px auto 16px; }
@@ -2295,7 +2295,7 @@ html body .screen.bomb-screen {
 .bomb-player-avatar img { width:100%;height:100%;object-fit:cover; }
 .bomb-player-badge strong { display:block;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;line-height:13px; }
 .bomb-hearts { min-height:12px;font-size:.76rem;line-height:12px;letter-spacing:1px;color:#ff647e;text-shadow:0 0 9px #e91c66; }
-.bomb-player.is-turn .bomb-player-badge { border-color:#d18aff;box-shadow:0 0 10px #bd55ffda,0 0 22px #943dff9c,inset 0 0 12px #d36bff38; }
+.bomb-player.is-turn .bomb-player-badge { border-color:#ffe17b;box-shadow:0 0 10px #ffda55e0,0 0 22px #ffc83cba,inset 0 0 12px #ffe6794d; }
 .bomb-player.is-out { opacity:.38;filter:grayscale(1); }
 .bomb-center { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:78px;height:78px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,#633586,#281c53 75%);border:1px solid #a65ee1;box-shadow:0 0 24px #b655ee65;font-size:39px; }
 .bomb-center.is-active { animation:bomb-pulse 1.4s ease-in-out infinite alternate; }
@@ -2303,7 +2303,7 @@ html body .screen.bomb-screen {
 .bomb-pointer { position:absolute;left:50%;top:50%;z-index:1;width:calc(32% - 36px);height:8px;background:linear-gradient(90deg,#ffca6940,#ffe08a);transform-origin:0 50%;transform:translateY(-50%) rotate(var(--bomb-angle));filter:drop-shadow(0 0 7px #ffba47c9); }
 .bomb-status { min-height:32px;margin:0 auto 8px;display:grid;place-items:center;color:#ffdf9d;font-weight:800;font-size:14px;line-height:1.35; }
 .bomb-next { margin:14px auto;color:#cbbffa;font-size:.85rem; }
-.bomb-form { display:grid;width:min(100%,370px);gap:7px;margin:8px auto 0;text-align:left; }
+.bomb-form { display:grid;width:min(100%,370px);gap:7px;margin:14px auto 0;text-align:left; }
 .bomb-form label { font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:#c6b7ff; }
 .bomb-form > div { display:flex;gap:8px;padding:7.5px 6px;border:1px solid #a759ff;border-radius:14px;background:linear-gradient(110deg,#20124e,#101743);box-shadow:0 0 14px #9d49ff40,inset 0 0 12px #ad52ff18; }
 .bomb-form input { min-width:0;flex:1;box-sizing:border-box;height:42px;padding:8px 11px;color:#fff;background:#191948;border:1px solid #8575d5;border-radius:10px;font-size:15px; }
