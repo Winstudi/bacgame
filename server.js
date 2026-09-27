@@ -1310,6 +1310,8 @@ function normalizeRestoredRoom(raw, persistedAt = Date.now()) {
     ...source,
     code,
     phase,
+    // Les salons créés avant le choix du mode restent des parties classiques.
+    gameType:"classic",
     createdAt:Number(source.createdAt) || Number(persistedAt) || Date.now(),
     economyStartPending:false,
     categoryRerollPending:"",
@@ -1787,6 +1789,7 @@ function publicRoom(room, viewerPlayerId = null) {
     serverNow: Date.now(),
     code: room.code,
     mode: room.mode || "private",
+    gameType: room.gameType || "classic",
     economyEnabled: isEconomyMode(room.mode),
     progressionEnabled: isEconomyMode(room.mode),
     quickJoinable: isPublicRoomDiscoverable(room),
@@ -3838,6 +3841,7 @@ function createGameRoom(socket, { name, rounds = 1, duration = 60, categoryCount
     const room = {
       code,
       mode,
+      gameType:"classic",
       phase: "lobby",
       players: [player],
       categoryCount: safeCategoryCount,
@@ -4426,6 +4430,10 @@ io.on("connection", socket => {
     }
   });
   socket.on("room:create", async (payload = {}, cb = () => {}) => {
+    // Un nouveau mode ne doit pas ouvrir un salon avant que son jeu soit prêt.
+    if (payload.gameType != null && payload.gameType !== "classic") {
+      return cb({ok:false,error:"Ce mode de jeu n'est pas encore disponible."});
+    }
     if (!quickMatch.cancel(socket)) {
       return cb({ok:false,error:"Une partie rapide se prépare."});
     }
@@ -5245,6 +5253,5 @@ process.once("SIGTERM", () => { void shutdownApplication("SIGTERM"); });
 process.once("SIGINT", () => { void shutdownApplication("SIGINT"); });
 
 startApplication();
-
 
 

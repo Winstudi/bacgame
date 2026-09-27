@@ -348,6 +348,7 @@ test(
       assert.equal(reconnectAlice.ok, true);
       assert.equal(reconnectBob.ok, true);
       assert.equal(reconnectAlice.state?.phase, "category_selection");
+      assert.equal(reconnectAlice.state?.gameType, "classic");
       assert.deepEqual(reconnectAlice.state?.categories, categoriesBeforeCrash);
       assert.equal(reconnectBob.state?.players?.length, 2);
       assert.equal(
@@ -513,6 +514,7 @@ test(
       assert.match(created.code, /^[A-Z0-9]+$/);
       assert.ok(created.playerId);
       assert.equal(created.state?.phase, "lobby");
+      assert.equal(created.state?.gameType, "classic");
 
       const joined = await emitAck(bob, "room:join", {
         code:created.code,
@@ -524,6 +526,7 @@ test(
       assert.equal(joined.ok, true);
       assert.ok(joined.playerId);
       assert.equal(joined.state?.players?.length, 2);
+      assert.equal(joined.state?.gameType, "classic");
 
       const readyAlice = await emitAck(alice, "lobby:setReady", {
         code:created.code,
