@@ -1585,7 +1585,7 @@
 
           </div>
 
-          ${!quickMode && user?.isHost && state.mode === "private" && state.gameType !== "bombe"
+          ${!quickMode && user?.isHost && state.mode === "private"
             ? `<button class="pl-test" data-add-bot="0" type="button" ${state.players.length >= LOBBY_MAX_PLAYERS ? "disabled" : ""}>Ajouter un joueur test</button>`
             : ""}
         </div>

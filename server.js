@@ -1426,6 +1426,7 @@ function removeRoom(code) {
 
   cancelMatchmakingBotFill(safeCode);
   clearBombTimer(safeCode);
+  clearBombBotTimer(safeCode);
   const timer = roomPersistTimers.get(safeCode);
   if (timer) clearTimeout(timer);
   roomPersistTimers.delete(safeCode);
@@ -1463,7 +1464,10 @@ function resumeRestoredRoomRuntime(room) {
 
   if (room.gameType === "bombe" && room.phase === "bomb") {
     if (room.bomb?.status === "intermission") scheduleBombNextRound(room);
-    else if (room.bomb?.endsAt) scheduleBombExplosion(room);
+    else if (room.bomb?.endsAt) {
+      scheduleBombExplosion(room);
+      scheduleBombBotTurn(room);
+    }
     return;
   }
 
@@ -3143,6 +3147,7 @@ const BOT_ANSWER_BANK = {
   "Objet": ["Assiette","Bouteille","Chaise","Dé","Échelle","Fourchette","Gomme","Horloge","Interrupteur","Jumelles","Klaxon","Lampe","Marteau","Nappe","Ordinateur","Parapluie","Quille","Radio","Stylo","Table","Urne","Vase","Webcam","Xylophone","Yo-yo","Zip"],
   "Sport": ["Athlétisme","Basket","Cyclisme","Darts","Escalade","Football","Golf","Hockey","Iaïdo","Judo","Karaté","Lutte","Motocross","Natation","Orientation","Pétanque","Quad","Rugby","Surf","Tennis","Ultimate","Volley","Water-polo","Xare","Yoga","Zumba"],
   "Mot": ["Arbre","Bonjour","Chat","Danse","École","Fleur","Grand","Heure","Image","Jardin","Kilo","Livre","Maison","Nuage","Orange","Pierre","Quand","Route","Soleil","Table","Unique","Ville","Wagon","Xylophone","Yaourt","Zéro"],
+  "Mot de 4 lettres": ["Avec","Banc","Chat","Dame","Elle","Faim","Gare","Haut","Iris","Loup","Miel","Nuit","Onze","Pied","Rose","Sept","Tête","Vrai"],
   "Vêtement": ["Anorak","Bonnet","Chemise","Débardeur","Écharpe","Foulard","Gilet","Haut","Imperméable","Jean","K-way","Legging","Manteau","Nœud papillon","Oversize","Pantalon","Queue-de-pie","Robe","Short","T-shirt","Uniforme","Veste","Windbreaker","Yoga pants","Zip hoodie"],
   "Boisson": ["Aquarius","Badoit","Café","Dr Pepper","Eau","Fanta","Gini","Horchata","Ice tea","Jus","Kéfir","Limonade","Milkshake","Nectar","Oasis","Perrier","Quinquina","Red Bull","Sprite","Thé","Umeshu","Volvic","Whisky","Xérès","Yakult","Zumo"],
   "Application / Réseau social": ["Airbnb","BeReal","Canva","Discord","Etsy","Facebook","Google Maps","Hinge","Instagram","Just Eat","KakaoTalk","LinkedIn","Messenger","Netflix","Outlook","Pinterest","Qwant","Reddit","Snapchat","TikTok","Uber","Vinted","WhatsApp","X","YouTube","Zoom"],
@@ -3186,6 +3191,7 @@ function localBotAnswer(category, letter, usedAnswers = new Set()) {
 // Le mode Bombe partage les catégories et l'arbitre du Baccalauréat, mais
 // possède son propre état, ses propres délais et aucun effet sur l'économie.
 const bombTimers = new Map();
+const bombBotTimers = new Map();
 const BOMB_LETTERS = "ABCDEFGHILMNOPRSTV".split("");
 const BOMB_SPEED_SECONDS = { fast:[10, 15], medium:[15, 30], slow:[30, 45] };
 
@@ -3193,6 +3199,69 @@ function clearBombTimer(code) {
   const timer = bombTimers.get(code);
   if (timer) clearTimeout(timer);
   bombTimers.delete(code);
+}
+
+function clearBombBotTimer(code) {
+  const timer = bombBotTimers.get(code);
+  if (timer) clearTimeout(timer);
+  bombBotTimers.delete(code);
+}
+
+function scheduleBombBotTurn(room) {
+  if (!room?.code) return;
+  clearBombBotTimer(room.code);
+
+  const bomb = room.bomb;
+  const player = getPlayer(room, bomb?.turnPlayerId);
+  if (
+    room.phase !== "bomb" ||
+    bomb?.status !== "playing" ||
+    bomb.checkingPlayerId ||
+    !player?.isBot
+  ) return;
+
+  const cycle = bomb.cycle;
+  const turnVersion = bomb.turnVersion;
+  const persona = botPersonaFor(player, room.players.indexOf(player));
+  const delay = Math.round((850 + Math.random() * 1450) * Number(persona.pace || 1));
+  const timer = setTimeout(() => {
+    bombBotTimers.delete(room.code);
+    if (
+      rooms.get(room.code) !== room ||
+      room.phase !== "bomb" ||
+      room.bomb?.status !== "playing" ||
+      room.bomb.cycle !== cycle ||
+      room.bomb.turnVersion !== turnVersion ||
+      room.bomb.turnPlayerId !== player.id
+    ) return;
+
+    const currentBomb = room.bomb;
+    if (Date.now() >= currentBomb.endsAt) {
+      bombExplode(room);
+      return;
+    }
+
+    const usedWords = new Set(currentBomb.usedWords || []);
+    const choices = (BOT_ANSWER_BANK[currentBomb.category] || []).filter(answer =>
+      normalizeInitialLetter(answer) === normalizeInitialLetter(currentBomb.letter) &&
+      !usedWords.has(normalizeAnswer(answer)) &&
+      (currentBomb.category !== "Mot de 4 lettres" || countLetters(answer) === 4)
+    );
+    if (!choices.length || Math.random() < Math.max(0, Number(persona.missRate || 0) * .35)) return;
+
+    const answer = choices[Math.floor(Math.random() * choices.length)];
+    currentBomb.usedWords ||= [];
+    currentBomb.usedWords.push(normalizeAnswer(answer));
+    currentBomb.category = bombNextCategory(room);
+    currentBomb.letter = bombNextLetter(room);
+    currentBomb.turnPlayerId = bombRandomPlayer(room, player.id)?.id || player.id;
+    currentBomb.turnVersion += 1;
+    emitRoom(room);
+    scheduleBombBotTurn(room);
+  }, delay);
+
+  timer.unref?.();
+  bombBotTimers.set(room.code, timer);
 }
 
 function bombActivePlayers(room) {
@@ -3245,6 +3314,7 @@ function scheduleBombNextRound(room) {
 }
 
 function bombNewCycle(room, previousPlayerId = "") {
+  clearBombBotTimer(room.code);
   const bomb = room.bomb;
   const [min, max] = BOMB_SPEED_SECONDS[room.bombSpeed] || BOMB_SPEED_SECONDS.medium;
   bomb.cycle += 1;
@@ -3258,6 +3328,7 @@ function bombNewCycle(room, previousPlayerId = "") {
   bomb.endsAt = Date.now() + (min + Math.floor(Math.random() * (max - min + 1))) * 1000;
   emitRoom(room);
   scheduleBombExplosion(room);
+  scheduleBombBotTurn(room);
 }
 
 function bombBeginRound(room, round) {
@@ -3286,6 +3357,7 @@ function bombFinishRound(room, winner) {
   bomb.checkingPlayerId = null;
   bomb.endsAt = null;
   clearBombTimer(room.code);
+  clearBombBotTimer(room.code);
   if (bomb.round >= room.rounds) {
     bomb.status = "finished";
     room.phase = "finished";
@@ -3301,6 +3373,7 @@ function bombFinishRound(room, winner) {
 function bombExplode(room) {
   const bomb = room.bomb;
   if (room.phase !== "bomb" || bomb?.status !== "playing") return;
+  clearBombBotTimer(room.code);
   const unlucky = getPlayer(room, bomb.turnPlayerId);
   if (unlucky) bomb.lives[unlucky.id] = Math.max(0, (bomb.lives[unlucky.id] || 0) - 1);
   bomb.lastExplosion = { playerId:unlucky?.id || null, eliminated:unlucky && bomb.lives[unlucky.id] === 0, at:Date.now() };
@@ -3707,6 +3780,7 @@ async function ptitBacHandleExplicitLeave(socket, payload = {}, cb = () => {}) {
       const alive = bombActivePlayers(room);
       if (alive.length === 1) {
         clearBombTimer(room.code);
+        clearBombBotTimer(room.code);
         room.bomb.wins[alive[0].id] = Math.max(room.rounds, room.bomb.wins[alive[0].id] || 0);
         room.bomb.lastWinnerId = alive[0].id;
         room.bomb.turnPlayerId = null;
@@ -3716,12 +3790,13 @@ async function ptitBacHandleExplicitLeave(socket, payload = {}, cb = () => {}) {
         room.phase = "finished";
         emitRoom(room);
       }
-      else if (alive.length === 0) { clearBombTimer(room.code); room.phase = "finished"; room.bomb.status = "finished"; emitRoom(room); }
+      else if (alive.length === 0) { clearBombTimer(room.code); clearBombBotTimer(room.code); room.phase = "finished"; room.bomb.status = "finished"; emitRoom(room); }
       else if (room.bomb.turnPlayerId === player.id) {
         room.bomb.turnPlayerId = bombRandomPlayer(room)?.id || null;
         room.bomb.turnVersion += 1;
         room.bomb.checkingPlayerId = null;
         emitRoom(room);
+        scheduleBombBotTurn(room);
       } else emitRoom(room);
     }
     return cb({ ok:true, outcome:"left_room" });
@@ -3808,6 +3883,7 @@ async function ptitBacHandleExplicitLeave(socket, payload = {}, cb = () => {}) {
     }
 
     emitRoom(room);
+    scheduleBombBotTurn(room);
     scheduleMatchmakingBotFill(room);
     return cb({ ok:true, outcome:"left_room" });
   }
@@ -4953,7 +5029,6 @@ io.on("connection", socket => {
   socket.on("room:addBot", payload => {
     const { room, player } = requireMember(socket, payload);
     if (!room || !player?.isHost || room.phase !== "lobby" || room.economyStartPending) return;
-    if (room.gameType === "bombe") return socket.emit("toast", "Les bots de test ne sont pas disponibles pour Bombe.");
     if (room.mode !== "private") {
       return socket.emit("toast", "Les bots de test sont disponibles uniquement en salon privé.");
     }
@@ -5020,6 +5095,7 @@ io.on("connection", socket => {
     bomb.turnPlayerId = bombRandomPlayer(room, player.id)?.id || player.id;
     bomb.turnVersion += 1;
     emitRoom(room);
+    scheduleBombBotTurn(room);
     cb({ ok:true, nextPlayerId:bomb.turnPlayerId });
   });
 
