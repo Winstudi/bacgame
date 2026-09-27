@@ -442,9 +442,7 @@ function renderBombGame() {
       <div class="bomb-prompt"><div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div></div>
       ${bomb.status === "intermission" ? `<p class="bomb-next">Nouvelle manche dans quelques secondes… Les vies vont être réinitialisées.</p>` : myTurn ? `
       <form id="bombAnswerForm" class="bomb-form">
-        <label for="bombAnswerInput">Écris ta réponse</label>
-        <div><input id="bombAnswerInput" class="bomb-answer-input" type="text" maxlength="80" autocomplete="off" autocapitalize="sentences" placeholder="Un mot en ${escapeHtml(bomb.letter || "")}…" ${myTurn && !checking ? "" : "disabled"} required><button type="submit" aria-label="Envoyer la réponse" title="Envoyer la réponse" ${myTurn && !checking ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.2 21 3l-5.3 18-3.1-7.1L3 11.2Zm9.6 2.7L21 3"/></svg></button></div>
-        <small>Un mot validé passe la bombe à un autre joueur.</small>
+        <div><input id="bombAnswerInput" class="bomb-answer-input" type="text" maxlength="80" autocomplete="off" autocapitalize="sentences" placeholder="Écris ta réponse" aria-label="Écris ta réponse" ${myTurn && !checking ? "" : "disabled"} required><button type="submit" aria-label="Envoyer la réponse" title="Envoyer la réponse" ${myTurn && !checking ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.2 21 3l-5.3 18-3.1-7.1L3 11.2Zm9.6 2.7L21 3"/></svg></button></div>
       </form>` : ""}
     </div>
   </main>`);

@@ -2280,17 +2280,18 @@ html body .screen.bomb-screen {
 .bomb-header .bomb-brand { position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:48px;height:42px;object-fit:contain; }
 .bomb-header span { grid-column:3;text-align:right;font-size:11px;font-weight:800;color:#e0d6ff; }
 .bomb-content,.bomb-result-content { width:100%;max-width:410px;margin:0 auto;text-align:center; }
-.bomb-prompt { display:grid;grid-template-columns:minmax(0,1fr) 52px;align-items:center;gap:8px;text-align:left;margin:8px 0 0;padding:2px 10px;border:1px solid #aa78ff66;border-radius:12px;background:#ffffff08;box-shadow:0 0 12px #8f56f318; }
+.bomb-prompt { display:grid;width:min(60%,300px);box-sizing:border-box;grid-template-columns:minmax(0,1fr) 52px;align-items:center;gap:8px;text-align:center;margin:8px auto 0;padding:5px 10px;border:1px solid #aa78ff66;border-radius:8px;background:#ffffff08;box-shadow:0 0 12px #8f56f318; }
+.bomb-category { text-align:center; }
 .bomb-prompt span { display:block;font-size:8px;line-height:1;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#af9efa; }
 .bomb-prompt strong { display:block;margin-top:1px;font-size:13px;line-height:1.1;overflow-wrap:anywhere; }
 .bomb-prompt b { display:block;margin-top:0;font-size:24px;line-height:1;color:#ffe4a2;text-shadow:0 0 12px #ffbf4970; }
 .bomb-letter { text-align:center;border-left:1px solid #aa78ff66; }
-.bomb-letter b { display:grid;width:32px;height:30px;margin:2px auto 0;place-items:center;border:1px solid #ac66ff99;border-radius:8px;background:#39206e88;box-shadow:0 0 10px #ab49ff45;font-size:18px; }
+.bomb-letter b { display:grid;width:32px;height:30px;margin:2px auto 0;place-items:center;border:1px solid #ac66ff99;border-radius:6px;background:#39206e88;box-shadow:0 0 10px #ab49ff45;font-size:18px; }
 .bomb-arena { position:relative;width:min(100%,410px,max(280px,calc(100dvh - 285px)));aspect-ratio:1;margin:24px auto 16px; }
 .bomb-orbit { position:absolute;inset:10%;border:1px dashed #a65cff78;border-radius:50%;box-shadow:0 0 22px #914cff24,inset 0 0 28px #914cff16; }
 .bomb-player { position:absolute;transform:translate(-50%,-50%);width:78px;display:flex;align-items:center;flex-direction:column;gap:1px;z-index:2;transition:opacity .2s,filter .2s; }
-.bomb-player-badge { display:flex;min-width:64px;box-sizing:border-box;flex-direction:column;align-items:center;gap:2px;padding:5px 6px 4px;border:1px solid #a66bff;border-radius:18px;background:linear-gradient(160deg,#21134eeb,#11153feF);box-shadow:0 0 12px #9d49ff92,inset 0 0 9px #b95dff2e; }
-.bomb-player-avatar { display:grid;place-items:center;width:46px;height:46px;border-radius:14px;border:1px solid #9e77e8;background:#241d55;box-shadow:0 2px 10px #0008;font-size:24px;overflow:hidden; }
+.bomb-player-badge { display:flex;min-width:64px;box-sizing:border-box;flex-direction:column;align-items:center;gap:2px;padding:5px 6px 4px;border:1px solid #a66bff;border-radius:12px;background:linear-gradient(160deg,#21134eeb,#11153feF);box-shadow:0 0 12px #9d49ff92,inset 0 0 9px #b95dff2e; }
+.bomb-player-avatar { display:grid;place-items:center;width:46px;height:46px;border-radius:10px;border:1px solid #9e77e8;background:#241d55;box-shadow:0 2px 10px #0008;font-size:24px;overflow:hidden; }
 .bomb-player-avatar img { width:100%;height:100%;object-fit:cover; }
 .bomb-player-badge strong { display:block;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;line-height:13px; }
 .bomb-hearts { min-height:12px;font-size:.76rem;line-height:12px;letter-spacing:1px;color:#ff647e;text-shadow:0 0 9px #e91c66; }
@@ -2304,11 +2305,11 @@ html body .screen.bomb-screen {
 .bomb-next { margin:14px auto;color:#cbbffa;font-size:.85rem; }
 .bomb-form { display:grid;width:min(100%,370px);gap:7px;margin:8px auto 0;text-align:left; }
 .bomb-form label { font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:#c6b7ff; }
-.bomb-form > div { display:flex;gap:8px;padding:6px;border:1px solid #a759ff;border-radius:19px;background:linear-gradient(110deg,#20124e,#101743);box-shadow:0 0 14px #9d49ff40,inset 0 0 12px #ad52ff18; }
-.bomb-form input { min-width:0;flex:1;box-sizing:border-box;height:42px;padding:8px 11px;color:#fff;background:#191948;border:1px solid #8575d5;border-radius:12px;font-size:15px; }
+.bomb-form > div { display:flex;gap:8px;padding:7.5px 6px;border:1px solid #a759ff;border-radius:14px;background:linear-gradient(110deg,#20124e,#101743);box-shadow:0 0 14px #9d49ff40,inset 0 0 12px #ad52ff18; }
+.bomb-form input { min-width:0;flex:1;box-sizing:border-box;height:42px;padding:8px 11px;color:#fff;background:#191948;border:1px solid #8575d5;border-radius:10px;font-size:15px; }
 .bomb-form input:focus { outline:2px solid #e9bdff;outline-offset:1px; }
 .bomb-form button,.bomb-result-content > button { padding:10px 15px;color:#251147;background:linear-gradient(135deg,#f3bcff,#ffc777);border:0;border-radius:12px;font-weight:900;cursor:pointer; }
-.bomb-form button { width:42px;height:42px;min-width:42px;padding:0;display:grid;place-items:center;border-radius:12px;background:linear-gradient(145deg,#d846ff,#7c35ff);box-shadow:0 0 15px #cd5fffa8,inset 0 0 6px #ffffff5c; }
+.bomb-form button { width:42px;height:42px;min-width:42px;padding:0;display:grid;place-items:center;border-radius:10px;background:linear-gradient(145deg,#d846ff,#7c35ff);box-shadow:0 0 15px #cd5fffa8,inset 0 0 6px #ffffff5c; }
 .bomb-form button svg { width:21px;height:21px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
 .bomb-form button:focus-visible { outline:2px solid #e9bdff;outline-offset:2px; }
 .bomb-form button:disabled,.bomb-form input:disabled { opacity:.6;cursor:default; }
