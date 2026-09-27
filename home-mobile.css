@@ -1,0 +1,3306 @@
+/* =========================================================
+   P'tit Bac — Accueil : badge niveau + barre XP PNG V4
+   Assets premium transparents + progression XP dynamique.
+   ========================================================= */
+
+/* Badge PNG : le chiffre reste du vrai texte dynamique. */
+.home-mobile .hm-profile-copy > small{
+  position:absolute !important;
+  z-index:14 !important;
+  top:45px !important;
+  left:-8px !important;
+
+  width:58px !important;
+  height:58px !important;
+  margin:0 !important;
+  padding:0 !important;
+
+  display:grid !important;
+  place-items:center !important;
+  overflow:visible !important;
+
+  border:0 !important;
+  border-radius:0 !important;
+  clip-path:none !important;
+
+  background:
+    url("/level-badge-v1.png") center/contain no-repeat !important;
+
+  color:#fff !important;
+  font-size:1.46rem !important;
+  line-height:1 !important;
+  font-weight:1000 !important;
+  letter-spacing:-.04em !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+
+  text-shadow:
+    0 2px 4px rgba(5,10,54,.95),
+    0 0 6px rgba(255,255,255,.45),
+    0 0 11px rgba(80,116,255,.35) !important;
+
+  filter:
+    drop-shadow(0 2px 4px rgba(0,0,0,.24))
+    drop-shadow(0 0 5px rgba(66,136,255,.22)) !important;
+
+  pointer-events:none !important;
+}
+
+/* Les anciens effets CSS de gemme ne sont plus nécessaires :
+   ils sont directement dessinés dans le PNG. */
+.home-mobile .hm-profile-copy > small::before,
+.home-mobile .hm-profile-copy > small::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* Coque PNG de la barre. */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar{
+  position:absolute !important;
+  z-index:11 !important;
+  top:49px !important;
+  left:16px !important;
+
+  width:146px !important;
+  height:49px !important;
+  margin:0 !important;
+  padding:0 15% !important;
+  box-sizing:border-box !important;
+
+  display:flex !important;
+  align-items:center !important;
+
+  overflow:visible !important;
+  border:0 !important;
+  border-radius:0 !important;
+
+  background:
+    url("/level-bar-shell-v1.png") center/100% 100% no-repeat !important;
+
+  box-shadow:none !important;
+  filter:
+    drop-shadow(0 3px 6px rgba(0,0,0,.22))
+    drop-shadow(0 0 5px rgba(76,89,255,.15)) !important;
+
+  pointer-events:none !important;
+}
+
+/* La coque PNG contient déjà le rail sombre et tous ses reflets. */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar::before,
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* Remplissage dynamique : sa largeur continue d'être pilotée par progression-client.js. */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar > .ptb-home-xp-fill{
+  position:relative !important;
+  z-index:2 !important;
+
+  display:block !important;
+  height:13px !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+
+  border-radius:999px !important;
+
+  background:
+    linear-gradient(
+      90deg,
+      #29e1ff 0%,
+      #2ec5ff 20%,
+      #5379ff 52%,
+      #9551ff 76%,
+      #e250ff 100%
+    ) !important;
+
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.72),
+    0 0 5px rgba(47,214,255,.95),
+    0 0 8px rgba(88,96,255,.60),
+    0 0 10px rgba(211,75,255,.35) !important;
+
+  transition:width .48s cubic-bezier(.22,.8,.28,1) !important;
+}
+
+/* Petit reflet interne pour rapprocher le remplissage du rendu PNG. */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar > .ptb-home-xp-fill::after{
+  content:"" !important;
+  position:absolute !important;
+  left:5px !important;
+  right:5px !important;
+  top:2px !important;
+  height:3px !important;
+
+  border-radius:999px !important;
+  background:
+    linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent) !important;
+  opacity:.72 !important;
+  pointer-events:none !important;
+}
+
+/* Les boutons latéraux descendent légèrement pour laisser respirer le nouveau badge. */
+body .home-mobile .hm-side,
+body .home-mobile .hm-left,
+body .home-mobile .hm-right{
+  top:95px !important;
+}
+
+@media(max-width:370px){
+  .home-mobile .hm-profile-copy > small{
+    top:47px !important;
+    left:-7px !important;
+    width:53px !important;
+    height:53px !important;
+    font-size:1.32rem !important;
+  }
+
+  .home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar{
+    top:51px !important;
+    left:14px !important;
+    width:132px !important;
+    height:44px !important;
+    padding-left:15% !important;
+    padding-right:15% !important;
+  }
+
+  .home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar > .ptb-home-xp-fill{
+    height:11px !important;
+  }
+
+  body .home-mobile .hm-side,
+  body .home-mobile .hm-left,
+  body .home-mobile .hm-right{
+    top:90px !important;
+  }
+}
+
+@media(max-height:760px){
+  .home-mobile .hm-profile-copy > small{
+    top:42px !important;
+    width:51px !important;
+    height:51px !important;
+    font-size:1.28rem !important;
+  }
+
+  .home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar{
+    top:46px !important;
+    left:13px !important;
+    width:130px !important;
+    height:43px !important;
+  }
+
+  .home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar > .ptb-home-xp-fill{
+    height:11px !important;
+  }
+
+  body .home-mobile .hm-side,
+  body .home-mobile .hm-left,
+  body .home-mobile .hm-right{
+    top:84px !important;
+  }
+}
+
+@media(max-height:670px){
+  .home-mobile .hm-profile-copy > small{
+    top:39px !important;
+    left:-6px !important;
+    width:47px !important;
+    height:47px !important;
+    font-size:1.18rem !important;
+  }
+
+  .home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar{
+    top:43px !important;
+    left:12px !important;
+    width:119px !important;
+    height:40px !important;
+  }
+
+  .home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar > .ptb-home-xp-fill{
+    height:9px !important;
+  }
+
+  body .home-mobile .hm-side,
+  body .home-mobile .hm-left,
+  body .home-mobile .hm-right{
+    top:78px !important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar > .ptb-home-xp-fill{
+    transition:none !important;
+  }
+}
+
+/* =========================================================
+   P'tit Bac — Accueil mobile V8
+   Écran autonome. Les anciennes feuilles .home-plaque-v1
+   ne sont plus nécessaires pour cet accueil.
+   ========================================================= */
+
+html:has(.home-mobile),
+body:has(.home-mobile) {
+  width:100%;
+  min-height:100%;
+  margin:0;
+  overflow:hidden;
+  background:#050b31;
+}
+
+body:has(.home-mobile) #app {
+  width:100%;
+  max-width:none;
+  min-height:100%;
+  margin:0;
+  padding:0;
+  display:block;
+}
+
+body:has(.home-mobile) .economy-hud {
+  display:none !important;
+}
+
+.home-mobile,
+.home-mobile *,
+.home-mobile *::before,
+.home-mobile *::after {
+  box-sizing:border-box;
+}
+
+.home-mobile {
+  --hm-line:#7450ff;
+  --hm-text:#fff;
+  --hm-muted:#b6a9dc;
+  position:relative;
+  isolation:isolate;
+  width:min(100%,430px);
+  height:100svh;
+  min-height:100svh;
+  margin:0 auto;
+  padding:
+    max(1px,env(safe-area-inset-top))
+    4px
+    max(7px,env(safe-area-inset-bottom));
+  display:grid;
+  grid-template-rows:auto minmax(266px,1fr) auto auto;
+  align-content:stretch;
+  gap:4px;
+  overflow-x:hidden;
+  overflow-y:auto;
+  scrollbar-width:none;
+  color:var(--hm-text);
+  font-family:"DM Sans",system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 50% 24%,rgba(104,42,239,.42),transparent 27%),
+    radial-gradient(circle at 3% 33%,rgba(31,84,221,.27),transparent 32%),
+    radial-gradient(circle at 100% 42%,rgba(82,34,205,.24),transparent 29%),
+    linear-gradient(180deg,#080b43 0%,#07103b 70%,#060d34 100%);
+}
+
+.home-mobile::-webkit-scrollbar {
+  display:none;
+}
+
+.home-mobile::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  opacity:.28;
+  pointer-events:none;
+  background-image:
+    radial-gradient(circle at 18% 16%,#7c58ff 0 1px,transparent 1.5px),
+    radial-gradient(circle at 74% 12%,#5178ff 0 1px,transparent 1.4px),
+    radial-gradient(circle at 88% 31%,#8e56ff 0 1px,transparent 1.5px),
+    radial-gradient(circle at 42% 37%,#7145ff 0 1px,transparent 1.5px);
+  background-size:90px 105px,120px 132px,136px 148px,154px 170px;
+}
+
+.home-mobile button,
+.home-mobile input {
+  font:inherit;
+}
+
+.home-mobile button {
+  margin:0;
+  color:inherit;
+  text-transform:none;
+  letter-spacing:normal;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.home-mobile button:focus-visible,
+.home-mobile input:focus-visible {
+  outline:2px solid #eacbff;
+  outline-offset:2px;
+}
+
+.home-mobile button:not(:disabled):active {
+  transform:scale(.985);
+}
+
+.home-mobile button:disabled {
+  opacity:.45;
+  cursor:default;
+}
+
+.home-mobile img {
+  display:block;
+  object-fit:contain;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+
+/* =========================
+   BARRE SUPÉRIEURE
+   ========================= */
+
+.hm-header {
+  position:relative;
+  z-index:20;
+  width:100%;
+  margin:0;
+  align-self:start;
+  display:grid;
+  grid-template-columns:107px minmax(0,1fr) 32px;
+  align-items:center;
+  gap:3px;
+}
+
+.hm-profile {
+  position:relative;
+  transform:translateY(7px);
+  height:33px;
+  overflow:visible;
+  min-width:0;
+  padding:0 4px 0 1px;
+  border:1.4px solid #6350ee;
+  border-radius:12px;
+  background:linear-gradient(125deg,#27136d,#0b174a 82%);
+  box-shadow:
+    inset 0 0 14px rgba(116,68,255,.08),
+    0 4px 14px rgba(0,0,0,.16);
+  display:flex;
+  align-items:center;
+  gap:5px;
+  text-align:left;
+  margin-top:0;
+}
+
+.hm-avatar {
+  position:relative;
+  z-index:2;
+  width:46.2px;
+  height:46.2px;
+  flex:0 0 46.2px;
+  margin-left:-1.5px;
+  border:2px solid #d15eff;
+  border-radius:10px;
+  background:
+    radial-gradient(circle at 50% 35%,rgba(133,72,255,.34),transparent 60%),
+    #202064;
+  box-shadow:
+    0 0 13px rgba(183,61,255,.53),
+    inset 0 0 12px rgba(255,255,255,.05);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  font-size:1.52rem;
+  line-height:1;
+  transform:translateY(3px);
+}
+
+.hm-profile-copy {
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+
+.hm-profile-copy b {
+  max-width:57px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:.63rem;
+  line-height:1;
+  font-weight:900;
+}
+
+.hm-profile-copy small {
+  color:#bea7e9;
+  font-size:.46rem;
+  font-weight:700;
+  white-space:nowrap;
+  transform:translateY(9px);
+}
+
+/* La progression XP est injectée par progression-client.js : on la descend avec le niveau. */
+.home-mobile .hm-profile-copy .ptb-home-xp-bar {
+  transform:translateY(9px) !important;
+}
+
+.hm-resources {
+  width:min(100%,189px);
+  min-width:0;
+  justify-self:center;
+  align-self:center;
+  margin-top:0;
+  display:grid;
+  grid-template-columns:54px 67px 62px;
+  justify-content:center;
+  gap:3px;
+}
+
+.hm-resources button {
+  width:62px;
+  min-width:62px;
+  height:29px;
+  padding:1px 4px;
+  border:1.3px solid #6850ef;
+  border-radius:11px;
+  background:linear-gradient(180deg,#22165e,#0d1748);
+  box-shadow:inset 0 0 12px rgba(102,75,234,.08);
+  display:grid;
+  grid-template-columns:16px minmax(0,1fr);
+  align-items:center;
+  gap:2px;
+}
+
+/* Vies ré-agrandies de 12 px ; pièces inchangées. */
+#homePlaqueLivesBtn {
+  width:54px;
+  min-width:54px;
+  padding-inline:2px;
+  grid-template-columns:14px minmax(0,1fr);
+}
+
+#homePlaqueCoinsBtn {
+  width:67px;
+  min-width:67px;
+}
+
+.hm-resources img {
+  width:16px;
+  height:18px;
+}
+
+.hm-resources b {
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  text-align:center;
+  font-size:.52rem;
+  font-weight:900;
+  letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;
+}
+
+#homePlaqueCoinsBtn b {
+  font-size:.50rem;
+  letter-spacing:-.04em;
+}
+
+.hm-menu-button {
+  justify-self:end;
+  align-self:center;
+  width:32px;
+  height:32px;
+  margin-top:0;
+  padding:6px;
+  border:1.4px solid #6953f4;
+  border-radius:11px;
+  background:linear-gradient(180deg,#17184f,#0d1541);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:4px;
+}
+
+.hm-menu-button > span {
+  width:100%;
+  height:2.5px;
+  border-radius:999px;
+  background:#fff;
+  box-shadow:0 0 5px rgba(255,255,255,.22);
+}
+
+.hm-menu {
+  position:absolute;
+  z-index:200;
+  right:0;
+  top:42px;
+  width:224px;
+  padding:9px;
+  border:1.2px solid #9b55ff;
+  border-radius:17px;
+  background:
+    radial-gradient(circle at 100% 0,rgba(129,58,255,.16),transparent 40%),
+    #111847;
+  box-shadow:0 18px 45px rgba(0,0,0,.43);
+  backdrop-filter:blur(12px);
+}
+
+.hm-menu[hidden] {
+  display:none;
+}
+
+.hm-menu button {
+  width:100%;
+  min-height:43px;
+  padding:8px 9px;
+  border:0;
+  border-radius:10px;
+  background:transparent;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-align:left;
+  font-size:.72rem;
+  font-weight:800;
+}
+
+.hm-menu button:hover {
+  background:rgba(112,61,204,.22);
+}
+
+.hm-menu img {
+  width:25px;
+  height:25px;
+}
+
+/* Icône Compte : utilise l’asset existant du dépôt à la place de l’emoji. */
+.home-mobile .ptb-home-account-entry .ptb-home-account-icon {
+  width:25px !important;
+  height:25px !important;
+  flex:0 0 25px;
+  display:block;
+  font-size:0 !important;
+  line-height:0;
+  color:transparent;
+  background:url("/profile-icon.png") center / contain no-repeat;
+}
+
+.hm-menu-close {
+  justify-content:center !important;
+  margin-top:3px !important;
+  border-top:1px solid rgba(117,88,219,.25) !important;
+  color:#b9adde !important;
+}
+
+/* =========================
+   HERO
+   ========================= */
+
+.hm-hero {
+  position:relative;
+  min-height:272px;
+  padding-bottom:7px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+}
+
+.hm-side {
+  position:absolute;
+  top:26px;
+  z-index:5;
+  display:grid;
+  gap:16px;
+}
+
+.hm-left { left:1px; }
+.hm-right { right:1px; }
+
+.hm-side button {
+  width:53px;
+  height:58px;
+  padding:4px 3px;
+  border:1.2px solid #8557ff;
+  border-radius:14px;
+  background:
+    radial-gradient(circle at 50% 12%,rgba(127,77,255,.17),transparent 48%),
+    linear-gradient(145deg,rgba(35,21,91,.96),rgba(8,20,63,.97));
+  box-shadow:
+    inset 0 0 12px rgba(127,92,255,.08),
+    0 5px 14px rgba(1,5,31,.2);
+  display:grid;
+  justify-items:center;
+  align-content:center;
+  gap:3px;
+}
+
+.hm-side img {
+  width:32px;
+  height:32px;
+}
+
+.hm-side b {
+  font-size:.57rem;
+  line-height:1;
+  font-weight:900;
+}
+
+.hm-brand {
+  position:absolute;
+  top:2%;
+  left:50%;
+  width:56%;
+  height:56%;
+  transform:translate(-50%,35px);
+  display:grid;
+  place-items:center;
+  z-index:2;
+}
+
+.hm-brand-glow {
+  position:absolute;
+  width:92%;
+  aspect-ratio:1;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(121,45,255,.36),rgba(74,36,222,.08) 54%,transparent 72%);
+  filter:blur(7px);
+}
+
+.hm-logo {
+  position:relative;
+  width:82%;
+  max-width:184px;
+  max-height:100%;
+  filter:drop-shadow(0 0 14px rgba(142,52,255,.62));
+}
+
+.hm-letters {
+  position:absolute;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+
+.hm-letters span {
+  position:absolute;
+  width:48px;
+  height:54px;
+  border:2px solid rgba(171,130,255,.72);
+  border-radius:11px;
+  background:linear-gradient(135deg,rgba(56,53,193,.72),rgba(157,72,255,.22));
+  color:#ede5ff;
+  box-shadow:0 0 19px rgba(126,65,255,.38);
+  display:grid;
+  place-items:center;
+  font-size:2rem;
+  font-weight:900;
+}
+
+.hm-letters span:nth-child(1) {
+  top:16%;
+  left:23%;
+  opacity:.45;
+  transform:rotate(-18deg);
+}
+
+.hm-letters span:nth-child(2) {
+  top:4%;
+  right:27%;
+  opacity:.26;
+  transform:rotate(13deg);
+}
+
+.hm-letters span:nth-child(3) {
+  bottom:24%;
+  right:8%;
+  opacity:.52;
+  transform:rotate(13deg);
+}
+
+.hm-letters span:nth-child(4) {
+  bottom:8%;
+  left:10%;
+  opacity:.55;
+  transform:rotate(14deg);
+}
+
+.hm-book {
+  position:relative;
+  z-index:3;
+  width:67%;
+  height:72px;
+  margin-bottom:0;
+  display:flex;
+  justify-content:center;
+  transform:translateY(37px) perspective(280px) rotateX(20deg);
+  filter:drop-shadow(0 0 15px rgba(180,74,255,.54));
+}
+
+.hm-book::after {
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:0;
+  width:2px;
+  height:88%;
+  background:linear-gradient(transparent,rgba(139,81,208,.38),transparent);
+  transform:translateX(-50%);
+}
+
+.hm-book span {
+  width:50%;
+  padding:11px 1px 8px;
+  border-bottom:7px double #a36aef;
+  background:linear-gradient(100deg,#e3d3fb,#fff 71%,#ad86d6);
+  border-radius:70% 13% 0 0 / 23% 10% 0 0;
+  color:#8638c7;
+  text-align:center;
+  font-size:.67rem;
+  line-height:1.48;
+  font-weight:900;
+}
+
+.hm-book span + span {
+  background:linear-gradient(80deg,#ae85d6,#fff 30%,#e5d4fb);
+  border-radius:13% 70% 0 0 / 10% 23% 0 0;
+}
+
+/* =========================
+   MODES
+   ========================= */
+
+.hm-modes {
+  position:relative;
+  z-index:3;
+  margin-top:102px;
+  padding:10px 9px 3px;
+  border:1.5px solid #9856ff;
+  border-radius:22px;
+  background:
+    radial-gradient(circle at 50% 0,rgba(118,69,255,.16),transparent 47%),
+    linear-gradient(145deg,rgba(47,31,114,.68),rgba(10,17,64,.95));
+  box-shadow:
+    inset 0 0 19px rgba(126,61,255,.16),
+    0 0 13px rgba(65,50,225,.16);
+}
+
+.hm-modes h1 {
+  margin:0 0 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  text-align:center;
+  font-size:1rem;
+  line-height:1.1;
+  font-weight:900;
+  letter-spacing:-.02em;
+}
+
+.hm-modes h1 > span {
+  color:#ffd85b;
+  font-size:.74rem;
+  text-shadow:0 0 8px rgba(255,199,51,.62);
+}
+
+.hm-mode-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+}
+
+.hm-mode-grid button {
+  min-width:0;
+  min-height:112px;
+  padding:7px 4px 8px;
+  border:2px solid #a36cff;
+  border-radius:17px;
+  background:linear-gradient(145deg,#6d2bd5,#12164f 82%);
+  box-shadow:
+    inset 0 0 13px rgba(145,117,255,.3),
+    0 5px 12px rgba(0,0,0,.16);
+}
+
+.hm-mode-grid .hm-quick {
+  border-color:#ffe292;
+  background:linear-gradient(135deg,#f06b68 0%,#c11de2 41%,#391153 100%);
+  box-shadow:
+    0 0 13px rgba(242,139,117,.62),
+    inset 0 0 11px rgba(255,234,132,.42);
+}
+
+.hm-mode-grid .hm-quick {
+  position:relative;
+}
+
+.hm-quick-lives {
+  position:absolute;
+  left:5px;
+  right:5px;
+  bottom:4px;
+  display:block;
+  width:auto;
+  color:#ffe9f1;
+  font-size:.46rem;
+  line-height:1.05;
+  font-weight:800;
+  white-space:nowrap;
+  text-align:center;
+  pointer-events:none;
+}
+
+.hm-quick-lives > span {
+  display:block;
+  width:100%;
+  text-align:center;
+}
+
+.hm-quick-lives strong {
+  font-size:.52rem;
+  font-weight:900;
+}
+
+.hm-mode-grid .hm-create {
+  border-color:#49c9ff;
+  background:linear-gradient(145deg,#0750d7,#092158 86%);
+  box-shadow:
+    inset 0 0 14px rgba(56,192,255,.25),
+    0 0 10px rgba(31,123,255,.18);
+}
+
+.hm-mode-grid img {
+  width:74px;
+  max-width:94%;
+  height:66px;
+  margin:0 auto;
+}
+
+.hm-mode-grid b {
+  position:relative;
+  width:100%;
+  min-height:27px;
+  margin-top:3px;
+  padding:0 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  flex-wrap:nowrap;
+  font-size:.72rem;
+  line-height:1.18;
+  font-weight:900;
+  text-align:center;
+}
+
+.hm-chevron {
+  position:absolute;
+  right:2px;
+  top:50%;
+  transform:translateY(-50%);
+  flex:0 0 auto;
+  width:15px;
+  height:15px;
+  display:inline-grid;
+  place-items:center;
+  color:#e3d8ff;
+  filter:drop-shadow(0 0 4px rgba(160,96,255,.35));
+}
+
+.hm-chevron svg {
+  width:100%;
+  height:100%;
+  display:block;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2.6;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* Les flèches des 3 modes sont remontées sans toucher aux autres chevrons. */
+.hm-mode-grid > button .hm-chevron {
+  top:calc(50% - 50px);
+}
+
+.hm-ranked {
+  width:100%;
+  min-height:50px;
+  margin-top:13px !important;
+  margin-bottom:0 !important;
+  padding:6px 10px;
+  border:1px solid #6e54de;
+  border-radius:14px;
+  background:linear-gradient(90deg,#151d59,#10174d 72%,#161650);
+  display:grid;
+  grid-template-columns:40px minmax(0,1fr) auto 29px;
+  align-items:center;
+  gap:7px;
+  text-align:left;
+}
+
+.hm-ranked > img {
+  width:38px;
+  height:38px;
+  filter:saturate(.22) brightness(.78);
+}
+
+.hm-ranked-copy {
+  min-width:0;
+}
+
+.hm-ranked-copy b {
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:.78rem;
+  font-weight:900;
+}
+
+.hm-ranked-copy small {
+  display:block;
+  margin-top:2px;
+  color:#a9a0ce;
+  font-size:.56rem;
+}
+
+.hm-lock {
+  width:16px;
+  height:16px;
+  color:#9185bc;
+  display:inline-grid;
+  place-items:center;
+}
+
+.hm-lock svg {
+  width:14px;
+  height:14px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.hm-ranked-note {
+  color:#aaa0ce;
+  font-size:.47rem;
+  line-height:1.25;
+  text-align:left;
+}
+
+.hm-ranked-crown {
+  color:#6958cf;
+  font-size:1.65rem;
+  line-height:1;
+  opacity:.62;
+}
+
+/* =========================
+   TROPHÉES / INVENTAIRE
+   ========================= */
+
+.hm-bottom {
+  position:relative;
+  z-index:3;
+  align-self:end;
+  margin:24px 12px 8px;
+  display:grid;
+  grid-template-columns:minmax(0,2.55fr) minmax(0,1fr);
+  gap:8px;
+  transform:translateY(-15px);
+}
+
+.hm-bottom > button {
+  min-width:0;
+  min-height:64px;
+  padding:4px;
+  border:1.2px solid #8351fa;
+  border-radius:14px;
+  background:
+    radial-gradient(circle at 15% 0,rgba(124,58,238,.12),transparent 35%),
+    linear-gradient(125deg,#211254,#091640);
+  box-shadow:inset 0 0 14px rgba(101,70,214,.08);
+}
+
+.hm-trophies-title {
+  min-width:0;
+  display:grid;
+  grid-template-columns:18px minmax(0,1fr) 11px;
+  align-items:center;
+  gap:6px;
+  text-align:left;
+}
+
+.hm-trophies-title > img {
+  width:18px;
+  height:18px;
+}
+
+.hm-trophies-title > span {
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:.54rem;
+  font-weight:900;
+}
+
+.hm-trophies-title > i {
+  font-style:normal;
+  font-size:1.18rem;
+  line-height:1;
+}
+
+.hm-milestones {
+  position:relative;
+  margin-top:2px;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:3px;
+}
+
+.hm-trophy-track {
+  position:absolute !important;
+  left:9%;
+  right:9%;
+  top:21px;
+  height:4px;
+  z-index:0;
+  border-radius:999px;
+  background:#19205a;
+  box-shadow:inset 0 0 4px rgba(0,0,0,.38);
+}
+
+.hm-trophy-track-fill {
+  display:block;
+  width:29%;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#ffb823,#ffd052);
+  box-shadow:0 0 7px rgba(255,187,37,.38);
+}
+
+.hm-milestones > span {
+  position:relative;
+  z-index:1;
+  display:grid;
+  justify-items:center;
+}
+
+.hm-milestone-icon {
+  width:19px;
+  height:18px;
+  border:1px solid #4d47c4;
+  border-radius:7px;
+  background:#10154f;
+  display:grid;
+  place-items:center;
+}
+
+.hm-milestone-icon img {
+  width:16px;
+  height:15px;
+}
+
+.hm-milestones > span > i {
+  width:6px;
+  height:6px;
+  margin-top:2px;
+  border:1px solid #15173f;
+  border-radius:50%;
+  background:#7974aa;
+  box-shadow:0 0 0 2px #090e35;
+}
+
+.hm-milestones > span.is-active > i {
+  background:#ffc22d;
+  box-shadow:
+    0 0 0 2px #4b3213,
+    0 0 7px rgba(255,190,39,.5);
+}
+
+.hm-milestones > span > small {
+  margin-top:3px;
+  color:#b7add9;
+  font-size:.38rem;
+  font-weight:700;
+}
+
+.hm-inventory {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+
+.hm-inventory > img {
+  width:43px;
+  height:41px;
+}
+
+.hm-inventory b {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  font-size:.54rem;
+  font-weight:900;
+}
+
+.hm-inventory b .hm-chevron {
+  width:13px;
+  height:13px;
+}
+
+
+.hm-join b {
+  flex-wrap:nowrap;
+  gap:0;
+  white-space:nowrap;
+  font-size:.62rem;
+  text-align:center;
+}
+
+.hm-join b .hm-chevron {
+  width:13px;
+  height:13px;
+}
+
+.hm-menu-admin {
+  border-top:1px solid rgba(153,92,255,.22) !important;
+  margin-top:4px !important;
+  color:#f2d8ff !important;
+}
+
+.hm-menu-admin img {
+  filter:drop-shadow(0 0 5px rgba(205,96,255,.4));
+}
+
+@media (max-width:370px) {
+  .hm-join b {
+    font-size:.55rem;
+    gap:2px;
+  }
+
+  .hm-join b .hm-chevron {
+    width:12px;
+    height:12px;
+  }
+}
+
+/* =========================
+   DIALOGUES / POPUPS
+   ========================= */
+
+.hm-dialog {
+  width:calc(100% - 32px);
+  max-width:370px;
+  padding:20px;
+  border:1.2px solid #a55eff;
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 50% 0,rgba(119,64,255,.18),transparent 42%),
+    #111746;
+  color:#fff;
+  box-shadow:0 18px 70px rgba(0,0,0,.52);
+}
+
+.hm-dialog::backdrop {
+  background:rgba(2,7,35,.76);
+  backdrop-filter:blur(5px);
+}
+
+.hm-dialog h2 {
+  margin:10px 0 14px;
+  font-size:1.25rem;
+}
+
+.hm-dialog p {
+  color:#cbb7eb;
+  font-size:.78rem;
+  line-height:1.4;
+}
+
+.hm-dialog label {
+  display:block;
+  color:#b8a9df;
+  font-size:.67rem;
+  font-weight:700;
+}
+
+.hm-dialog button {
+  min-height:42px;
+  padding:9px 15px;
+  border:1px solid #a057e8;
+  border-radius:11px;
+  background:#7630da;
+}
+
+.hm-dialog .hm-close {
+  float:right;
+  min-height:34px;
+  padding:4px 11px;
+  background:transparent;
+}
+
+.hm-dialog input {
+  display:block;
+  width:100%;
+  margin:8px 0 12px;
+  padding:11px;
+  border:1px solid #8d5edd;
+  border-radius:11px;
+  outline:0;
+  background:#081336;
+  color:#fff;
+  font-size:1.1rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.hm-inventory-avatar {
+  width:72px;
+  height:72px;
+  margin:8px auto 14px;
+  border:1.5px solid #9c55ff;
+  border-radius:18px;
+  background:#171b5b;
+  display:grid;
+  place-items:center;
+  font-size:2.5rem;
+  box-shadow:0 0 14px rgba(131,61,255,.22);
+}
+
+.hm-detail-resource {
+  margin:10px 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-size:1.4rem;
+}
+
+.hm-detail-resource img {
+  width:40px;
+  height:40px;
+}
+
+.home-mobile .home-resource-popover {
+  position:absolute;
+  z-index:120;
+  width:160px;
+  padding:0;
+  background:transparent;
+  pointer-events:auto;
+  transform:scale(.5);
+  transform-origin:top left;
+}
+
+.home-mobile .home-resource-popup-card {
+  position:relative !important;
+  width:160px;
+  min-height:0;
+  padding:10px 11px;
+  border:2px solid #8d57f5;
+  border-radius:17px;
+  background:
+    radial-gradient(circle at 50% 0,rgba(130,68,255,.12),transparent 58%),
+    rgba(12,23,68,.985);
+  box-shadow:
+    0 12px 30px rgba(0,0,0,.30),
+    0 0 14px rgba(120,66,233,.16);
+  display:grid;
+  gap:6px;
+}
+
+.home-mobile .home-resource-popup-card::before {
+  content:"";
+  position:absolute;
+  top:-8px;
+  left:50%;
+  width:14px;
+  height:14px;
+  border-left:2px solid #8d57f5;
+  border-top:2px solid #8d57f5;
+  background:#11194a;
+  transform:translateX(-50%) rotate(45deg);
+}
+
+.home-mobile .home-resource-popup-value {
+  min-height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-size:1.222rem;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+
+.home-mobile .home-resource-popup-value img {
+  width:36.4px;
+  height:36.4px;
+}
+
+/* À 5/5, il ne reste que le cœur + compteur : le cadre épouse ce contenu. */
+.home-mobile .home-resource-popup-lives.is-full {
+  width:max-content;
+  min-width:0;
+  min-height:0;
+  margin-inline:auto;
+  padding:8px 10px;
+  gap:0;
+}
+
+.home-mobile .home-resource-popup-lives.is-full .home-resource-popup-value {
+  min-height:0;
+}
+
+.home-mobile .home-resource-popup-card small {
+  text-align:center;
+  color:#aaa0cd;
+  font-size:.68rem;
+  line-height:1.25;
+}
+
+.home-mobile .home-resource-popup-info {
+  padding:10px 11px;
+}
+
+.home-mobile .home-resource-popup-info p {
+  margin:0;
+  color:#c9c2df;
+  text-align:center;
+  font-size:.70rem;
+  line-height:1.34;
+  font-weight:700;
+}
+
+.hm-resource-word {
+  font-weight:900;
+}
+
+.hm-resource-word.is-coins {
+  color:#ffd44d;
+  text-shadow:0 0 6px rgba(255,201,51,.22);
+}
+
+.hm-resource-word.is-gems {
+  color:#c36cff;
+  text-shadow:0 0 6px rgba(179,79,255,.28);
+}
+
+/* Notification sur les trois traits */
+.hm-menu-button {
+  overflow:visible;
+}
+
+.hm-menu-button-badge {
+  position:absolute;
+  left:-7px;
+  bottom:-7px;
+  top:auto;
+  right:auto;
+  z-index:4;
+  min-width:18px;
+  height:18px;
+  padding:0 4px;
+  border:1.4px solid #f4b6ff;
+  border-radius:999px;
+  background:linear-gradient(180deg,#d948e8,#a821d0);
+  color:#fff;
+  box-shadow:0 0 9px rgba(218,54,240,.55);
+  display:grid;
+  place-items:center;
+  font-style:normal;
+  font-size:.56rem;
+  line-height:1;
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+}
+
+.hm-menu-button-badge[hidden] {
+  display:none;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width:370px) {
+  .home-mobile {
+    padding-left:3px;
+    padding-right:3px;
+  }
+
+  .hm-header {
+    grid-template-columns:99px minmax(0,1fr) 30px;
+    gap:2px;
+  }
+
+  .hm-profile {
+    height:31px;
+    gap:3px;
+    padding-right:2px;
+  }
+
+  .hm-avatar {
+    width:46.2px;
+    height:46.2px;
+    flex-basis:46.2px;
+    font-size:1.5rem;
+  }
+
+  .hm-profile-copy b {
+    max-width:62px;
+    font-size:.61rem;
+  }
+
+  .hm-profile-copy small {
+    font-size:.52rem;
+  }
+
+  .hm-resources {
+    width:min(100%,169px);
+    grid-template-columns:48px 61px 56px;
+    gap:2px;
+  }
+
+  .hm-resources button {
+    width:56px;
+    min-width:56px;
+    height:27px;
+    grid-template-columns:14px minmax(0,1fr);
+    padding-inline:3px;
+  }
+
+  #homePlaqueLivesBtn {
+    width:48px;
+    min-width:48px;
+    padding-inline:1px;
+    grid-template-columns:12px minmax(0,1fr);
+  }
+
+  #homePlaqueCoinsBtn {
+    width:61px;
+    min-width:61px;
+  }
+
+  .hm-resources img {
+    width:14px;
+    height:16px;
+  }
+
+  .hm-resources b {
+    font-size:.48rem;
+  }
+
+  .hm-menu-button {
+    width:30px;
+    height:30px;
+    padding:6px 5px;
+  }
+
+  .hm-side button {
+    width:49px;
+    height:54px;
+  }
+
+  .hm-side img {
+    width:30px;
+    height:30px;
+  }
+
+  .hm-mode-grid {
+    gap:6px;
+  }
+
+  .hm-mode-grid button {
+    min-height:106px;
+  }
+
+  .hm-mode-grid b {
+    font-size:.66rem;
+  }
+
+  .hm-ranked-note {
+    display:none;
+  }
+
+  .hm-ranked {
+    grid-template-columns:36px minmax(0,1fr) 25px;
+  }
+
+  .hm-bottom {
+    grid-template-columns:minmax(0,2.4fr) minmax(0,1fr);
+    margin:16px 7px 6px;
+    gap:5px;
+  }
+
+  .hm-trophies-title > span,
+  .hm-inventory b {
+    font-size:.65rem;
+  }
+
+  .hm-milestone-icon {
+    width:27px;
+    height:26px;
+  }
+
+  .hm-milestone-icon img {
+    width:23px;
+    height:22px;
+  }
+}
+
+@media (max-height:760px) {
+  .home-mobile {
+    grid-template-rows:auto minmax(232px,1fr) auto auto;
+    gap:4px;
+  }
+
+  .hm-header {
+    transform:none;
+    margin-bottom:0;
+  }
+
+  .hm-side {
+    top:18px;
+    gap:11px;
+  }
+
+  .hm-side button {
+    height:52px;
+  }
+
+  .hm-brand {
+    height:61%;
+  }
+
+  .hm-book {
+    height:62px;
+  }
+
+  .hm-book span {
+    padding-top:8px;
+    font-size:.61rem;
+  }
+
+  .hm-modes {
+    margin-top:92px;
+    padding-top:8px;
+  }
+
+  .hm-modes h1 {
+    margin-bottom:7px;
+    font-size:.92rem;
+  }
+
+  .hm-mode-grid button {
+    min-height:101px;
+  }
+
+  .hm-mode-grid img {
+    width:66px;
+    height:58px;
+  }
+
+  .hm-ranked {
+    min-height:48px;
+    margin-top:12px !important;
+  }
+
+  .hm-bottom {
+    margin-top:14px;
+    margin-bottom:6px;
+  }
+
+  .hm-bottom > button {
+    min-height:60px;
+  }
+
+  .hm-inventory > img {
+    width:40px;
+    height:38px;
+  }
+
+  .hm-milestone-icon {
+    width:21px;
+    height:19px;
+  }
+
+  .hm-milestone-icon img {
+    width:18px;
+    height:16px;
+  }
+
+  .hm-trophy-track {
+    top:24px;
+  }
+}
+
+@media (max-height:670px) {
+  .hm-modes {
+    margin-top:84px;
+  }
+
+  .home-mobile {
+    grid-template-rows:auto 208px auto auto;
+  }
+
+  .hm-side {
+    top:11px;
+    gap:8px;
+  }
+
+  .hm-side button {
+    width:46px;
+    height:46px;
+    border-radius:11px;
+  }
+
+  .hm-side img {
+    width:26px;
+    height:26px;
+  }
+
+  .hm-side b {
+    font-size:.49rem;
+  }
+
+  .hm-brand {
+    top:0;
+    height:60%;
+  }
+
+  .hm-book {
+    height:55px;
+  }
+
+  .hm-book span {
+    font-size:.55rem;
+  }
+
+  .hm-mode-grid button {
+    min-height:92px;
+  }
+
+  .hm-mode-grid img {
+    width:58px;
+    height:50px;
+  }
+
+  .hm-mode-grid b {
+    min-height:20px;
+    font-size:.62rem;
+  }
+
+  .hm-ranked {
+    min-height:43px;
+    padding-block:4px;
+  }
+
+  .hm-ranked > img {
+    width:32px;
+    height:32px;
+  }
+
+  .hm-bottom {
+    margin-top:6px;
+  }
+
+  .hm-bottom > button {
+    min-height:56px;
+  }
+
+  .hm-trophies-title > img {
+    width:23px;
+    height:23px;
+  }
+
+  .hm-milestone-icon {
+    width:24px;
+    height:22px;
+  }
+
+  .hm-milestone-icon img {
+    width:20px;
+    height:19px;
+  }
+
+  .hm-trophy-track {
+    top:27px;
+  }
+
+  .hm-inventory > img {
+    width:37px;
+    height:35px;
+  }
+}
+
+@media (min-width:480px) {
+  .home-mobile {
+    width:min(100%,480px);
+  }
+
+  .hm-profile-copy b {
+    font-size:.86rem;
+  }
+
+  .hm-resources b {
+    font-size:.52rem;
+  }
+
+  .hm-side button {
+    width:58px;
+    height:62px;
+  }
+
+  .hm-mode-grid b {
+    font-size:.8rem;
+  }
+
+  .hm-trophies-title > span,
+  .hm-inventory b {
+    font-size:.65rem;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .home-mobile button {
+    transition:none;
+  }
+}
+
+
+/* Accueil V11 — texte des mini-fenêtres vies / pièces / gemmes */
+.home-mobile .home-resource-popup-card small {
+  font-size:.82rem;
+  line-height:1.32;
+}
+
+.home-mobile .home-resource-popup-info p {
+  font-size:.86rem;
+  line-height:1.38;
+}
+
+.home-mobile .hm-resource-word {
+  font-size:1em;
+}
+
+
+/* Accueil V12 — mini-fenêtre vies */
+.home-mobile .home-resource-popup-lives small {
+  font-size:1.23rem;
+  line-height:1.32;
+}
+
+/* =========================================================
+   ACCUEIL V2 — redesign visuel
+   Base : home-mobile.css actuel du dépôt
+   ========================================================= */
+
+.home-mobile{
+  --hm-v2-purple:#b14cff;
+  --hm-v2-blue:#3a68ff;
+  --hm-v2-deep:#070d3e;
+  grid-template-rows:52px minmax(286px,1fr) auto auto !important;
+  gap:5px !important;
+  padding-top:0 !important;
+  background:
+    radial-gradient(circle at 50% 22%,rgba(136,42,255,.48),transparent 29%),
+    radial-gradient(circle at 8% 43%,rgba(31,82,227,.28),transparent 30%),
+    radial-gradient(circle at 94% 48%,rgba(126,38,229,.26),transparent 30%),
+    linear-gradient(180deg,#090a48 0%,#07103b 67%,#060c32 100%) !important;
+}
+
+/* ---------- Bandeau supérieur ---------- */
+.home-mobile .hm-header{
+  position:relative;
+  z-index:30;
+  width:calc(100% + 8px);
+  height:52px;
+  min-height:52px;
+  margin:0 0 0 -4px;
+  padding:0 7px;
+  grid-template-columns:116px minmax(0,1fr) 36px;
+  gap:5px;
+  align-items:center;
+  overflow:visible;
+  background:linear-gradient(
+    90deg,
+    rgba(49,19,111,.985) 0%,
+    rgba(32,24,119,.98) 42%,
+    rgba(10,35,104,.975) 100%
+  );
+  box-shadow:
+    10px 0 0 rgba(10,35,104,.975),
+    inset 0 0 20px rgba(107,83,255,.16),
+    0 7px 22px rgba(4,2,38,.24);
+}
+
+.home-mobile .hm-header::before,
+.home-mobile .hm-header::after{
+  content:"";
+  position:absolute;
+  left:-10px;
+  right:-10px;
+  height:1px;
+  z-index:31;
+  pointer-events:none;
+  background:rgba(203,68,255,.9);
+  box-shadow:0 0 12px rgba(210,54,255,.48);
+}
+.home-mobile .hm-header::before{top:0}
+.home-mobile .hm-header::after{bottom:0}
+
+.home-mobile .hm-profile{
+  height:44px;
+  min-width:0;
+  transform:none;
+  margin:0;
+  padding:0 3px 0 0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  gap:6px;
+}
+
+.home-mobile .hm-avatar{
+  width:46px;
+  height:46px;
+  flex:0 0 46px;
+  margin:0;
+  transform:none;
+  border:2px solid #d868ff;
+  border-radius:11px;
+  box-shadow:
+    0 0 11px rgba(218,72,255,.72),
+    inset 0 0 11px rgba(255,255,255,.06);
+}
+
+.home-mobile .hm-profile-copy{
+  gap:3px;
+  align-content:center;
+}
+
+.home-mobile .hm-profile-copy b{
+  max-width:64px;
+  font-size:.68rem;
+  text-shadow:0 0 7px rgba(180,110,255,.36);
+}
+
+.home-mobile .hm-profile-copy small{
+  transform:none;
+  font-size:.47rem;
+  color:#d0bcff;
+}
+
+.home-mobile .hm-profile-copy .ptb-home-xp-bar{
+  transform:none !important;
+  width:62px !important;
+  max-width:62px !important;
+}
+
+.home-mobile #homeLevelsOpen{
+  top:28px !important;
+  left:48px !important;
+  width:70px !important;
+  height:24px !important;
+}
+
+.home-mobile .hm-resources{
+  width:min(100%,205px);
+  grid-template-columns:60px 72px 65px;
+  gap:4px;
+  margin:0;
+}
+
+.home-mobile .hm-resources button,
+.home-mobile #homePlaqueLivesBtn,
+.home-mobile #homePlaqueCoinsBtn{
+  height:32px;
+  min-height:32px;
+  border:1.2px solid #7659ff;
+  border-radius:13px;
+  background:
+    radial-gradient(circle at 50% 0,rgba(132,80,255,.16),transparent 65%),
+    linear-gradient(180deg,#27196c,#10194d);
+  box-shadow:
+    inset 0 0 11px rgba(139,93,255,.12),
+    0 0 8px rgba(94,62,255,.12);
+}
+
+.home-mobile #homePlaqueLivesBtn{
+  width:60px;
+  min-width:60px;
+  grid-template-columns:16px minmax(0,1fr);
+}
+.home-mobile #homePlaqueCoinsBtn{
+  width:72px;
+  min-width:72px;
+}
+.home-mobile #homeGemButton{
+  width:65px;
+  min-width:65px;
+}
+
+.home-mobile .hm-resources img{
+  width:18px;
+  height:18px;
+  filter:drop-shadow(0 0 5px rgba(255,255,255,.18));
+}
+
+.home-mobile .hm-resources b,
+.home-mobile #homePlaqueCoinsBtn b{
+  font-size:.57rem !important;
+  letter-spacing:-.02em;
+}
+
+.home-mobile .hm-menu-button{
+  width:35px;
+  height:35px;
+  margin:0;
+  padding:7px 6px;
+  border:1.4px solid #8564ff;
+  border-radius:12px;
+  background:linear-gradient(180deg,#272265,#101747);
+  box-shadow:
+    inset 0 0 10px rgba(156,111,255,.1),
+    0 0 9px rgba(115,72,255,.16);
+}
+
+/* ---------- Hero ---------- */
+.home-mobile .hm-hero{
+  min-height:292px;
+  padding-bottom:4px;
+  overflow:visible;
+}
+
+.home-mobile .hm-side{
+  top:34px;
+  gap:14px;
+}
+
+.home-mobile .hm-left{left:3px}
+.home-mobile .hm-right{right:3px}
+
+.home-mobile .hm-side button{
+  width:55px;
+  height:61px;
+  border:1.4px solid #8e62ff;
+  border-radius:15px;
+  background:
+    radial-gradient(circle at 50% 10%,rgba(157,95,255,.20),transparent 45%),
+    linear-gradient(150deg,rgba(40,20,100,.98),rgba(8,20,65,.98));
+  box-shadow:
+    inset 0 0 13px rgba(136,91,255,.10),
+    0 0 10px rgba(114,65,255,.15);
+}
+
+.home-mobile .hm-side img{
+  width:34px;
+  height:34px;
+  filter:drop-shadow(0 0 5px rgba(151,86,255,.24));
+}
+
+.home-mobile .hm-side b{
+  font-size:.59rem;
+}
+
+.home-mobile .hm-brand{
+  top:1%;
+  width:61%;
+  height:61%;
+  transform:translate(-50%,28px);
+}
+
+.home-mobile .hm-brand-glow{
+  width:104%;
+  background:radial-gradient(
+    circle,
+    rgba(184,46,255,.42),
+    rgba(82,54,239,.12) 52%,
+    transparent 73%
+  );
+  filter:blur(9px);
+}
+
+.home-mobile .hm-logo{
+  width:88%;
+  max-width:202px;
+  filter:
+    drop-shadow(0 0 11px rgba(216,52,255,.72))
+    drop-shadow(0 0 19px rgba(80,69,255,.30));
+}
+
+.home-mobile .hm-letters span{
+  border-color:rgba(160,126,255,.43);
+  background:linear-gradient(
+    135deg,
+    rgba(70,63,205,.34),
+    rgba(145,73,255,.12)
+  );
+  box-shadow:none;
+  opacity:.28;
+}
+
+.home-mobile .hm-book{
+  width:72%;
+  height:78px;
+  transform:translateY(34px) perspective(300px) rotateX(18deg);
+  filter:
+    drop-shadow(0 0 12px rgba(191,77,255,.52))
+    drop-shadow(0 6px 8px rgba(2,4,30,.25));
+}
+
+.home-mobile .hm-book span{
+  padding-top:10px;
+  border-bottom-width:6px;
+  font-size:.66rem;
+}
+
+/* ---------- Modes de jeu ---------- */
+.home-mobile .hm-modes{
+  margin-top:75px;
+  padding:12px 10px 11px;
+  border:1.6px solid #a25dff;
+  border-radius:23px;
+  background:
+    radial-gradient(circle at 50% 0,rgba(125,69,255,.22),transparent 48%),
+    linear-gradient(145deg,rgba(47,30,118,.77),rgba(9,17,63,.97));
+  box-shadow:
+    inset 0 0 23px rgba(132,66,255,.18),
+    0 0 17px rgba(89,54,244,.20);
+}
+
+.home-mobile .hm-modes h1{
+  margin:0 0 11px;
+  font-size:1.03rem;
+  text-shadow:0 0 9px rgba(171,105,255,.22);
+}
+
+.home-mobile .hm-mode-grid{
+  gap:8px;
+}
+
+.home-mobile .hm-mode-grid button{
+  min-height:116px;
+  padding:7px 4px 9px;
+  border-radius:18px;
+  border-width:2px;
+}
+
+.home-mobile .hm-mode-grid .hm-quick{
+  border-color:#ffe27a;
+  background:
+    radial-gradient(circle at 50% 14%,rgba(255,112,188,.35),transparent 45%),
+    linear-gradient(140deg,#f15d7f 0%,#c51ddd 42%,#431557 100%);
+  box-shadow:
+    0 0 15px rgba(255,150,102,.48),
+    inset 0 0 14px rgba(255,235,126,.37);
+}
+
+.home-mobile .hm-mode-grid .hm-create{
+  border-color:#48d5ff;
+  background:
+    radial-gradient(circle at 50% 12%,rgba(48,196,255,.23),transparent 48%),
+    linear-gradient(145deg,#0759dd,#082056 88%);
+  box-shadow:
+    inset 0 0 15px rgba(59,202,255,.28),
+    0 0 12px rgba(32,137,255,.20);
+}
+
+.home-mobile .hm-mode-grid .hm-join{
+  border-color:#b96aff;
+  background:
+    radial-gradient(circle at 50% 12%,rgba(184,91,255,.26),transparent 45%),
+    linear-gradient(145deg,#7436dc,#1a165a 87%);
+  box-shadow:
+    inset 0 0 15px rgba(168,104,255,.20),
+    0 0 11px rgba(124,67,255,.16);
+}
+
+.home-mobile .hm-mode-grid img{
+  width:76px;
+  height:66px;
+}
+
+.home-mobile .hm-mode-grid b{
+  font-size:.73rem;
+}
+
+.home-mobile .hm-mode-grid > button .hm-chevron{
+  right:0;
+  color:#fff;
+}
+
+/* Le mode classé disparaît totalement dans la V2. */
+.home-mobile .hm-ranked{
+  display:none !important;
+}
+
+/* ---------- Voie des trophées / Inventaire ---------- */
+.home-mobile .hm-bottom{
+  margin:10px 10px 6px;
+  gap:8px;
+  transform:none;
+  grid-template-columns:minmax(0,2.35fr) minmax(0,1fr);
+}
+
+.home-mobile .hm-bottom > button{
+  min-height:80px;
+  padding:7px;
+  border:1.4px solid #8f58ff;
+  border-radius:17px;
+  background:
+    radial-gradient(circle at 25% 0,rgba(116,65,255,.17),transparent 38%),
+    linear-gradient(130deg,#211357,#091641);
+  box-shadow:
+    inset 0 0 16px rgba(113,78,224,.10),
+    0 0 10px rgba(72,48,205,.14);
+}
+
+.home-mobile .hm-trophies-title{
+  grid-template-columns:25px minmax(0,1fr) 13px;
+  gap:7px;
+}
+
+.home-mobile .hm-trophies-title > img{
+  width:24px;
+  height:24px;
+  filter:drop-shadow(0 0 5px rgba(255,195,51,.22));
+}
+
+.home-mobile .hm-trophies-title > span{
+  font-size:.66rem;
+}
+
+.home-mobile .hm-milestones{
+  margin-top:5px;
+}
+
+.home-mobile .hm-milestone-icon{
+  width:27px;
+  height:25px;
+  border-color:#5d50dc;
+}
+
+.home-mobile .hm-milestone-icon img{
+  width:22px;
+  height:21px;
+}
+
+.home-mobile .hm-trophy-track{
+  top:28px;
+  height:4px;
+}
+
+.home-mobile .hm-milestones > span > i{
+  margin-top:4px;
+}
+
+.home-mobile .hm-milestones > span > small{
+  font-size:.42rem;
+}
+
+.home-mobile .hm-inventory{
+  gap:5px;
+}
+
+.home-mobile .hm-inventory > img{
+  width:56px;
+  height:53px;
+  filter:drop-shadow(0 0 7px rgba(158,80,255,.22));
+}
+
+.home-mobile .hm-inventory b{
+  font-size:.66rem;
+}
+
+/* Petite signature sous les deux blocs, comme sur la maquette V2. */
+.home-mobile .hm-bottom::after{
+  content:"✦  Des mots. Des amis. Des fous rires !  ✦";
+  grid-column:1 / -1;
+  margin-top:2px;
+  color:rgba(188,168,236,.58);
+  text-align:center;
+  font-size:.46rem;
+  font-weight:700;
+  letter-spacing:.01em;
+}
+
+/* ---------- Responsive ---------- */
+@media(max-width:370px){
+  .home-mobile{
+    grid-template-rows:50px minmax(268px,1fr) auto auto !important;
+  }
+
+  .home-mobile .hm-header{
+    height:50px;
+    min-height:50px;
+    grid-template-columns:104px minmax(0,1fr) 32px;
+    padding-inline:5px;
+  }
+
+  .home-mobile .hm-avatar{
+    width:43px;
+    height:43px;
+    flex-basis:43px;
+  }
+
+  .home-mobile .hm-profile-copy b{
+    max-width:54px;
+    font-size:.62rem;
+  }
+
+  .home-mobile .hm-resources{
+    width:min(100%,178px);
+    grid-template-columns:52px 64px 56px;
+    gap:3px;
+  }
+
+  .home-mobile #homePlaqueLivesBtn{
+    width:52px;
+    min-width:52px;
+  }
+
+  .home-mobile #homePlaqueCoinsBtn{
+    width:64px;
+    min-width:64px;
+  }
+
+  .home-mobile #homeGemButton{
+    width:56px;
+    min-width:56px;
+  }
+
+  .home-mobile .hm-resources button{
+    height:29px;
+    min-height:29px;
+  }
+
+  .home-mobile .hm-menu-button{
+    width:32px;
+    height:32px;
+  }
+
+  .home-mobile .hm-side button{
+    width:49px;
+    height:55px;
+  }
+
+  .home-mobile .hm-brand{
+    width:60%;
+  }
+
+  .home-mobile .hm-logo{
+    max-width:184px;
+  }
+
+  .home-mobile .hm-book{
+    width:70%;
+    height:70px;
+  }
+
+  .home-mobile .hm-modes{
+    margin-top:68px;
+    padding-inline:8px;
+  }
+
+  .home-mobile .hm-mode-grid{
+    gap:6px;
+  }
+
+  .home-mobile .hm-mode-grid button{
+    min-height:108px;
+  }
+
+  .home-mobile .hm-bottom{
+    margin-inline:7px;
+    grid-template-columns:minmax(0,2.25fr) minmax(0,1fr);
+  }
+}
+
+@media(max-height:760px){
+  .home-mobile{
+    grid-template-rows:50px minmax(242px,1fr) auto auto !important;
+  }
+
+  .home-mobile .hm-header{
+    height:50px;
+    min-height:50px;
+  }
+
+  .home-mobile .hm-hero{
+    min-height:242px;
+  }
+
+  .home-mobile .hm-brand{
+    height:62%;
+    transform:translate(-50%,21px);
+  }
+
+  .home-mobile .hm-book{
+    height:62px;
+    transform:translateY(28px) perspective(280px) rotateX(18deg);
+  }
+
+  .home-mobile .hm-modes{
+    margin-top:58px;
+    padding-top:9px;
+    padding-bottom:8px;
+  }
+
+  .home-mobile .hm-mode-grid button{
+    min-height:99px;
+  }
+
+  .home-mobile .hm-mode-grid img{
+    width:65px;
+    height:56px;
+  }
+
+  .home-mobile .hm-bottom{
+    margin-top:7px;
+  }
+
+  .home-mobile .hm-bottom > button{
+    min-height:68px;
+  }
+
+  .home-mobile .hm-bottom::after{
+    display:none;
+  }
+}
+
+@media(max-height:670px){
+  .home-mobile{
+    grid-template-rows:48px 205px auto auto !important;
+  }
+
+  .home-mobile .hm-header{
+    height:48px;
+    min-height:48px;
+  }
+
+  .home-mobile .hm-avatar{
+    width:41px;
+    height:41px;
+    flex-basis:41px;
+  }
+
+  .home-mobile .hm-hero{
+    min-height:205px;
+  }
+
+  .home-mobile .hm-side{
+    top:12px;
+    gap:8px;
+  }
+
+  .home-mobile .hm-side button{
+    width:46px;
+    height:46px;
+  }
+
+  .home-mobile .hm-brand{
+    transform:translate(-50%,13px);
+  }
+
+  .home-mobile .hm-logo{
+    max-width:156px;
+  }
+
+  .home-mobile .hm-book{
+    width:66%;
+    height:54px;
+    transform:translateY(22px) perspective(260px) rotateX(18deg);
+  }
+
+  .home-mobile .hm-book span{
+    font-size:.54rem;
+  }
+
+  .home-mobile .hm-modes{
+    margin-top:42px;
+  }
+
+  .home-mobile .hm-mode-grid button{
+    min-height:89px;
+  }
+
+  .home-mobile .hm-mode-grid img{
+    width:56px;
+    height:48px;
+  }
+
+  .home-mobile .hm-bottom{
+    margin-top:5px;
+  }
+
+  .home-mobile .hm-bottom > button{
+    min-height:58px;
+  }
+}
+
+/* =========================================================
+   ACCUEIL V2 — ajustements niveaux / raccourcis / modes
+   ========================================================= */
+
+/* Bloc niveau : étoile -30% et barre XP +15px vers la droite. */
+.home-mobile .hm-profile-copy small{
+  transform:scale(.7) !important;
+  transform-origin:left center !important;
+}
+
+.home-mobile img[src*="level-badge"],
+.home-mobile .ptb-home-level-badge,
+.home-mobile .ptb-home-level-star{
+  transform:scale(.7) !important;
+  transform-origin:center !important;
+}
+
+.home-mobile .hm-profile-copy .ptb-home-xp-bar{
+  width:77px !important;
+  max-width:77px !important;
+}
+
+/* Quêtes / Magasin / Info / Amis : texte -20% et remonté de 4px. */
+.home-mobile .hm-side b{
+  font-size:.472rem !important;
+  transform:translateY(-4px) !important;
+}
+
+/* Livre décoratif descendu de 40px. */
+.home-mobile .hm-book{
+  transform:translateY(74px) perspective(300px) rotateX(18deg) !important;
+}
+
+/* Bloc modes de jeu descendu de 20px. */
+.home-mobile .hm-modes{
+  margin-top:95px !important;
+}
+
+/* Cartes Jouer / Créer / Rejoindre : +20px de hauteur vers le bas. */
+.home-mobile .hm-mode-grid button{
+  min-height:136px !important;
+}
+
+/* Ajustements responsive : on conserve exactement les mêmes décalages. */
+@media(max-width:370px){
+  .home-mobile .hm-book{
+    transform:translateY(74px) perspective(300px) rotateX(18deg) !important;
+  }
+
+  .home-mobile .hm-modes{
+    margin-top:88px !important;
+  }
+
+  .home-mobile .hm-mode-grid button{
+    min-height:128px !important;
+  }
+}
+
+@media(max-height:760px){
+  .home-mobile .hm-book{
+    transform:translateY(68px) perspective(280px) rotateX(18deg) !important;
+  }
+
+  .home-mobile .hm-modes{
+    margin-top:78px !important;
+  }
+
+  .home-mobile .hm-mode-grid button{
+    min-height:119px !important;
+  }
+}
+
+@media(max-height:670px){
+  .home-mobile .hm-book{
+    transform:translateY(62px) perspective(260px) rotateX(18deg) !important;
+  }
+
+  .home-mobile .hm-modes{
+    margin-top:62px !important;
+  }
+
+  .home-mobile .hm-mode-grid button{
+    min-height:109px !important;
+  }
+}
+
+/* =========================================================
+   ACCUEIL V2 — ajustements bandeau / XP / cartes modes
+   ========================================================= */
+
+/* Bandeau supérieur : descend l'ensemble de 6px. */
+.home-mobile .hm-header{
+  transform:translateY(6px) !important;
+}
+
+/* Barre XP : plus fine, +5px de longueur et déplacée de 4px à gauche.
+   La barre actuelle ne faisant que 5px de haut, on la garde visible à 2px. */
+.home-mobile .hm-profile-copy .ptb-home-xp-bar{
+  width:82px !important;
+  max-width:82px !important;
+  height:2px !important;
+  position:relative !important;
+  left:-4px !important;
+}
+
+/* Icônes des 3 modes : +30%. */
+.home-mobile .hm-mode-grid img{
+  width:99px !important;
+  height:86px !important;
+  max-width:100% !important;
+}
+
+/* Cartes Jouer / Créer / Rejoindre : encore +10px vers le bas. */
+.home-mobile .hm-mode-grid button{
+  min-height:146px !important;
+}
+
+/* Bloc "Choisis ton mode de jeu" : -15px de hauteur globale.
+   On compense la hausse des cartes en resserrant le haut/bas du bloc. */
+.home-mobile .hm-modes{
+  padding-top:2px !important;
+  padding-bottom:0 !important;
+}
+
+.home-mobile .hm-modes h1{
+  margin-bottom:7px !important;
+}
+
+/* Responsive : mêmes proportions sur les écrans plus petits. */
+@media(max-width:370px){
+  .home-mobile .hm-mode-grid button{
+    min-height:138px !important;
+  }
+}
+
+@media(max-height:760px){
+  .home-mobile .hm-mode-grid img{
+    width:85px !important;
+    height:73px !important;
+  }
+
+  .home-mobile .hm-mode-grid button{
+    min-height:129px !important;
+  }
+
+  .home-mobile .hm-modes{
+    padding-top:1px !important;
+    padding-bottom:0 !important;
+  }
+
+  .home-mobile .hm-modes h1{
+    margin-bottom:5px !important;
+  }
+}
+
+@media(max-height:670px){
+  .home-mobile .hm-mode-grid img{
+    width:73px !important;
+    height:62px !important;
+  }
+
+  .home-mobile .hm-mode-grid button{
+    min-height:119px !important;
+  }
+
+  .home-mobile .hm-modes{
+    padding-top:0 !important;
+    padding-bottom:0 !important;
+  }
+
+  .home-mobile .hm-modes h1{
+    margin-bottom:4px !important;
+  }
+}
+
+/* =========================================================
+   ACCUEIL V2 — ressources / XP / bas de page / cadre modes
+   ========================================================= */
+
+/* Vies / Pièces / Gemmes : cadres -5px en hauteur. */
+.home-mobile .hm-resources button,
+.home-mobile #homePlaqueLivesBtn,
+.home-mobile #homePlaqueCoinsBtn,
+.home-mobile #homeGemButton{
+  height:27px !important;
+  min-height:27px !important;
+}
+
+/* Barre XP : encore plus fine.
+   Elle était déjà à 2px dans la version précédente :
+   on la ramène au minimum visible de 1px. */
+.home-mobile .hm-profile-copy .ptb-home-xp-bar{
+  height:1px !important;
+  min-height:1px !important;
+}
+
+/* Voie des trophées + Inventaire : remontés de 15px. */
+.home-mobile .hm-bottom{
+  transform:translateY(-15px) !important;
+}
+
+/* Cadre "Choisis ton mode de jeu" :
+   le bas du cadre reste à seulement 5px sous les 3 cartes. */
+.home-mobile .hm-modes{
+  padding-bottom:5px !important;
+}
+
+/* Évite qu'une ancienne règle responsive réaugmente le bas du cadre. */
+@media(max-width:370px),
+       (max-height:760px),
+       (max-height:670px){
+  .home-mobile .hm-modes{
+    padding-bottom:5px !important;
+  }
+}
+
+/* Ressources sur petit écran : même réduction de 5px. */
+@media(max-width:370px){
+  .home-mobile .hm-resources button,
+  .home-mobile #homePlaqueLivesBtn,
+  .home-mobile #homePlaqueCoinsBtn,
+  .home-mobile #homeGemButton{
+    height:24px !important;
+    min-height:24px !important;
+  }
+}
+
+/* =========================================================
+   ACCUEIL V2 — correction barre XP + cadre modes plus compact
+   ========================================================= */
+
+/* Bandeau niveaux / XP :
+   on cible cette fois directement le bloc flottant sous le header
+   pour écraser l'épaisseur visuelle du PNG de barre. */
+.home-mobile #homeLevelsOpen{
+  top:34px !important;
+}
+
+.home-mobile #homeLevelsOpen .ptb-home-xp-bar,
+.home-mobile #homeLevelsOpen [class*="xp-bar"]{
+  width:87px !important;          /* +5px vers la droite par rapport à la version 82px */
+  max-width:87px !important;
+  height:1px !important;
+  min-height:1px !important;
+  margin-left:-4px !important;    /* 4px sur la gauche */
+  overflow:visible !important;
+}
+
+/* Réduit aussi le PNG / l'élément interne de la barre. */
+.home-mobile #homeLevelsOpen .ptb-home-xp-bar > *,
+.home-mobile #homeLevelsOpen [class*="xp-bar"] > *,
+.home-mobile #homeLevelsOpen .ptb-home-xp-bar img,
+.home-mobile #homeLevelsOpen [class*="xp-bar"] img{
+  height:1px !important;
+  min-height:1px !important;
+  max-height:1px !important;
+  transform:scaleY(.22) !important;
+  transform-origin:left center !important;
+}
+
+/* Le cadre "Choisis ton mode de jeu" est encore trop haut :
+   on le compacte en resserrant le titre et les paddings.
+   Le bas du cadre reste très proche des 3 cartes. */
+.home-mobile .hm-modes{
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+}
+
+.home-mobile .hm-modes h1{
+  margin-bottom:3px !important;
+  line-height:1.02 !important;
+}
+
+.home-mobile .hm-mode-grid{
+  margin-bottom:0 !important;
+  align-items:start !important;
+}
+
+/* Responsive */
+@media(max-width:370px){
+  .home-mobile #homeLevelsOpen .ptb-home-xp-bar,
+  .home-mobile #homeLevelsOpen [class*="xp-bar"]{
+    width:82px !important;
+    max-width:82px !important;
+  }
+
+  .home-mobile .hm-modes h1{
+    margin-bottom:2px !important;
+  }
+}
+
+@media(max-height:760px){
+  .home-mobile .hm-modes{
+    padding-top:0 !important;
+    padding-bottom:0 !important;
+  }
+
+  .home-mobile .hm-modes h1{
+    margin-bottom:2px !important;
+  }
+}
+
+@media(max-height:670px){
+  .home-mobile .hm-modes h1{
+    margin-bottom:1px !important;
+  }
+}
+
+/* =========================================================
+   ACCUEIL V2 — cadre « Mode de jeu » -20px
+   ========================================================= */
+
+/* On raccourcit uniquement le cadre visuel de 20px,
+   sans toucher à la taille des 3 cartes ni à leur contenu. */
+.home-mobile .hm-modes{
+  position:relative !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+
+.home-mobile .hm-modes::before{
+  content:"" !important;
+  position:absolute !important;
+  z-index:-1 !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:20px !important;
+  border:1.6px solid #a25dff !important;
+  border-radius:23px !important;
+  background:
+    radial-gradient(circle at 50% 0,rgba(125,69,255,.22),transparent 48%),
+    linear-gradient(145deg,rgba(47,30,118,.77),rgba(9,17,63,.97)) !important;
+  box-shadow:
+    inset 0 0 23px rgba(132,66,255,.18),
+    0 0 17px rgba(89,54,244,.20) !important;
+  pointer-events:none !important;
+}
+
+/* =========================================================
+   ACCUEIL V2 — contenu du bloc modes descendu
+   ========================================================= */
+
+/* Titre « Choisis ton mode de jeu » : +6px vers le bas. */
+.home-mobile .hm-modes h1{
+  transform:translateY(6px) !important;
+}
+
+/* Les 3 cartes Jouer / Créer / Rejoindre : +13px vers le bas. */
+.home-mobile .hm-mode-grid{
+  transform:translateY(13px) !important;
+}
+
+/* =========================================================
+   ACCUEIL V2 — bloc modes + ressources plus compactes
+   ========================================================= */
+
+/* Descend tout le bloc « Choisis ton mode de jeu » de 25px
+   en conservant le flux normal de la page. */
+.home-mobile .hm-modes{
+  margin-top:120px !important;
+}
+
+/* Vies / Pièces / Gemmes :
+   -5px de hauteur supplémentaires et -6px de largeur. */
+.home-mobile .hm-resources{
+  grid-template-columns:54px 66px 59px !important;
+}
+
+.home-mobile #homePlaqueLivesBtn{
+  width:54px !important;
+  min-width:54px !important;
+  height:22px !important;
+  min-height:22px !important;
+}
+
+.home-mobile #homePlaqueCoinsBtn{
+  width:66px !important;
+  min-width:66px !important;
+  height:22px !important;
+  min-height:22px !important;
+}
+
+.home-mobile #homeGemButton{
+  width:59px !important;
+  min-width:59px !important;
+  height:22px !important;
+  min-height:22px !important;
+}
+
+/* Responsive : même décalage de +25px et mêmes réductions. */
+@media(max-width:370px){
+  .home-mobile .hm-modes{
+    margin-top:113px !important;
+  }
+
+  .home-mobile .hm-resources{
+    grid-template-columns:46px 58px 50px !important;
+  }
+
+  .home-mobile #homePlaqueLivesBtn{
+    width:46px !important;
+    min-width:46px !important;
+    height:19px !important;
+    min-height:19px !important;
+  }
+
+  .home-mobile #homePlaqueCoinsBtn{
+    width:58px !important;
+    min-width:58px !important;
+    height:19px !important;
+    min-height:19px !important;
+  }
+
+  .home-mobile #homeGemButton{
+    width:50px !important;
+    min-width:50px !important;
+    height:19px !important;
+    min-height:19px !important;
+  }
+}
+
+@media(max-height:760px){
+  .home-mobile .hm-modes{
+    margin-top:103px !important;
+  }
+}
+
+@media(max-height:670px){
+  .home-mobile .hm-modes{
+    margin-top:87px !important;
+  }
+}
+
+/* =========================================================
+   ACCUEIL V2 — PNG barre XP plus fin et décalé
+   ========================================================= */
+
+/* Le PNG / contenu interne de la barre XP est encore trop épais :
+   on réduit sa hauteur visuelle et on le décale de 4px à gauche. */
+.home-mobile #homeLevelsOpen .ptb-home-xp-bar > *,
+.home-mobile #homeLevelsOpen [class*="xp-bar"] > *,
+.home-mobile #homeLevelsOpen .ptb-home-xp-bar img,
+.home-mobile #homeLevelsOpen [class*="xp-bar"] img{
+  height:8px !important;
+  min-height:8px !important;
+  max-height:8px !important;
+  margin-left:-4px !important;
+  transform:scaleY(.08) !important;
+  transform-origin:left center !important;
+}
+
+/* =========================================================
+   ACCUEIL V2 — descente modes / livre / logo
+   ========================================================= */
+
+/* Tout le bloc « Choisis ton mode de jeu » : +25px vers le bas. */
+.home-mobile .hm-modes{
+  margin-top:145px !important;
+}
+
+/* Livre décoratif : +40px vers le bas. */
+.home-mobile .hm-book{
+  transform:translateY(114px) perspective(300px) rotateX(18deg) !important;
+}
+
+/* Logo P'tit Bac : +35px vers le bas. */
+.home-mobile .hm-brand{
+  transform:translate(-50%,63px) !important;
+}
+
+/* Même décalage sur les variantes responsive. */
+@media(max-width:370px){
+  .home-mobile .hm-modes{
+    margin-top:138px !important;
+  }
+
+  .home-mobile .hm-book{
+    transform:translateY(114px) perspective(300px) rotateX(18deg) !important;
+  }
+}
+
+@media(max-height:760px){
+  .home-mobile .hm-modes{
+    margin-top:128px !important;
+  }
+
+  .home-mobile .hm-book{
+    transform:translateY(108px) perspective(280px) rotateX(18deg) !important;
+  }
+
+  .home-mobile .hm-brand{
+    transform:translate(-50%,56px) !important;
+  }
+}
+
+@media(max-height:670px){
+  .home-mobile .hm-modes{
+    margin-top:112px !important;
+  }
+
+  .home-mobile .hm-book{
+    transform:translateY(102px) perspective(260px) rotateX(18deg) !important;
+  }
+
+  .home-mobile .hm-brand{
+    transform:translate(-50%,48px) !important;
+  }
+}
+
+/* =========================================================
+   ACCUEIL V2 — logo / livre / cadre modes
+   ========================================================= */
+
+/* Logo P'tit Bac : encore +25px vers le bas. */
+.home-mobile .hm-brand{
+  transform:translate(-50%,88px) !important;
+}
+
+/* Livre décoratif : encore +20px vers le bas. */
+.home-mobile .hm-book{
+  transform:translateY(134px) perspective(300px) rotateX(18deg) !important;
+}
+
+/* Agrandit uniquement le cadre visuel « Choisis ton mode de jeu »
+   de 18px vers le bas, sans modifier la taille des 3 cartes. */
+.home-mobile .hm-modes::before{
+  bottom:2px !important;
+}
+
+/* Responsive */
+@media(max-width:370px){
+  .home-mobile .hm-brand{
+    transform:translate(-50%,88px) !important;
+  }
+
+  .home-mobile .hm-book{
+    transform:translateY(134px) perspective(300px) rotateX(18deg) !important;
+  }
+}
+
+@media(max-height:760px){
+  .home-mobile .hm-brand{
+    transform:translate(-50%,81px) !important;
+  }
+
+  .home-mobile .hm-book{
+    transform:translateY(128px) perspective(280px) rotateX(18deg) !important;
+  }
+}
+
+@media(max-height:670px){
+  .home-mobile .hm-brand{
+    transform:translate(-50%,73px) !important;
+  }
+
+  .home-mobile .hm-book{
+    transform:translateY(122px) perspective(260px) rotateX(18deg) !important;
+  }
+}
+
+/* =========================================================
+   ACCUEIL V2 — micro-ajustements livre / cadre modes
+   ========================================================= */
+
+/* Livre décoratif : +5px vers le bas. */
+.home-mobile .hm-book{
+  transform:translateY(139px) perspective(300px) rotateX(18deg) !important;
+}
+
+/* Cadre « Choisis ton mode de jeu » : +5px vers le bas. */
+.home-mobile .hm-modes::before{
+  bottom:-3px !important;
+}
+
+/* Responsive */
+@media(max-width:370px){
+  .home-mobile .hm-book{
+    transform:translateY(139px) perspective(300px) rotateX(18deg) !important;
+  }
+}
+
+@media(max-height:760px){
+  .home-mobile .hm-book{
+    transform:translateY(133px) perspective(280px) rotateX(18deg) !important;
+  }
+}
+
+@media(max-height:670px){
+  .home-mobile .hm-book{
+    transform:translateY(127px) perspective(260px) rotateX(18deg) !important;
+  }
+}
+
+/* =========================================================
+   ACCUEIL V2 — bloc niveau/XP descendu + coque XP ajustée
+   ========================================================= */
+
+/* Tout le bloc niveau/XP descend de 5px. */
+.home-mobile .hm-profile-copy small{
+  transform:translateY(5px) scale(.7) !important;
+  transform-origin:left center !important;
+}
+
+.home-mobile img[src*="level-badge"],
+.home-mobile .ptb-home-level-badge,
+.home-mobile .ptb-home-level-star{
+  transform:translateY(5px) scale(.7) !important;
+  transform-origin:center !important;
+}
+
+.home-mobile .hm-profile-copy .ptb-home-xp-bar{
+  top:5px !important;
+  left:-4px !important;
+}
+
+/* Coque / PNG décoratif de la grande barre :
+   -8px en hauteur et +10px vers la droite. */
+.home-mobile .ptb-home-xp-shell,
+.home-mobile .ptb-home-xp-bar-shell,
+.home-mobile img[src*="level-bar-shell-v1"]{
+  width:calc(100% + 10px) !important;
+  height:calc(100% - 8px) !important;
+  min-height:0 !important;
+  object-fit:fill !important;
+  transform:translateY(5px) !important;
+  transform-origin:left center !important;
+}
+
+/* Si la coque est appliquée comme background de la barre,
+   on ajuste aussi directement son rendu. */
+.home-mobile .hm-profile-copy .ptb-home-xp-bar{
+  background-position:left center !important;
+  background-size:calc(100% + 10px) calc(100% - 8px) !important;
+}
+
+/* Zone cliquable alignée sur toute la barre après déplacement/agrandissement. */
+.home-mobile #homeLevelsOpen{
+  left:44px !important;
+  top:39px !important;
+  width:97px !important;
+  height:28px !important;
+  z-index:40 !important;
+  pointer-events:auto !important;
+}
+
+/* =========================================================
+   ACCUEIL V2 — correction réelle du bloc niveau / XP
+   La coque est un background-image défini dans economy.css.
+   ========================================================= */
+
+/* Étoile + numéro : +5px vers le bas, sans ajouter un second translateY. */
+.home-mobile .hm-profile .hm-profile-copy > small{
+  top:50px !important;
+  transform:scale(.7) !important;
+  transform-origin:left center !important;
+}
+
+/* Coque PNG réelle de la barre :
+   base actuelle 146x49 -> 156x39
+   +5px vers le bas pour la coque ET son remplissage. */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar{
+  top:54px !important;
+  left:16px !important;
+  width:156px !important;
+  max-width:none !important;
+  height:39px !important;
+  min-height:39px !important;
+
+  /* Le PNG level-bar-shell-v1.png est le background de CET élément. */
+  background:
+    url("/level-bar-shell-v1.png") center / 100% 100% no-repeat !important;
+
+  /* Annule les anciens essais qui déplaçaient seulement le conteneur. */
+  transform:none !important;
+}
+
+/* Le remplissage suit maintenant réellement la coque descendue. */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar > .ptb-home-xp-fill{
+  align-self:center !important;
+}
+
+/* Zone invisible de clic positionnée exactement sur la nouvelle barre. */
+.home-mobile #homeLevelsOpen{
+  left:14px !important;
+  top:56px !important;
+  width:160px !important;
+  height:40px !important;
+  z-index:40 !important;
+  pointer-events:auto !important;
+  border-radius:20px !important;
+}
+
+/* =========================================================
+   ACCUEIL V2 — barre XP encore plus fine + décalage gauche
+   ========================================================= */
+
+/* Coque PNG réelle :
+   39px -> 32px de hauteur (-7px)
+   et déplacement de 15px vers la gauche. */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar{
+  left:1px !important;
+  height:32px !important;
+  min-height:32px !important;
+}
+
+/* Barre de progression intérieure :
+   13px -> 6px de hauteur (-7px). */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar > .ptb-home-xp-fill{
+  height:6px !important;
+  min-height:6px !important;
+}
+
+/* Reflet interne adapté à la nouvelle barre plus fine. */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar > .ptb-home-xp-fill::after{
+  top:1px !important;
+  height:1px !important;
+}
+
+/* Zone cliquable déplacée avec la barre et ajustée à sa nouvelle hauteur. */
+.home-mobile #homeLevelsOpen{
+  left:-1px !important;
+  top:56px !important;
+  width:160px !important;
+  height:33px !important;
+}
+
+/* =========================================================
+   ACCUEIL V2 — largeur XP -10px + descente 5px
+   ========================================================= */
+
+/* Coque + progression :
+   -10px de longueur sur la droite
+   et +5px vers le bas. */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar{
+  width:146px !important;
+  top:59px !important;
+}
+
+/* Zone cliquable déplacée avec la barre. */
+.home-mobile #homeLevelsOpen{
+  top:61px !important;
+  width:150px !important;
+}
+
+/* =========================================================
+   ACCUEIL V2 — XP -15px à droite + remonte 2px
+   ========================================================= */
+
+/* Coque + progression :
+   encore -15px de longueur sur la droite
+   et remontées de 2px. */
+.home-mobile .hm-profile .hm-profile-copy > .ptb-home-xp-bar{
+  width:131px !important;
+  top:57px !important;
+}
+
+/* Zone cliquable recalée sur la nouvelle barre. */
+.home-mobile #homeLevelsOpen{
+  top:59px !important;
+  width:135px !important;
+}
+
+
+/* Accueil : modes Classique / Bombe / À venir et accès aux salons. */
+.home-mobile .hm-modes.hm-modes-v3{
+  padding:7px 8px 8px!important;
+}
+.home-mobile .hm-modes-v3::before{bottom:0!important}
+.home-mobile .hm-modes-v3 h1{
+  transform:none!important;margin:0 0 7px!important;line-height:1.1!important;
+  font-size:clamp(.78rem,3.8vw,1rem);gap:8px;
+}
+.home-mobile .hm-modes-v3 .hm-mode-grid{
+  transform:none!important;gap:5px;align-items:stretch!important;
+}
+.home-mobile .hm-modes-v3 .hm-mode-grid>button{
+  position:relative;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;height:104px;min-height:104px!important;
+  padding:4px 3px 15px;border-radius:15px;
+}
+.home-mobile .hm-modes-v3 .hm-mode-grid img,
+.home-mobile .hm-modes-v3 .hm-bomb-icon{
+  display:block;width:65px!important;height:61px!important;max-width:90%!important;
+  margin:0 auto;flex:none;filter:drop-shadow(0 0 5px #a453ff55);
+}
+.home-mobile .hm-modes-v3 .hm-mode-grid b{
+  min-height:17px;margin:1px 0 0;padding:0;font-size:.77rem;line-height:1.1;
+}
+.home-mobile .hm-modes-v3 .hm-mode-grid .hm-chevron{
+  top:-26px;right:0;width:12px;height:12px;
+}
+.home-mobile .hm-modes-v3 .hm-quick-lives{bottom:5px;font-size:.43rem}
+.home-mobile .hm-modes-v3 .hm-quick-lives strong{font-size:inherit}
+.home-mobile .hm-modes-v3 .hm-bomb{
+  border-color:#78ff9d;background:linear-gradient(135deg,#24c954,#0b583d 86%);
+  box-shadow:inset 0 0 14px #78ff9d40,0 0 8px #39e36c22;
+}
+.home-mobile .hm-modes-v3 .hm-coming:disabled{
+  opacity:1;cursor:default;border-color:#b676ff;
+  background:linear-gradient(135deg,#6530c9,#211553 86%);
+}
+.home-mobile .hm-modes-v3 .hm-coming b>span{
+  padding:4px 12px;border:1px solid #9760ff;border-radius:20px;
+  background:#6e39bc55;font-size:.68rem;
+}
+.home-mobile .hm-modes-v3 .hm-room-actions{
+  display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);
+  gap:5px;margin-top:6px;
+}
+.home-mobile .hm-modes-v3 .hm-room-create,
+.home-mobile .hm-modes-v3 .hm-room-join{
+  min-width:0;height:44px;border:1.5px solid #a35cff;border-radius:10px;
+  display:flex;align-items:center;gap:4px;padding:3px 4px;
+  background:linear-gradient(135deg,#382077,#151444);
+}
+.home-mobile .hm-modes-v3 .hm-room-create{
+  justify-content:center;border-color:#4bd4ff;
+  background:linear-gradient(135deg,#0757c9,#0b2457);
+}
+.home-mobile .hm-modes-v3 .hm-room-create img{width:32px;height:32px}
+.home-mobile .hm-modes-v3 .hm-room-create b{font-size:.65rem;white-space:nowrap}
+.home-mobile .hm-modes-v3 .hm-room-join>img{width:20px;height:24px;flex:none}
+.home-mobile .hm-modes-v3 #homePlaqueCode{
+  width:0;min-width:0;flex:1;height:32px;margin:0;padding:0 3px;
+  border:0;border-radius:5px;background:#11123c;color:#fff;
+  font-size:16px;letter-spacing:.01em;box-shadow:none;
+}
+.home-mobile .hm-modes-v3 #homePlaqueCode::placeholder{
+  color:#b59ada;font-size:9px;letter-spacing:0;
+}
+.home-mobile .hm-modes-v3 #homePlaqueJoin{
+  flex:none;min-height:32px;padding:0 5px;border:1px solid #dd9cff;border-radius:7px;
+  background:linear-gradient(#c638ff,#790be1);box-shadow:inset 0 0 5px #efaeff88;
+  font-size:.59rem;font-weight:900;color:#fff;
+}
+@media(max-width:370px){
+  .home-mobile .hm-modes-v3 .hm-room-create img{width:26px;height:28px}
+  .home-mobile .hm-modes-v3 .hm-room-create b{font-size:.57rem}
+  .home-mobile .hm-modes-v3 .hm-room-join>img{display:none}
+  .home-mobile .hm-modes-v3 .hm-mode-grid b{font-size:.69rem}
+}
+@media(max-height:670px){
+  .home-mobile .hm-modes-v3 .hm-mode-grid>button{height:94px;min-height:94px!important}
+  .home-mobile .hm-modes-v3 .hm-mode-grid img,
+  .home-mobile .hm-modes-v3 .hm-bomb-icon{width:55px!important;height:51px!important}
+}
+
+/* Accueil : remonte le livre et tout le bloc des modes de jeu de 12px. */
+.home-mobile .hm-book{
+  top:-12px !important;
+}
+
+.home-mobile .hm-modes.hm-modes-v3{
+  top:-12px !important;
+}

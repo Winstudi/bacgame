@@ -1,0 +1,208 @@
+/* =========================================================
+   P'TIT BAC — DESIGN V2
+   Référence fixe : salon compact / capture 945×1680.
+   Ce fichier est chargé APRÈS style.css afin de conserver
+   toute la logique existante et seulement harmoniser le visuel.
+   ========================================================= */
+
+:root {
+  --v2-bg-0:#06143b;
+  --v2-bg-1:#0a1b50;
+  --v2-bg-2:#121d62;
+  --v2-purple:#7a39ff;
+  --v2-purple-2:#9b63ff;
+  --v2-purple-soft:#bca5ff;
+  --v2-blue-soft:#8297ff;
+  --v2-text:#f7f4ff;
+  --v2-muted:#a89dcc;
+  --v2-border:rgba(132,112,255,.33);
+  --v2-border-strong:rgba(143,76,255,.82);
+  --v2-panel:linear-gradient(145deg,rgba(18,39,96,.94),rgba(8,27,72,.95));
+  --v2-panel-soft:rgba(16,37,91,.78);
+  --v2-shadow:0 14px 34px rgba(1,5,35,.25), inset 0 0 26px rgba(116,77,255,.045);
+  --v2-x:12px;
+  --v2-top:18px;
+  --v2-gap:8px;
+  --v2-radius:18px;
+  --v2-card-radius:14px;
+  --v2-control-h:48px;
+  --v2-safe-bottom:max(10px, env(safe-area-inset-bottom));
+}
+
+html,body,#app{min-height:100%;background:#081747;color:var(--v2-text)}
+html{background:#081747}
+body{
+  min-height:100dvh;
+  margin:0;
+  color:var(--v2-text);
+  background:
+    radial-gradient(circle at 8% 3%, rgba(106,48,255,.34), transparent 25rem),
+    radial-gradient(circle at 96% 98%, rgba(89,31,231,.32), transparent 29rem),
+    linear-gradient(145deg,var(--v2-bg-1),var(--v2-bg-0) 58%,#071946);
+  background-attachment:scroll!important;
+  overscroll-behavior-y:none;
+}
+
+.screen{
+  width:min(100%,780px)!important;
+  min-height:100dvh!important;
+  margin:0 auto!important;
+  color:var(--v2-text);
+  isolation:isolate;
+  overflow-x:clip;
+}
+
+/* ---------- Base commune : mêmes proportions partout ---------- */
+.profile-v150,.v141-lobby-screen,.v147-lobby-screen,
+.category-pick-screen,.letter-pick-screen,.play-screen,.v141-wait-screen,
+.round-results-v132,.round-results-v133,.game-screen,.review-screen,
+.results-screen,.winner-screen{
+  background:
+    radial-gradient(circle at 7% 2%,rgba(100,44,255,.30),transparent 24rem),
+    radial-gradient(circle at 95% 96%,rgba(85,31,226,.30),transparent 28rem),
+    linear-gradient(145deg,#0c1d58 0%,#07163f 54%,#081b4d 100%)!important;
+}
+
+button,input,textarea,select{font-family:"DM Sans",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button{-webkit-tap-highlight-color:transparent}
+
+/* =========================================================
+   2. SALON — référence maître, on garde sa structure
+   ========================================================= */
+.v147-lobby-screen{
+  min-height:100dvh!important;
+  padding:max(18px,env(safe-area-inset-top)) 12px calc(18px + env(safe-area-inset-bottom))!important;
+}
+.v147-lobby-top{margin-bottom:10px!important}
+.v147-actions{margin-top:clamp(40px,7dvh,68px)!important;padding-top:0!important;bottom:calc(10px + env(safe-area-inset-bottom))!important}
+
+/* =========================================================
+   3. CHOIX DES CATÉGORIES
+   ========================================================= */
+.category-pick-screen{
+  padding:max(18px,env(safe-area-inset-top)) var(--v2-x) calc(22px + env(safe-area-inset-bottom))!important;
+}
+.category-pick-screen .category-pick-blob{opacity:.55!important;filter:blur(18px)!important}
+.category-pick-header{min-height:42px!important;margin-bottom:10px!important;align-items:center!important}
+.pregame-return-btn{
+  min-height:38px!important;padding:0 12px!important;border-radius:12px!important;
+  background:rgba(15,35,89,.82)!important;border:1px solid var(--v2-border)!important;color:#dcd3ff!important;font-size:.69rem!important;font-weight:800!important
+}
+.category-pick-screen .ref-eyebrow{font-size:.62rem!important;color:#a99fce!important;margin-bottom:4px!important}
+.category-pick-screen h1{font-size:1.3rem!important;line-height:1.05!important;letter-spacing:-.035em!important;margin-bottom:4px!important;color:#fff!important}
+.category-pick-screen p{color:var(--v2-muted)!important;font-size:.66rem!important}
+.category-pick-grid{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;
+  margin:12px 0!important
+}
+.category-pick-card{
+  min-height:78px!important;padding:9px 6px!important;border-radius:14px!important;
+  border:1px solid var(--v2-border)!important;background:var(--v2-panel)!important;box-shadow:var(--v2-shadow)!important;
+  color:#fff!important;text-align:center!important
+}
+.category-pick-card:nth-child(3n+1){background:linear-gradient(145deg,rgba(105,52,239,.92),rgba(66,35,165,.94))!important;border-color:rgba(146,90,255,.72)!important}
+.category-pick-icon{font-size:1.15rem!important;margin-bottom:5px!important}.category-pick-card strong{font-size:.61rem!important;line-height:1.15!important}
+.category-pick-screen .btn,.category-pick-screen button[id*="confirm"],.category-pick-screen button[id*="validate"]{min-height:48px!important;border-radius:14px!important;font-size:.73rem!important}
+
+/* =========================================================
+   4. CHOIX DE LA LETTRE
+   ========================================================= */
+.letter-pick-screen{
+  padding:max(18px,env(safe-area-inset-top)) var(--v2-x) calc(22px + env(safe-area-inset-bottom))!important;
+  text-align:center!important
+}
+.letter-pick-screen .letter-pick-blob{opacity:.55!important;filter:blur(18px)!important}
+.letter-pick-screen h1{font-size:1.3rem!important;line-height:1.05!important;margin:8px 0 5px!important;color:#fff!important}
+.letter-pick-screen p{font-size:.66rem!important;color:var(--v2-muted)!important}
+.letter-pick-screen [class*="wheel"],.letter-pick-screen [class*="letter-card"],.letter-pick-screen [class*="result"]{
+  max-width:270px!important;margin-left:auto!important;margin-right:auto!important
+}
+.letter-pick-screen [class*="letter"][class*="big"],
+.letter-pick-screen [class*="chosen"],
+.letter-pick-screen .letter{
+  color:#fff!important;text-shadow:0 0 24px rgba(151,91,255,.62)!important
+}
+.letter-pick-screen .btn,.letter-pick-screen button[id*="confirm"],.letter-pick-screen button[id*="spin"],.letter-pick-screen button[id*="reroll"]{
+  min-height:48px!important;border-radius:14px!important;font-size:.73rem!important
+}
+
+/* =========================================================
+   5. SAISIE DES RÉPONSES
+   ========================================================= */
+.play-screen,.game-screen{
+  padding:max(16px,env(safe-area-inset-top)) var(--v2-x) calc(78px + env(safe-area-inset-bottom))!important;
+}
+.play-screen [class*="top"],.game-screen [class*="top"]{margin-bottom:8px!important}
+.play-answer-list,.answer-list{display:grid!important;gap:7px!important}
+.play-answer-card,.answer-card{
+  min-height:50px!important;border-radius:12px!important;padding:6px 8px!important;
+  border:1px solid var(--v2-border)!important;background:rgba(11,31,78,.84)!important;box-shadow:0 8px 18px rgba(2,7,38,.16)!important
+}
+.play-answer-card label,.answer-card label{font-size:.61rem!important;color:#f2efff!important;margin-bottom:3px!important}
+.play-answer-card input,.answer-card input,.play-answer-list input,.answer-list input{
+  min-height:31px!important;border-radius:8px!important;border:1px solid rgba(128,108,231,.32)!important;
+  background:rgba(4,18,55,.65)!important;color:#fff!important;padding:0 8px!important;font-size:.68rem!important;outline:none!important
+}
+.play-answer-card input:focus,.answer-card input:focus{border-color:#8a55ff!important;box-shadow:0 0 0 2px rgba(132,72,255,.14)!important}
+.play-sticky-action,.sticky-action{position:sticky!important;bottom:var(--v2-safe-bottom)!important;margin-top:12px!important;padding-top:4px!important;z-index:30!important}
+.play-submit,.play-sticky-action .btn,.sticky-action .btn{width:100%!important;min-height:48px!important;border-radius:14px!important;font-size:.72rem!important;background:linear-gradient(105deg,#7b41f5,#6427e7)!important;box-shadow:0 10px 24px rgba(76,35,207,.28)!important}
+
+/* =========================================================
+   6. ATTENTE DES AUTRES
+   ========================================================= */
+.v141-wait-screen{
+  padding:max(18px,env(safe-area-inset-top)) var(--v2-x) calc(22px + env(safe-area-inset-bottom))!important;
+}
+.v141-wait-top{gap:7px!important;margin-bottom:10px!important}
+.v141-wait-top>div{min-height:48px!important;border-radius:13px!important;border:1px solid var(--v2-border)!important;background:rgba(12,32,80,.78)!important;padding:6px 8px!important}
+.v141-wait-top small{font-size:.5rem!important;color:#9f95c8!important}.v141-wait-top strong{font-size:.72rem!important;color:#fff!important}
+.v141-wait-screen h1{font-size:1.25rem!important;margin:12px 0 5px!important}.v141-wait-screen p{font-size:.64rem!important;color:var(--v2-muted)!important}
+.v141-wait-screen [class*="player"],.v141-wait-screen .player-row{min-height:48px!important;border-radius:12px!important;border:1px solid var(--v2-border)!important;background:rgba(11,31,78,.82)!important;padding:6px 8px!important}
+.v141-wait-screen .avatar{width:32px!important;height:32px!important;font-size:.95rem!important}
+
+/* =========================================================
+   7. RÉSULTATS DE MANCHE / CORRECTION
+   ========================================================= */
+.round-results-v132,.round-results-v133,.results-screen,.review-screen{
+  padding:max(18px,env(safe-area-inset-top)) var(--v2-x) calc(22px + env(safe-area-inset-bottom))!important;
+}
+.round-results-v132 h1,.round-results-v133 h1,.results-screen h1,.review-screen h1{font-size:1.25rem!important;margin-bottom:5px!important;color:#fff!important}
+.scoreboard{display:grid!important;gap:7px!important;margin:12px 0 16px!important}
+.score-row{
+  min-height:50px!important;grid-template-columns:32px minmax(0,1fr) auto!important;gap:7px!important;
+  padding:7px 8px!important;border:1px solid var(--v2-border)!important;border-radius:12px!important;background:rgba(11,31,78,.84)!important
+}
+.score-row:first-child{border-color:rgba(255,196,71,.72)!important;box-shadow:0 0 0 1px rgba(255,197,72,.08),0 8px 24px rgba(255,183,33,.06)!important}
+.score-name{font-size:.69rem!important}.score-total{font-size:.74rem!important}.rank{font-size:.85rem!important}
+.review-card,.winner-card,.wait-card{border:1px solid var(--v2-border)!important;border-radius:16px!important;padding:14px 12px!important;background:var(--v2-panel)!important;box-shadow:var(--v2-shadow)!important}
+.review-actions{gap:8px!important}.review-actions .btn{min-height:44px!important;border-radius:12px!important;font-size:.68rem!important}
+
+/* =========================================================
+   8. FIN DE PARTIE
+   ========================================================= */
+.winner-screen{padding:max(18px,env(safe-area-inset-top)) var(--v2-x) calc(22px + env(safe-area-inset-bottom))!important;text-align:center!important}
+.winner-emoji{font-size:3rem!important}.winner-name{font-size:1.45rem!important}.winner-score{font-size:.72rem!important;color:var(--v2-muted)!important}
+.winner-screen .scoreboard{margin-top:12px!important}
+.winner-screen .btn{min-height:48px!important;border-radius:14px!important;font-size:.72rem!important}
+
+/* ---------- boutons globaux sur les écrans nuit ---------- */
+.category-pick-screen .btn-primary,.letter-pick-screen .btn-primary,.round-results-v132 .btn-primary,.round-results-v133 .btn-primary,.winner-screen .btn-primary,
+.results-screen .btn-primary,.review-screen .btn-primary{
+  background:linear-gradient(105deg,#7b41f5,#6427e7)!important;color:#fff!important;border:1px solid rgba(157,99,255,.72)!important;
+  box-shadow:0 10px 24px rgba(76,35,207,.28)!important
+}
+
+/* ---------- iPhone / petits écrans : verrouille l'échelle ---------- */
+@media (max-width:720px){
+  .screen{width:100%!important;max-width:none!important}
+}
+@media (max-width:390px){
+  :root{--v2-x:10px;--v2-gap:7px}
+  .category-pick-grid{gap:7px!important}.category-pick-card{min-height:72px!important}
+  .play-answer-card,.answer-card{min-height:47px!important}
+}
+
+/* Très petits écrans / clavier ouvert : pas de gros décalage vertical */
+@media (max-height:620px){
+  .play-sticky-action,.sticky-action,.v147-actions{position:static!important}
+}
