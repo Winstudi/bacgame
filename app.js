@@ -400,10 +400,81 @@ function bombLeave() {
   });
 }
 
+// Keep the animation clock across room snapshots, which replace the screen DOM.
+let bombTurnVisual = null;
+
+function prepareBombTurnVisual(state) {
+  const bomb = state.bomb;
+  const previous = document.querySelector(".bomb-arena") ? bombTurnVisual : null;
+  const index = state.players.findIndex(player => player.id === bomb.turnPlayerId);
+  const angle = index < 0 ? 0 : 360 * index / state.players.length;
+  const answerKey = JSON.stringify(bomb.lastAnswer || null);
+  const sameCycle = previous && previous.code === state.code &&
+    previous.round === bomb.round && previous.cycle === bomb.cycle;
+  let transition = sameCycle ? previous.transition : null;
+  if (!sameCycle || bomb.status !== "playing") transition = null;
+  else if (previous.version !== bomb.turnVersion) {
+    transition = null;
+    if (previous.playerId && bomb.turnPlayerId && bomb.lastAnswer && answerKey !== previous.answerKey) {
+      const pointer = document.querySelector(".bomb-pointer");
+      const matrix = pointer && getComputedStyle(pointer).transform;
+      let from = previous.angle;
+      // Use the visible angle if another answer arrives before the sweep finishes.
+      if (matrix && matrix !== "none" && typeof DOMMatrixReadOnly !== "undefined") {
+        const transform = new DOMMatrixReadOnly(matrix);
+        from = (Math.atan2(transform.b, transform.a) * 180 / Math.PI + 360) % 360;
+      }
+      const sweep = (angle - from + 360) % 360;
+      transition = { startedAt:performance.now(), from, to:from + sweep };
+    }
+  }
+  bombTurnVisual = {
+    code:state.code, round:bomb.round, cycle:bomb.cycle,
+    version:bomb.turnVersion, playerId:bomb.turnPlayerId, angle, answerKey, transition
+  };
+}
+
+function animateBombTurn() {
+  const transition = bombTurnVisual?.transition;
+  if (!transition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const elapsed = performance.now() - transition.startedAt;
+  const animate = (selector, frames, duration, delay = 0) => {
+    const element = document.querySelector(selector);
+    if (!element?.animate || elapsed >= duration + delay) return;
+    const animation = element.animate(frames, {
+      duration, delay, easing:"cubic-bezier(.22,.7,.3,1)", fill:"backwards"
+    });
+    animation.currentTime = Math.max(0, elapsed);
+  };
+  animate(".bomb-pointer", [
+    { transform:`translateX(-50%) rotate(${transition.from}deg)` },
+    { transform:`translateX(-50%) rotate(${transition.to}deg)` }
+  ], 360);
+  animate(".bomb-last-word strong", [
+    { opacity:0, transform:"translateY(5px) scale(.88)" },
+    { opacity:1, transform:"translateY(0) scale(1.06)", offset:.65 },
+    { opacity:1, transform:"translateY(0) scale(1)" }
+  ], 320);
+  animate(".bomb-player.is-turn .bomb-player-badge", [
+    { transform:"scale(1)", boxShadow:"0 0 6px #ffda5560" },
+    { transform:"scale(1.06)", boxShadow:"0 0 15px #ffda55,0 0 25px #ffc83cba", offset:.45 },
+    { transform:"scale(1)", boxShadow:"0 0 10px #ffda55e0,0 0 22px #ffc83cba,inset 0 0 12px #ffe6794d" }
+  ], 380, 180);
+  animate(".bomb-category strong", [
+    { opacity:0, transform:"translateY(10px)" },
+    { opacity:1, transform:"translateY(5px)" }
+  ], 250);
+  animate(".bomb-letter b", [
+    { opacity:0, transform:"scale(.86)" },
+    { opacity:1, transform:"scale(1)" }
+  ], 250);
+}
+
 function renderBombGame() {
   const state = session.state;
   const bomb = state.bomb;
   if (!bomb) return renderHome();
+  prepareBombTurnVisual(state);
   const active = bomb.status === "playing";
   const myTurn = active && bomb.turnPlayerId === session.playerId;
   const checking = bomb.checkingPlayerId === session.playerId;
@@ -448,6 +519,7 @@ function renderBombGame() {
       </form>` : ""}
     </div>
   </main>`);
+  animateBombTurn();
   document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
   document.getElementById("bombAnswerForm")?.addEventListener("submit", event => {
     event.preventDefault();
