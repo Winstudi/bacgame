@@ -5015,6 +5015,8 @@ io.on("connection", socket => {
     if (Date.now() >= bomb.endsAt) { bombExplode(room); return cb({ ok:false, error:"La bombe a explosé." }); }
     if (!verdict.ok) { emitRoom(room); return cb(verdict); }
     bomb.usedWords.push(normalized);
+    bomb.category = bombNextCategory(room);
+    bomb.letter = bombNextLetter(room);
     bomb.turnPlayerId = bombRandomPlayer(room, player.id)?.id || player.id;
     bomb.turnVersion += 1;
     emitRoom(room);
