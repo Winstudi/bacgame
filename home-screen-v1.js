@@ -339,12 +339,13 @@
       });
     });
 
-    document.getElementById("homePlaqueCreate")?.addEventListener("click", () => {
+    const createClassicRoom = () => {
       const profile = ensureProfile();
       if (!profile) return;
 
       runAfterOldRoomCleanup(() => {
         socket.emit("room:create", {
+          gameType: "classic",
           name: profile.name.trim(),
           rounds: 1,
           categoryCount: 6,
@@ -355,6 +356,15 @@
           walletToken: session.walletToken
         }, response => enterRoom(response, "Impossible de créer le salon."));
       });
+    };
+
+    document.getElementById("homePlaqueCreate")?.addEventListener("click", () => {
+      document.getElementById("homeGameModeDialog")?.showModal();
+    });
+
+    document.getElementById("homeCreateClassic")?.addEventListener("click", () => {
+      document.getElementById("homeGameModeDialog")?.close();
+      createClassicRoom();
     });
 
     const codeInput = document.getElementById("homePlaqueCode");
@@ -634,6 +644,21 @@
             <button class="hm-close" aria-label="Fermer">×</button>
           </form>
           <div id="homeDetailContent"></div>
+        </dialog>
+        <dialog id="homeGameModeDialog" class="hm-dialog hm-game-picker" aria-labelledby="homeGameModeTitle">
+          <form method="dialog">
+            <button class="hm-close" type="submit" aria-label="Fermer">×</button>
+          </form>
+          <h2 id="homeGameModeTitle">Choisir un mode de jeu</h2>
+          <button id="homeCreateClassic" class="hm-game-picker-choice" type="button">
+            <strong>Classique</strong><span>Créer le salon</span>
+          </button>
+          <button class="hm-game-picker-choice" type="button" disabled>
+            <strong>Bombe</strong><span>À venir</span>
+          </button>
+          <button class="hm-game-picker-choice" type="button" disabled>
+            <strong>Troisième mode</strong><span>À venir</span>
+          </button>
         </dialog>
       </main>
     `);
