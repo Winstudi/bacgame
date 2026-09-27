@@ -417,9 +417,11 @@ function renderBombGame() {
     const y = 50 + 40 * Math.sin(angle);
     const lives = Number(bomb.lives?.[player.id] || 0);
     return `<div class="bomb-player ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 ? "is-out" : ""}" style="left:${x}%;top:${y}%">
-      <div class="bomb-player-avatar">${bombAvatarMarkup(player)}</div>
+      <div class="bomb-player-badge">
+        <div class="bomb-player-avatar">${bombAvatarMarkup(player)}</div>
+        <span class="bomb-hearts" aria-label="${lives} vie${lives > 1 ? "s" : ""}">${"♥".repeat(lives)}${"♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives))}</span>
+      </div>
       <strong>${escapeHtml(player.name)}</strong>
-      <span class="bomb-hearts" aria-label="${lives} vie${lives > 1 ? "s" : ""}">${"♥".repeat(lives)}${"♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives))}</span>
     </div>`;
   }).join("");
   const status = bomb.status === "intermission"
@@ -441,7 +443,7 @@ function renderBombGame() {
       ${bomb.status === "intermission" ? `<p class="bomb-next">Nouvelle manche dans quelques secondes… Les vies vont être réinitialisées.</p>` : myTurn ? `
       <form id="bombAnswerForm" class="bomb-form">
         <label for="bombAnswerInput">Écris ta réponse</label>
-        <div><input id="bombAnswerInput" class="bomb-answer-input" type="text" maxlength="80" autocomplete="off" autocapitalize="sentences" placeholder="Un mot en ${escapeHtml(bomb.letter || "")}…" ${myTurn && !checking ? "" : "disabled"} required><button type="submit" ${myTurn && !checking ? "" : "disabled"}>${checking ? "Vérification…" : "Valider"}</button></div>
+        <div><input id="bombAnswerInput" class="bomb-answer-input" type="text" maxlength="80" autocomplete="off" autocapitalize="sentences" placeholder="Un mot en ${escapeHtml(bomb.letter || "")}…" ${myTurn && !checking ? "" : "disabled"} required><button type="submit" aria-label="Envoyer la réponse" title="Envoyer la réponse" ${myTurn && !checking ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.2 21 3l-5.3 18-3.1-7.1L3 11.2Zm9.6 2.7L21 3"/></svg></button></div>
         <small>Un mot validé passe la bombe à un autre joueur.</small>
       </form>` : ""}
     </div>
@@ -455,7 +457,7 @@ function renderBombGame() {
     const button = event.currentTarget.querySelector("button");
     input.disabled = true;
     button.disabled = true;
-    button.textContent = "Vérification…";
+    button.setAttribute("aria-busy", "true");
     socket.emit("bomb:answer", { code:state.code, playerId:session.playerId, answer }, response => {
       if (response?.ok) return;
       toast(response?.error || "Mot refusé.");
