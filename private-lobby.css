@@ -1,4 +1,3 @@
-/* VOCAL GAME HUD BUILD V2.1 */
 /* P'tit Bac — Salon privé/public configurable
    Source canonique du layout compact du lobby hors partie rapide. */
 
@@ -2860,172 +2859,95 @@ html body main.lobby-v5.pl-private-v3.pl-quick-v3
 
 
 /* =========================================================
-   VOCAL V2 — HUD permanent pendant la partie
-   Le vocal reste lié à la room, pas à l'écran du lobby.
+   VOCAL GAME V3 — HUD permanent en partie
    ========================================================= */
-
-#plGameVoiceHud.pl-game-voice-hud {
+#plGameVoiceHud {
   position:fixed!important;
-  z-index:6200!important;
-  top:calc(env(safe-area-inset-top, 0px) + 64px)!important;
-  right:10px!important;
-  width:auto!important;
-  min-width:0!important;
-  height:40px!important;
-  min-height:40px!important;
+  z-index:15000!important;
+  top:calc(env(safe-area-inset-top, 0px) + 62px)!important;
+  right:8px!important;
+  height:39px!important;
   padding:4px!important;
   display:flex!important;
   align-items:center!important;
   gap:4px!important;
-
-  border:1px solid rgba(62,211,207,.56)!important;
-  border-radius:13px!important;
-  background:
-    linear-gradient(
-      145deg,
-      rgba(11,30,74,.92),
-      rgba(9,21,58,.92)
-    )!important;
-
-  box-shadow:
-    0 0 12px rgba(41,220,208,.10),
-    0 5px 18px rgba(2,8,32,.22)!important;
-
+  border:1px solid rgba(75,222,210,.65)!important;
+  border-radius:12px!important;
+  background:rgba(9,24,66,.94)!important;
+  box-shadow:0 4px 16px rgba(0,0,0,.25)!important;
   backdrop-filter:blur(12px)!important;
   -webkit-backdrop-filter:blur(12px)!important;
-  user-select:none!important;
-  -webkit-user-select:none!important;
 }
 
 #plGameVoiceHud[hidden] {
   display:none!important;
 }
 
-#plGameVoiceHud .pl-game-voice-status {
-  height:30px!important;
-  min-width:31px!important;
-  padding:0 7px!important;
+#plGameVoiceHud .pl-game-voice-count {
+  height:29px!important;
+  padding:0 6px!important;
   display:flex!important;
   align-items:center!important;
-  justify-content:center!important;
   gap:4px!important;
-
-  border-right:1px solid rgba(86,111,181,.32)!important;
-  color:#cdd7f7!important;
-}
-
-#plGameVoiceHud .pl-game-voice-status > i {
-  width:6px!important;
-  height:6px!important;
-  flex:none!important;
-  border-radius:50%!important;
-  background:#46dfbd!important;
-  box-shadow:0 0 6px rgba(70,223,189,.58)!important;
-}
-
-#plGameVoiceHud .pl-game-voice-status > b {
-  min-width:8px!important;
   color:#fff!important;
   font-size:9px!important;
-  line-height:1!important;
-  font-weight:900!important;
-  text-align:center!important;
 }
 
-#plGameVoiceHud > button {
+#plGameVoiceHud .pl-game-voice-count i {
+  width:6px!important;
+  height:6px!important;
+  border-radius:50%!important;
+  background:#4be4bf!important;
+  box-shadow:0 0 6px rgba(75,228,191,.7)!important;
+}
+
+#plGameVoiceHud button {
   position:relative!important;
   width:30px!important;
   min-width:30px!important;
   height:30px!important;
   min-height:30px!important;
   padding:0!important;
-
   display:grid!important;
   place-items:center!important;
-
-  border:1px solid rgba(80,105,190,.58)!important;
+  border:1px solid rgba(88,108,193,.7)!important;
   border-radius:9px!important;
-  background:rgba(11,27,71,.88)!important;
-  color:#cbd6ff!important;
-  box-shadow:none!important;
+  background:rgba(13,29,75,.96)!important;
+  color:#d2dcff!important;
 }
 
-#plGameVoiceHud > button svg {
+#plGameVoiceHud button svg {
   width:16px!important;
   height:16px!important;
   fill:none!important;
   stroke:currentColor!important;
   stroke-width:1.8!important;
-  stroke-linecap:round!important;
-  stroke-linejoin:round!important;
 }
 
-#plGameVoiceHud > button.is-active {
-  border-color:rgba(64,223,197,.72)!important;
-  background:rgba(17,88,84,.68)!important;
-  color:#58ead6!important;
+#plGameVoiceHud button.is-muted {
+  color:#ff6381!important;
+  border-color:rgba(255,99,129,.8)!important;
+  background:rgba(102,31,54,.72)!important;
 }
 
-#plGameVoiceHud > button.is-muted {
-  overflow:hidden!important;
-  border-color:rgba(241,93,126,.76)!important;
-  background:rgba(104,31,57,.66)!important;
-  color:#ff718e!important;
-}
-
-#plGameVoiceHud > button.is-muted::after {
+#plGameVoiceHud button.is-muted::after {
   content:""!important;
   position:absolute!important;
-  z-index:3!important;
+  width:21px!important;
+  height:2px!important;
   left:50%!important;
   top:50%!important;
-  width:22px!important;
-  height:2px!important;
   border-radius:999px!important;
-  background:#ff5f7f!important;
-  box-shadow:0 0 4px rgba(255,95,127,.50)!important;
+  background:#ff6381!important;
   transform:translate(-50%,-50%) rotate(-48deg)!important;
-  pointer-events:none!important;
 }
 
-#plGameVoiceHud.is-speaking .pl-game-voice-status > i {
-  animation:pl-game-voice-pulse .68s ease-in-out infinite alternate!important;
+#plGameVoiceHud.is-speaking .pl-game-voice-count i {
+  animation:plGameVoicePulse .65s ease-in-out infinite alternate!important;
 }
 
-@keyframes pl-game-voice-pulse {
-  from {
-    transform:scale(.88);
-    box-shadow:0 0 4px rgba(70,223,189,.44);
-  }
-  to {
-    transform:scale(1.22);
-    box-shadow:
-      0 0 7px rgba(70,223,189,.78),
-      0 0 13px rgba(70,223,189,.30);
-  }
-}
-
-@media(max-width:370px) {
-  #plGameVoiceHud.pl-game-voice-hud {
-    top:calc(env(safe-area-inset-top, 0px) + 61px)!important;
-    right:7px!important;
-    height:37px!important;
-    min-height:37px!important;
-    padding:3px!important;
-    gap:3px!important;
-  }
-
-  #plGameVoiceHud > button {
-    width:29px!important;
-    min-width:29px!important;
-    height:29px!important;
-    min-height:29px!important;
-  }
-
-  #plGameVoiceHud .pl-game-voice-status {
-    height:29px!important;
-    min-width:28px!important;
-    padding:0 5px!important;
-  }
+@keyframes plGameVoicePulse {
+  from { transform:scale(.85); }
+  to { transform:scale(1.3); }
 }
 

@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  window.PtitBacVoiceGameBuild = "V2.1";
+  window.PtitBacVoiceGameBuild = "V3";
 
   const adminState = {
     admin: false,
@@ -654,15 +654,13 @@
     updateRoomVoiceGameHudUi();
   }
 
-  function roomVoiceGameHudShouldShow() {
+  function roomVoiceGameIsRunning() {
     const state = currentLobbyState();
+    if (!state) return false;
 
-    return !!(
-      roomVoiceState.joined &&
-      state &&
-      ["private", "public", "quick"].includes(state.mode) &&
+    return (
       String(state.code || "") === String(roomVoiceState.roomCode || "") &&
-      state.phase &&
+      !!state.phase &&
       state.phase !== "lobby"
     );
   }
@@ -671,113 +669,62 @@
     let hud = document.getElementById("plGameVoiceHud");
     if (hud) return hud;
 
-    hud = document.createElement("aside");
+    hud = document.createElement("div");
     hud.id = "plGameVoiceHud";
     hud.className = "pl-game-voice-hud";
     hud.hidden = true;
-    hud.setAttribute("role", "group");
-    hud.setAttribute("aria-label", "Contrôles du chat vocal");
-
     hud.innerHTML = `
-      <span class="pl-game-voice-status" aria-label="Joueurs connectés au vocal">
-        <i aria-hidden="true"></i>
-        <b id="plGameVoiceCount">1</b>
+      <span class="pl-game-voice-count">
+        <i></i><b id="plGameVoiceCount">1</b>
       </span>
-
-      <button
-        id="plGameVoiceMic"
-        type="button"
-        aria-label="Couper le micro"
-        title="Micro"
-      >
+      <button id="plGameVoiceMic" type="button" aria-label="Micro">
         ${micSvg}
       </button>
-
-      <button
-        id="plGameVoiceHeadphones"
-        type="button"
-        aria-label="Couper le son reçu"
-        title="Son reçu"
-      >
+      <button id="plGameVoiceHeadphones" type="button" aria-label="Son reçu">
         ${headphonesSvg}
       </button>
-
-      <button
-        id="plGameVoiceSettings"
-        type="button"
-        aria-label="Réglages vocaux"
-        title="Réglages vocaux"
-      >
+      <button id="plGameVoiceSettings" type="button" aria-label="Réglages vocaux">
         ${settingsSvg}
       </button>
     `;
-
     document.body.appendChild(hud);
     return hud;
   }
 
   function updateRoomVoiceGameHudUi() {
-    const shouldShow = roomVoiceGameHudShouldShow();
-    const existing = document.getElementById("plGameVoiceHud");
-    const hud = shouldShow
+    const show =
+      roomVoiceState.joined &&
+      roomVoiceGameIsRunning();
+
+    const existing =
+      document.getElementById("plGameVoiceHud");
+
+    const hud = show
       ? ensureRoomVoiceGameHud()
       : existing;
 
     if (!hud) return;
 
-    hud.hidden = !shouldShow;
-    if (!shouldShow) return;
+    hud.hidden = !show;
+    if (!show) return;
 
-    const count = roomVoiceState.peers.size + 1;
-    const countNode = hud.querySelector("#plGameVoiceCount");
-    const mic = hud.querySelector("#plGameVoiceMic");
-    const headphones = hud.querySelector("#plGameVoiceHeadphones");
-    const settings = hud.querySelector("#plGameVoiceSettings");
-
-    if (countNode) {
-      const nextCount = String(count);
-      if (countNode.textContent !== nextCount) {
-        countNode.textContent = nextCount;
-      }
+    const count = hud.querySelector("#plGameVoiceCount");
+    if (count) {
+      count.textContent = String(roomVoiceState.peers.size + 1);
     }
 
-    mic?.classList.toggle(
-      "is-active",
-      roomVoiceState.micEnabled
-    );
+    const mic = hud.querySelector("#plGameVoiceMic");
+    const headphones =
+      hud.querySelector("#plGameVoiceHeadphones");
+
     mic?.classList.toggle(
       "is-muted",
       !roomVoiceState.micEnabled
     );
-    mic?.setAttribute(
-      "aria-label",
-      roomVoiceState.micEnabled
-        ? "Couper le micro"
-        : "Réactiver le micro"
-    );
 
-    headphones?.classList.toggle(
-      "is-active",
-      !roomVoiceState.deafened
-    );
     headphones?.classList.toggle(
       "is-muted",
       roomVoiceState.deafened
-    );
-    headphones?.setAttribute(
-      "aria-label",
-      roomVoiceState.deafened
-        ? "Réactiver le son reçu"
-        : "Couper le son reçu"
-    );
-
-    const overlay = document.getElementById(
-      "plRoomVoiceSettingsOverlay"
-    );
-
-    settings?.classList.toggle(
-      "is-active",
-      !!overlay && !overlay.hidden
     );
   }
 
@@ -1102,23 +1049,28 @@
   function syncRoomVoiceContext() {
     const state = currentLobbyState();
 
-    const sameActiveRoom =
-      !!state &&
-      ["private", "public", "quick"].includes(state.mode) &&
-      !!String(state.code || "") &&
-      String(state.code || "") === String(roomVoiceState.roomCode || "");
-
     /*
-      Le vocal appartient à la room, pas à l'écran lobby.
-      Il reste donc actif pendant :
-      catégories -> lettre -> réponses -> correction -> résultats -> fin.
-      Il est fermé uniquement si le joueur quitte réellement cette room.
+      IMPORTANT :
+      Le vocal appartient à la room entière, pas à la phase lobby.
+      On ne le coupe donc JAMAIS lors d'un changement d'écran/phase.
     */
+    const activeCode = String(
+      state?.code || session?.code || ""
+    ).trim();
+
+    const voiceCode = String(
+      roomVoiceState.roomCode || ""
+    ).trim();
+
     if (
       roomVoiceState.joined &&
-      !sameActiveRoom
+      (
+        !activeCode ||
+        !voiceCode ||
+        activeCode !== voiceCode
+      )
     ) {
-      leaveRoomVoice({ silent: true });
+      leaveRoomVoice({ silent:true });
       return;
     }
 
@@ -1199,28 +1151,16 @@
   function openRoomVoiceSettings() {
     const overlay = ensureRoomVoiceSettings();
     overlay.hidden = false;
-
     document.getElementById("plVoiceSettings")
       ?.classList.add("is-active");
-
-    document.getElementById("plGameVoiceSettings")
-      ?.classList.add("is-active");
-
     updateRoomVoiceSettingsUi();
-    updateRoomVoiceGameHudUi();
   }
 
   function closeRoomVoiceSettings() {
     const overlay = document.getElementById("plRoomVoiceSettingsOverlay");
     if (overlay) overlay.hidden = true;
-
     document.getElementById("plVoiceSettings")
       ?.classList.remove("is-active");
-
-    document.getElementById("plGameVoiceSettings")
-      ?.classList.remove("is-active");
-
-    updateRoomVoiceGameHudUi();
   }
 
   function receiveRoomVoicePeerJoined(payload = {}) {
