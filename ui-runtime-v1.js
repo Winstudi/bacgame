@@ -1390,6 +1390,17 @@
     }
 
     updateRoomVoiceUi();
+
+    // Safari can suspend playback while the game replaces its screen.
+    // The audio elements live outside that screen, so resume them after render.
+    if (roomVoiceState.joined) {
+      for (const audio of roomVoiceState.audios.values()) {
+        if (audio.srcObject && !roomVoiceState.deafened && audio.paused) {
+          audio.play().catch(() => {});
+        }
+      }
+      roomVoiceState.audioContext?.resume?.().catch(() => {});
+    }
   }
 
   function ensureRoomVoiceSettings() {
