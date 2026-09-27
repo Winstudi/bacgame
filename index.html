@@ -24,8 +24,6 @@
   <link rel="stylesheet" href="/profile-redesign-v1.css?v=1.48.0" />
   <link rel="stylesheet" href="/shop-screen-v2.css?v=1.48.0-shop-dynamic35" />
   <link rel="stylesheet" href="/quests-screen-v1.css?v=1.48.0-quests9-page-scroll" />
-  <link rel="stylesheet" href="/lobby-screen-v4.css?v=1.48.0" />
-  <link rel="stylesheet" href="/quick-lobby-v1.css?v=1.48.0" />
   <link rel="stylesheet" href="/category-selection-v2.css?v=1.48.0" />
   <link rel="stylesheet" href="/category-chooser-card-v1.css?v=1.48.0" />
   <link rel="stylesheet" href="/shared-footer-v1.css?v=1.48.0" />
@@ -47,7 +45,7 @@
   <link rel="preload" as="image" href="/shared-footer-v1.png" />
   <link rel="preload" as="image" href="/lobby-exit.png" />
   <link rel="stylesheet" href="/category-prototype.css?v=1.48.0" />
-  <link rel="stylesheet" href="/private-lobby.css?v=1.48.0">
+  <link rel="stylesheet" href="/salons.css?v=1.48.0-rebuild" />
   <link rel="stylesheet" href="/reward-chests.css?v=1.48.0-rewards13" />
 
   <!-- Partie Rapide : même bandeau supérieur que la page Mon profil. -->
@@ -1952,13 +1950,11 @@
   <script defer src="/chat-client.js?v=1.48.0"></script>
   <script defer src="/economy-client.js?v=1.48.0-level-claims1"></script>
   <script defer src="/shop-screen-v2.js?v=1.48.0-shop-dynamic17"></script>
-  <script defer src="/lobby-screen-v4.js?v=1.48.0"></script>
-  <script defer src="/quick-lobby-v1.js?v=1.48.0"></script>
   <script defer src="/category-selection-v2.js?v=1.48.0"></script>
   <script defer src="/admin-v1.js?v=1.48.0"></script>
   <script defer src="/admin-extra-v1.js?v=1.48.0-admin-shop6"></script>
   <script defer src="/inbox-v1.js?v=1.48.0"></script>
-  <script defer src="/ui-runtime-v1.js?v=1.48.0"></script>
+  <script defer src="/salons.js?v=1.48.0-rebuild"></script>
   <script defer src="/letter-wheel-v1.js?v=1.48.0"></script>
   <script defer src="/answer-screen-v1.js?v=1.48.0"></script>
   <script defer src="/round-intro-v1.js?v=1.48.0"></script>
@@ -1967,215 +1963,6 @@
   <script defer src="/scoreboard-screen-v1.js?v=1.48.0"></script>
   <script defer src="/final-screen-v1.js?v=1.48.0"></script>
   <script defer src="/wallet-client.js?v=1.48.0"></script>
-
-  <script>
-    (() => {
-      "use strict";
-
-      const QUICK_COUNTDOWN_DURATION_MS = 3200;
-
-      let quickCountdownTimer = null;
-      let quickCountdownAudio = null;
-      let quickCountdownDeadline = 0;
-      let quickCountdownLastValue = "";
-
-      function quickCountdownNow() {
-        try {
-          return typeof serverNowMs === "function"
-            ? serverNowMs()
-            : Date.now();
-        } catch {
-          return Date.now();
-        }
-      }
-
-      function clearQuickLobbyCountdown() {
-        clearInterval(quickCountdownTimer);
-        quickCountdownTimer = null;
-        quickCountdownDeadline = 0;
-        quickCountdownLastValue = "";
-
-        if (quickCountdownAudio) {
-          try {
-            quickCountdownAudio.pause();
-            quickCountdownAudio.currentTime = 0;
-          } catch {}
-          quickCountdownAudio = null;
-        }
-
-        document.getElementById("lobbyStartCountdown")?.remove();
-      }
-
-      function ensureQuickLobbyCountdownOverlay() {
-        let overlay =
-          document.getElementById("lobbyStartCountdown");
-
-        if (overlay) return overlay;
-
-        overlay = document.createElement("div");
-        overlay.id = "lobbyStartCountdown";
-        overlay.className = "lobby-start-countdown";
-        overlay.setAttribute("role", "status");
-        overlay.setAttribute("aria-live", "assertive");
-
-        /* Markup strictement identique au compte à rebours du salon privé. */
-        overlay.innerHTML = `
-          <div class="lobby-start-countdown-card">
-            <div class="lobby-countdown-rocket" aria-hidden="true">🚀</div>
-            <h2>La partie commence dans</h2>
-
-            <div class="lobby-countdown-ring" aria-hidden="true">
-              <div class="lobby-countdown-ring-track"></div>
-              <div class="lobby-countdown-ring-glow"></div>
-              <strong id="lobbyCountdownNumber">3</strong>
-              <i class="spark s1"></i>
-              <i class="spark s2"></i>
-              <i class="spark s3"></i>
-              <i class="spark s4"></i>
-            </div>
-
-            <p>Préparez-vous !</p>
-          </div>
-        `;
-
-        document.body.appendChild(overlay);
-        return overlay;
-      }
-
-      function startQuickLobbyCountdown(deadline) {
-        const safeDeadline = Number(deadline || 0);
-        if (!safeDeadline) return;
-
-        if (
-          quickCountdownDeadline === safeDeadline &&
-          document.getElementById("lobbyStartCountdown")
-        ) {
-          return;
-        }
-
-        clearQuickLobbyCountdown();
-        quickCountdownDeadline = safeDeadline;
-
-        const overlay = ensureQuickLobbyCountdownOverlay();
-        const number =
-          overlay.querySelector("#lobbyCountdownNumber");
-        const card =
-          overlay.querySelector(".lobby-start-countdown-card");
-        const ring =
-          overlay.querySelector(".lobby-countdown-ring");
-
-        /* Même son que dans le salon privé. */
-        try {
-          quickCountdownAudio =
-            new Audio("/ptitbac-countdown-neon.wav");
-          quickCountdownAudio.preload = "auto";
-          quickCountdownAudio.volume = 0.78;
-          quickCountdownAudio.currentTime = 0;
-
-          const playPromise = quickCountdownAudio.play();
-          if (playPromise?.catch) {
-            playPromise.catch(() => {});
-          }
-        } catch {}
-
-        const update = () => {
-          const remaining =
-            quickCountdownDeadline - quickCountdownNow();
-
-          let nextValue = "3";
-
-          if (remaining > 2200) nextValue = "3";
-          else if (remaining > 1200) nextValue = "2";
-          else if (remaining > 250) nextValue = "1";
-          else nextValue = "!";
-
-          if (
-            number &&
-            nextValue !== quickCountdownLastValue
-          ) {
-            number.textContent = nextValue;
-            quickCountdownLastValue = nextValue;
-
-            ring?.classList.remove("pulse");
-            void ring?.offsetWidth;
-            ring?.classList.add("pulse");
-          }
-
-          if (nextValue === "!") {
-            card?.classList.add("is-go");
-          }
-
-          if (remaining < -350) {
-            clearQuickLobbyCountdown();
-          }
-        };
-
-        update();
-        quickCountdownTimer = setInterval(update, 70);
-      }
-
-      function handleQuickReadyCountdown(payload = {}) {
-        let state = null;
-
-        try {
-          state = session?.state || null;
-        } catch {}
-
-        if (
-          !state ||
-          state.mode !== "quick" ||
-          state.phase !== "lobby"
-        ) {
-          clearQuickLobbyCountdown();
-          return;
-        }
-
-        if (
-          payload.starting === true &&
-          Number(payload.deadline || 0) > 0
-        ) {
-          startQuickLobbyCountdown(payload.deadline);
-          return;
-        }
-
-        /* Un joueur annule "Prêt", quitte, ou le lancement est annulé. */
-        clearQuickLobbyCountdown();
-      }
-
-      function startQuickCountdownRuntime() {
-        try {
-          socket?.on?.(
-            "quick:ready-state",
-            handleQuickReadyCountdown
-          );
-
-          socket?.on?.("quick:error", () => {
-            clearQuickLobbyCountdown();
-          });
-
-          socket?.on?.("room:state", state => {
-            if (
-              state?.mode !== "quick" ||
-              state?.phase !== "lobby"
-            ) {
-              clearQuickLobbyCountdown();
-            }
-          });
-        } catch {}
-      }
-
-      if (document.readyState === "loading") {
-        document.addEventListener(
-          "DOMContentLoaded",
-          startQuickCountdownRuntime,
-          { once:true }
-        );
-      } else {
-        startQuickCountdownRuntime();
-      }
-    })();
-  </script>
-
 
   <script>
     (() => {
