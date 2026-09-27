@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  window.PtitBacVoiceInGameFix = "ACTIVE";
+  window.PtitBacVoiceInGameFix = "RECONNECT_V2";
 
   const adminState = {
     admin: false,
@@ -100,6 +100,8 @@
   const roomVoiceState = {
     joined: false,
     joining: false,
+    wanted: false,
+    reconnectTimer: null,
     roomCode: "",
     micEnabled: false,
     deafened: false,
@@ -1038,6 +1040,7 @@
       );
     }
 
+    roomVoiceState.wanted = true;
     roomVoiceState.joining = true;
     roomVoiceState.roomCode = String(state.code || "");
     updateRoomVoiceUi();
@@ -1071,6 +1074,7 @@
           stream.getTracks().forEach(track => track.stop());
           roomVoiceState.stream = null;
           roomVoiceState.micEnabled = false;
+          roomVoiceState.wanted = false;
           updateRoomVoiceUi();
           return privateLobbyToast(
             res?.error || "Impossible de rejoindre le vocal."
@@ -1078,6 +1082,7 @@
         }
 
         roomVoiceState.joined = true;
+        roomVoiceState.wanted = true;
         roomVoiceState.roomCode = String(res.roomCode || state.code || "");
 
         for (const remote of res.peers || []) {
@@ -1090,6 +1095,7 @@
       roomVoiceState.joining = false;
       roomVoiceState.stream = null;
       roomVoiceState.micEnabled = false;
+      roomVoiceState.wanted = false;
       updateRoomVoiceUi();
 
       if (
@@ -1143,7 +1149,20 @@
   }
 
   function leaveRoomVoice({ silent = false } = {}) {
-    if (!roomVoiceState.joined && !roomVoiceState.joining) return;
+    const hadVoice =
+      roomVoiceState.joined ||
+      roomVoiceState.joining ||
+      roomVoiceState.wanted ||
+      !!roomVoiceState.stream;
+
+    if (!hadVoice) return;
+
+    roomVoiceState.wanted = false;
+
+    if (roomVoiceState.reconnectTimer) {
+      clearTimeout(roomVoiceState.reconnectTimer);
+      roomVoiceState.reconnectTimer = null;
+    }
 
     try {
       socket.emit("room:voice:leave", roomVoicePayload(), () => {});
@@ -1185,6 +1204,150 @@
     if (!silent) {
       privateLobbyToast("Tu as quitté le vocal.");
     }
+  }
+
+  function roomVoiceDropRemoteConnections() {
+    for (const playerId of [...roomVoiceState.peers.keys()]) {
+      roomVoiceRemovePeer(playerId);
+    }
+  }
+
+  function roomVoiceHandleSocketDisconnect() {
+    if (
+      !roomVoiceState.joined &&
+      !roomVoiceState.joining &&
+      !roomVoiceState.wanted
+    ) {
+      return;
+    }
+
+    /*
+      Ne surtout pas appeler leaveRoomVoice ici :
+      cela stopperait getUserMedia et détruirait le micro.
+      Une perte Socket.IO doit seulement fermer les pairs distants.
+    */
+    roomVoiceState.wanted = true;
+    roomVoiceState.joined = false;
+    roomVoiceState.joining = false;
+
+    roomVoiceDropRemoteConnections();
+    updateRoomVoiceUi();
+  }
+
+  async function rejoinRoomVoiceAfterSocketReconnect() {
+    if (
+      !roomVoiceState.wanted ||
+      roomVoiceState.joined ||
+      roomVoiceState.joining ||
+      !socket?.connected
+    ) {
+      return;
+    }
+
+    const activeCode = String(
+      currentLobbyState()?.code ||
+      session?.code ||
+      ""
+    ).trim();
+
+    const voiceCode = String(
+      roomVoiceState.roomCode ||
+      ""
+    ).trim();
+
+    if (
+      !activeCode ||
+      !voiceCode ||
+      activeCode !== voiceCode
+    ) {
+      leaveRoomVoice({ silent:true });
+      return;
+    }
+
+    const tracks =
+      roomVoiceState.stream?.getAudioTracks?.() || [];
+
+    const hasLiveMic =
+      tracks.some(track => track.readyState === "live");
+
+    /*
+      Si le navigateur a lui-même perdu la piste micro,
+      on repasse par la fonction normale. L'autorisation déjà accordée
+      est généralement réutilisée sans nouvelle demande.
+    */
+    if (!hasLiveMic) {
+      roomVoiceState.stream = null;
+      roomVoiceState.micEnabled = false;
+      roomVoiceState.joining = false;
+      roomVoiceState.joined = false;
+
+      const wanted = roomVoiceState.wanted;
+      roomVoiceState.wanted = false;
+
+      if (wanted) {
+        await joinRoomVoice();
+      }
+      return;
+    }
+
+    roomVoiceState.joining = true;
+    updateRoomVoiceUi();
+
+    socket.emit(
+      "room:voice:join",
+      roomVoicePayload(),
+      async res => {
+        roomVoiceState.joining = false;
+
+        if (!res?.ok) {
+          roomVoiceState.joined = false;
+          updateRoomVoiceUi();
+
+          /*
+            Une reconnexion Socket.IO peut arriver avant que la room
+            soit totalement resynchronisée. On retente une seule fois
+            un peu plus tard tant que le joueur est toujours dans la room.
+          */
+          if (
+            roomVoiceState.wanted &&
+            !roomVoiceState.reconnectTimer
+          ) {
+            roomVoiceState.reconnectTimer =
+              setTimeout(() => {
+                roomVoiceState.reconnectTimer = null;
+                rejoinRoomVoiceAfterSocketReconnect();
+              }, 1200);
+          }
+          return;
+        }
+
+        roomVoiceState.joined = true;
+        roomVoiceState.wanted = true;
+        roomVoiceState.roomCode =
+          String(res.roomCode || activeCode);
+
+        for (const remote of res.peers || []) {
+          await roomVoicePeer(remote.playerId, true);
+        }
+
+        updateRoomVoiceUi();
+      }
+    );
+  }
+
+  function scheduleRoomVoiceReconnect() {
+    if (
+      !roomVoiceState.wanted ||
+      roomVoiceState.reconnectTimer
+    ) {
+      return;
+    }
+
+    roomVoiceState.reconnectTimer =
+      setTimeout(() => {
+        roomVoiceState.reconnectTimer = null;
+        rejoinRoomVoiceAfterSocketReconnect();
+      }, 250);
   }
 
   function syncRoomVoiceContext() {
@@ -2997,15 +3160,18 @@
   );
 
   if (typeof socket !== "undefined") {
-    socket.on("connect", () => setTimeout(refreshAdminState, 120));
+    socket.on("connect", () => {
+      setTimeout(refreshAdminState, 120);
+      scheduleRoomVoiceReconnect();
+    });
+
     socket.on("room:chat:message", receiveRoomChatMessage);
     socket.on("room:voice:signal", receiveRoomVoiceSignal);
     socket.on("room:voice:peer-joined", receiveRoomVoicePeerJoined);
     socket.on("room:voice:peer-left", receiveRoomVoicePeerLeft);
+
     socket.on("disconnect", () => {
-      if (roomVoiceState.joined || roomVoiceState.joining) {
-        leaveRoomVoice({ silent: true });
-      }
+      roomVoiceHandleSocketDisconnect();
     });
   }
 
