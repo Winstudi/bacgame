@@ -140,7 +140,6 @@
   }
 
   function roomModeToggleMarkup(state, user) {
-    if (state.gameType === "bombe") return `<div class="pl-title-mode"><h1>Bombe - Salon Privé</h1></div>`;
     const publicMode = state.mode === "public";
     const host = user?.isHost === true;
     const label = publicMode ? "Public" : "Privé";
@@ -148,7 +147,7 @@
 
     return `
       <div class="pl-title-mode">
-        <h1>Baccalauréat - Salon ${publicMode ? "Public" : "Privé"}</h1>
+        <h1>Salon ${publicMode ? "public" : "privé"}</h1>
         <button
           id="plModeToggle"
           class="pl-mode-toggle ${publicMode ? "is-public" : ""}"
@@ -166,7 +165,7 @@
   }
 
   function changeRoomMode(state, user) {
-    if (!user?.isHost || lobbyModeSwitching || state.mode === "quick" || state.gameType === "bombe") return;
+    if (!user?.isHost || lobbyModeSwitching || state.mode === "quick") return;
 
     const nextMode = state.mode === "public" ? "private" : "public";
     lobbyModeSwitching = true;
@@ -334,8 +333,6 @@
 
     const difficulty = difficultyInfo(state.categoryDifficulty);
     const categoryCount = Number(state.categoryCount || state.categories?.length || 6);
-    const bomb = state.gameType === "bombe";
-    const speedLabel = { fast: "Rapide", medium: "Moyen", slow: "Lent" }[state.bombSpeed] || "Moyen";
 
     const card = ({ key, label, value, icon, difficultyClass = "" }) => `
       <article class="lobby-v5-edit-card ${difficultyClass}">
@@ -371,13 +368,13 @@
               value: state.rounds,
               icon: "/lightning.png"
             })}
-            ${bomb ? card({ key: "bombLives", label: "Vies", value: state.bombLives || 3, icon: "/lobby-categories.png" }) : card({
+            ${card({
               key: "categoryCount",
               label: "Catégories",
               value: categoryCount,
               icon: "/lobby-categories.png"
             })}
-            ${bomb ? card({ key: "bombSpeed", label: "Bombe", value: speedLabel, icon: "/lobby-clock.png" }) : card({
+            ${card({
               key: "duration",
               label: "Temps",
               value: `${Number(state.duration || 60)}s`,
@@ -1522,7 +1519,7 @@
 
           ${quickMode
             ? `<div class="pl-title-mode">
-                <h1>Baccalauréat - Partie Rapide</h1>
+                <h1>Partie Classique Rapide</h1>
               </div>`
             : roomModeToggleMarkup(state, user)}
 
@@ -1544,9 +1541,8 @@
 
           <div class="pl-setting-grid">
             ${settingCard({label:"Manches",value:state.rounds,icon:"/lightning.png"})}
-            ${state.gameType === "bombe"
-              ? `${settingCard({label:"Vies",value:state.bombLives || 3,icon:"/lobby-categories.png"})}${settingCard({label:"Bombe",value:({fast:"Rapide",medium:"Moyen",slow:"Lent"})[state.bombSpeed] || "Moyen",icon:"/lobby-clock.png"})}`
-              : `${settingCard({label:"Catégories",value:state.categoryCount || 6,icon:"/lobby-categories.png"})}${settingCard({label:"Temps",value:state.duration+"s",icon:"/lobby-clock.png"})}`}
+            ${settingCard({label:"Catégories",value:state.categoryCount || 6,icon:"/lobby-categories.png"})}
+            ${settingCard({label:"Temps",value:state.duration+"s",icon:"/lobby-clock.png"})}
             ${settingCard({label:"Difficulté",value:difficulty.label,icon:difficulty.icon,difficulty:true})}
           </div>
         </section>
@@ -1701,9 +1697,6 @@
       const rounds = [1, 3, 5];
       const durations = [30, 60, 90, 120];
       const difficulties = ["beginner", "medium", "hard"];
-      const bomb = state.gameType === "bombe";
-      let nextBombLives = Number(state.bombLives || 3);
-      let nextBombSpeed = state.bombSpeed || "medium";
 
       let nextRounds = Number(state.rounds || 1);
       let nextDuration = Number(state.duration || 60);
@@ -1718,8 +1711,6 @@
       };
 
       if (setting === "rounds") nextRounds = cycle(rounds, nextRounds, dir);
-      if (bomb && setting === "bombLives") nextBombLives = cycle([1, 2, 3], nextBombLives, dir);
-      if (bomb && setting === "bombSpeed") nextBombSpeed = cycle(["fast", "medium", "slow"], nextBombSpeed, dir);
       if (setting === "duration") nextDuration = cycle(durations, nextDuration, dir);
       if (setting === "categoryDifficulty") nextDifficulty = cycle(difficulties, nextDifficulty, dir);
       if (setting === "categoryCount") {
@@ -1737,9 +1728,7 @@
         rounds: nextRounds,
         duration: nextDuration,
         categoryCount: nextCategoryCount,
-        categoryDifficulty: nextDifficulty,
-        bombLives: nextBombLives,
-        bombSpeed: nextBombSpeed
+        categoryDifficulty: nextDifficulty
       }, res => {
         if (!res?.ok) {
           lobbyDifficultyLockUntil = 0;
@@ -2809,6 +2798,8 @@
   const roomVoiceState = {
     joined: false,
     joining: false,
+    wanted: false,
+    reconnectTimer: null,
     roomCode: "",
     micEnabled: false,
     deafened: false,
@@ -3059,13 +3050,6 @@
       state?.categoryDifficulty === "medium" ? "Moyen" :
       "Facile";
 
-    if (state?.gameType === "bombe") return [
-      { key: "rounds", label: "Manches", value: String(state.rounds || 1), icon: "/lightning.png" },
-      { key: "bombLives", label: "Vies", value: String(state.bombLives || 3), icon: "/lobby-categories.png" },
-      { key: "bombSpeed", label: "Bombe", value: ({ fast: "Rapide", medium: "Moyen", slow: "Lent" })[state.bombSpeed] || "Moyen", icon: "/lobby-clock.png" },
-      { key: "categoryDifficulty", label: "Difficulté", value: difficulty, icon: "/difficulty.png", difficulty: true }
-    ];
-
     return [
       {
         key: "rounds",
@@ -3248,6 +3232,9 @@
     ) {
       document.querySelector(".pl-v3-voice")
         ?.classList.toggle("is-speaking", !!speaking);
+
+      document.getElementById("plGameVoiceHud")
+        ?.classList.toggle("is-speaking", !!speaking);
     }
   }
 
@@ -3364,6 +3351,222 @@
     );
 
     updateRoomVoiceSettingsUi();
+    updateRoomVoiceGameHudUi();
+  }
+
+  function ensureRoomVoiceGameHudStyles() {
+    if (document.getElementById("plGameVoiceHudStyles")) return;
+
+    const style = document.createElement("style");
+    style.id = "plGameVoiceHudStyles";
+    style.textContent = `
+      #plGameVoiceHud {
+        position:fixed!important;
+        z-index:20000!important;
+        top:calc(env(safe-area-inset-top, 0px) + 62px)!important;
+        right:8px!important;
+        height:39px!important;
+        padding:4px!important;
+        display:flex!important;
+        align-items:center!important;
+        gap:4px!important;
+        border:1px solid rgba(75,222,210,.68)!important;
+        border-radius:12px!important;
+        background:rgba(9,24,66,.94)!important;
+        box-shadow:0 4px 16px rgba(0,0,0,.28)!important;
+        backdrop-filter:blur(12px)!important;
+        -webkit-backdrop-filter:blur(12px)!important;
+      }
+
+      #plGameVoiceHud[hidden] {
+        display:none!important;
+      }
+
+      #plGameVoiceHud .pl-game-voice-count {
+        height:29px!important;
+        min-width:25px!important;
+        padding:0 5px!important;
+        display:flex!important;
+        align-items:center!important;
+        justify-content:center!important;
+        gap:4px!important;
+        color:#fff!important;
+        font-size:9px!important;
+        font-weight:900!important;
+      }
+
+      #plGameVoiceHud .pl-game-voice-count i {
+        width:6px!important;
+        height:6px!important;
+        border-radius:50%!important;
+        background:#4be4bf!important;
+        box-shadow:0 0 6px rgba(75,228,191,.70)!important;
+      }
+
+      #plGameVoiceHud button {
+        position:relative!important;
+        width:30px!important;
+        min-width:30px!important;
+        height:30px!important;
+        min-height:30px!important;
+        padding:0!important;
+        display:grid!important;
+        place-items:center!important;
+        border:1px solid rgba(88,108,193,.72)!important;
+        border-radius:9px!important;
+        background:rgba(13,29,75,.96)!important;
+        color:#d2dcff!important;
+        box-shadow:none!important;
+      }
+
+      #plGameVoiceHud button svg {
+        width:16px!important;
+        height:16px!important;
+        fill:none!important;
+        stroke:currentColor!important;
+        stroke-width:1.8!important;
+      }
+
+      #plGameVoiceHud button.is-active {
+        border-color:rgba(64,223,197,.75)!important;
+        background:rgba(17,88,84,.70)!important;
+        color:#58ead6!important;
+      }
+
+      #plGameVoiceHud button.is-muted {
+        color:#ff6381!important;
+        border-color:rgba(255,99,129,.82)!important;
+        background:rgba(102,31,54,.75)!important;
+      }
+
+      #plGameVoiceHud button.is-muted::after {
+        content:""!important;
+        position:absolute!important;
+        width:21px!important;
+        height:2px!important;
+        left:50%!important;
+        top:50%!important;
+        border-radius:999px!important;
+        background:#ff6381!important;
+        transform:translate(-50%,-50%) rotate(-48deg)!important;
+      }
+
+      #plGameVoiceHud.is-speaking .pl-game-voice-count i {
+        animation:plGameVoicePulse .65s ease-in-out infinite alternate!important;
+      }
+
+      @keyframes plGameVoicePulse {
+        from { transform:scale(.85); }
+        to { transform:scale(1.3); }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  function roomVoiceGameHudShouldShow() {
+    if (!roomVoiceState.joined) return false;
+
+    const state = currentLobbyState();
+    if (!state) return false;
+
+    const activeCode = String(
+      state.code || session?.code || ""
+    ).trim();
+
+    return (
+      !!activeCode &&
+      activeCode === String(roomVoiceState.roomCode || "").trim() &&
+      !!state.phase &&
+      state.phase !== "lobby"
+    );
+  }
+
+  function ensureRoomVoiceGameHud() {
+    ensureRoomVoiceGameHudStyles();
+
+    let hud = document.getElementById("plGameVoiceHud");
+    if (hud) return hud;
+
+    hud = document.createElement("div");
+    hud.id = "plGameVoiceHud";
+    hud.hidden = true;
+    hud.setAttribute("aria-label", "Chat vocal");
+
+    hud.innerHTML = `
+      <span class="pl-game-voice-count">
+        <i aria-hidden="true"></i>
+        <b id="plGameVoiceCount">1</b>
+      </span>
+
+      <button
+        id="plGameVoiceMic"
+        type="button"
+        aria-label="Micro"
+      >
+        ${micSvg}
+      </button>
+
+      <button
+        id="plGameVoiceHeadphones"
+        type="button"
+        aria-label="Son reçu"
+      >
+        ${headphonesSvg}
+      </button>
+
+      <button
+        id="plGameVoiceSettings"
+        type="button"
+        aria-label="Réglages vocaux"
+      >
+        ${settingsSvg}
+      </button>
+    `;
+
+    document.body.appendChild(hud);
+    return hud;
+  }
+
+  function updateRoomVoiceGameHudUi() {
+    const show = roomVoiceGameHudShouldShow();
+
+    const hud = show
+      ? ensureRoomVoiceGameHud()
+      : document.getElementById("plGameVoiceHud");
+
+    if (!hud) return;
+
+    hud.hidden = !show;
+    if (!show) return;
+
+    const count = hud.querySelector("#plGameVoiceCount");
+    const mic = hud.querySelector("#plGameVoiceMic");
+    const headphones =
+      hud.querySelector("#plGameVoiceHeadphones");
+
+    if (count) {
+      count.textContent =
+        String(roomVoiceState.peers.size + 1);
+    }
+
+    mic?.classList.toggle(
+      "is-active",
+      roomVoiceState.micEnabled
+    );
+    mic?.classList.toggle(
+      "is-muted",
+      !roomVoiceState.micEnabled
+    );
+
+    headphones?.classList.toggle(
+      "is-active",
+      !roomVoiceState.deafened
+    );
+    headphones?.classList.toggle(
+      "is-muted",
+      roomVoiceState.deafened
+    );
   }
 
   function roomVoiceAudioElement(playerId) {
@@ -3535,6 +3738,7 @@
       );
     }
 
+    roomVoiceState.wanted = true;
     roomVoiceState.joining = true;
     roomVoiceState.roomCode = String(state.code || "");
     updateRoomVoiceUi();
@@ -3568,6 +3772,7 @@
           stream.getTracks().forEach(track => track.stop());
           roomVoiceState.stream = null;
           roomVoiceState.micEnabled = false;
+          roomVoiceState.wanted = false;
           updateRoomVoiceUi();
           return privateLobbyToast(
             res?.error || "Impossible de rejoindre le vocal."
@@ -3575,6 +3780,7 @@
         }
 
         roomVoiceState.joined = true;
+        roomVoiceState.wanted = true;
         roomVoiceState.roomCode = String(res.roomCode || state.code || "");
 
         for (const remote of res.peers || []) {
@@ -3587,6 +3793,7 @@
       roomVoiceState.joining = false;
       roomVoiceState.stream = null;
       roomVoiceState.micEnabled = false;
+      roomVoiceState.wanted = false;
       updateRoomVoiceUi();
 
       if (
@@ -3640,7 +3847,20 @@
   }
 
   function leaveRoomVoice({ silent = false } = {}) {
-    if (!roomVoiceState.joined && !roomVoiceState.joining) return;
+    const hadVoice =
+      roomVoiceState.joined ||
+      roomVoiceState.joining ||
+      roomVoiceState.wanted ||
+      !!roomVoiceState.stream;
+
+    if (!hadVoice) return;
+
+    roomVoiceState.wanted = false;
+
+    if (roomVoiceState.reconnectTimer) {
+      clearTimeout(roomVoiceState.reconnectTimer);
+      roomVoiceState.reconnectTimer = null;
+    }
 
     try {
       socket.emit("room:voice:leave", roomVoicePayload(), () => {});
@@ -3684,25 +3904,199 @@
     }
   }
 
-  function syncRoomVoiceContext() {
-    const state = currentLobbyState();
-    const voiceLobby =
-      ["private", "public", "quick"].includes(state?.mode) &&
-      state?.phase === "lobby" &&
-      String(state?.code || "");
+  function roomVoiceDropRemoteConnections() {
+    for (const playerId of [...roomVoiceState.peers.keys()]) {
+      roomVoiceRemovePeer(playerId);
+    }
+  }
+
+  function roomVoiceHandleSocketDisconnect() {
+    if (
+      !roomVoiceState.joined &&
+      !roomVoiceState.joining &&
+      !roomVoiceState.wanted
+    ) {
+      return;
+    }
+
+    /*
+      Ne surtout pas appeler leaveRoomVoice ici :
+      cela stopperait getUserMedia et détruirait le micro.
+      Une perte Socket.IO doit seulement fermer les pairs distants.
+    */
+    roomVoiceState.wanted = true;
+    roomVoiceState.joined = false;
+    roomVoiceState.joining = false;
+
+    roomVoiceDropRemoteConnections();
+    updateRoomVoiceUi();
+  }
+
+  async function rejoinRoomVoiceAfterSocketReconnect() {
+    if (
+      !roomVoiceState.wanted ||
+      roomVoiceState.joined ||
+      roomVoiceState.joining ||
+      !socket?.connected
+    ) {
+      return;
+    }
+
+    const activeCode = String(
+      currentLobbyState()?.code ||
+      session?.code ||
+      ""
+    ).trim();
+
+    const voiceCode = String(
+      roomVoiceState.roomCode ||
+      ""
+    ).trim();
 
     if (
-      roomVoiceState.joined &&
-      (
-        !voiceLobby ||
-        String(state.code) !== String(roomVoiceState.roomCode)
-      )
+      !activeCode ||
+      !voiceCode ||
+      activeCode !== voiceCode
     ) {
-      leaveRoomVoice({ silent: true });
+      leaveRoomVoice({ silent:true });
+      return;
+    }
+
+    const tracks =
+      roomVoiceState.stream?.getAudioTracks?.() || [];
+
+    const hasLiveMic =
+      tracks.some(track => track.readyState === "live");
+
+    /*
+      Si le navigateur a lui-même perdu la piste micro,
+      on repasse par la fonction normale. L'autorisation déjà accordée
+      est généralement réutilisée sans nouvelle demande.
+    */
+    if (!hasLiveMic) {
+      roomVoiceState.stream = null;
+      roomVoiceState.micEnabled = false;
+      roomVoiceState.joining = false;
+      roomVoiceState.joined = false;
+
+      const wanted = roomVoiceState.wanted;
+      roomVoiceState.wanted = false;
+
+      if (wanted) {
+        await joinRoomVoice();
+      }
+      return;
+    }
+
+    roomVoiceState.joining = true;
+    updateRoomVoiceUi();
+
+    socket.emit(
+      "room:voice:join",
+      roomVoicePayload(),
+      async res => {
+        roomVoiceState.joining = false;
+
+        if (!res?.ok) {
+          roomVoiceState.joined = false;
+          updateRoomVoiceUi();
+
+          /*
+            Une reconnexion Socket.IO peut arriver avant que la room
+            soit totalement resynchronisée. On retente une seule fois
+            un peu plus tard tant que le joueur est toujours dans la room.
+          */
+          if (
+            roomVoiceState.wanted &&
+            !roomVoiceState.reconnectTimer
+          ) {
+            roomVoiceState.reconnectTimer =
+              setTimeout(() => {
+                roomVoiceState.reconnectTimer = null;
+                rejoinRoomVoiceAfterSocketReconnect();
+              }, 1200);
+          }
+          return;
+        }
+
+        roomVoiceState.joined = true;
+        roomVoiceState.wanted = true;
+        roomVoiceState.roomCode =
+          String(res.roomCode || activeCode);
+
+        for (const remote of res.peers || []) {
+          await roomVoicePeer(remote.playerId, true);
+        }
+
+        updateRoomVoiceUi();
+      }
+    );
+  }
+
+  function scheduleRoomVoiceReconnect() {
+    if (
+      !roomVoiceState.wanted ||
+      roomVoiceState.reconnectTimer
+    ) {
+      return;
+    }
+
+    roomVoiceState.reconnectTimer =
+      setTimeout(() => {
+        roomVoiceState.reconnectTimer = null;
+        rejoinRoomVoiceAfterSocketReconnect();
+      }, 250);
+  }
+
+  function syncRoomVoiceContext() {
+    const state = currentLobbyState();
+
+    const activeCode = String(
+      state?.code || session?.code || ""
+    ).trim();
+
+    const voiceCode = String(
+      roomVoiceState.roomCode || ""
+    ).trim();
+
+    /*
+      Le changement lobby -> catégories -> lettre -> réponses ->
+      validation -> résultats -> classement ne doit JAMAIS couper
+      le vocal. Il reste lié au code de la room.
+    */
+    if (
+      roomVoiceState.joined &&
+      activeCode &&
+      voiceCode &&
+      activeCode !== voiceCode
+    ) {
+      leaveRoomVoice({ silent:true });
+      return;
+    }
+
+    /*
+      Si la session a réellement été vidée (retour accueil / room quittée),
+      on ferme alors le vocal.
+    */
+    if (
+      roomVoiceState.joined &&
+      !activeCode &&
+      !String(session?.playerId || "").trim()
+    ) {
+      leaveRoomVoice({ silent:true });
       return;
     }
 
     updateRoomVoiceUi();
+
+    if (roomVoiceState.joined) {
+      for (const audio of roomVoiceState.audios.values()) {
+        if (audio.srcObject && !roomVoiceState.deafened && audio.paused) {
+          audio.play().catch(() => {});
+        }
+      }
+      roomVoiceState.audioContext?.resume?.().catch(() => {});
+    }
   }
 
   function ensureRoomVoiceSettings() {
@@ -3962,7 +4356,7 @@
         <header class="pl-room-chat-header">
           <div>
             <strong>Chat du salon</strong>
-            <small id="plRoomChatSubtitle">Baccalauréat - Salon Privé</small>
+            <small id="plRoomChatSubtitle">Salon privé</small>
           </div>
           <button id="plRoomChatClose" type="button" aria-label="Fermer">×</button>
         </header>
@@ -4254,13 +4648,11 @@
     const subtitle = overlay.querySelector("#plRoomChatSubtitle");
     if (subtitle) {
       subtitle.textContent =
-        state.gameType === "bombe"
-          ? "Bombe - Salon Privé"
-          : state.mode === "quick"
-          ? "Baccalauréat - Partie Rapide"
+        state.mode === "quick"
+          ? "Partie rapide"
           : state.mode === "public"
-            ? "Baccalauréat - Salon Public"
-            : "Baccalauréat - Salon Privé";
+            ? "Salon public"
+            : "Salon privé";
     }
 
     roomChatState.open = true;
@@ -4584,7 +4976,31 @@
         overflow:hidden!important;
       }
 
+      html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
+        .pl-title-mode > h1 {
+        flex:0 1 auto!important;
+        min-width:0!important;
+        margin:0!important;
+        font-size:0!important;
+        line-height:1!important;
+        white-space:nowrap!important;
+      }
 
+      html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
+        .pl-title-mode > h1::after {
+        content:"Salon Public"!important;
+        display:inline-block!important;
+        color:#fff!important;
+        font-size:1.12rem!important;
+        line-height:1!important;
+        font-weight:1000!important;
+        letter-spacing:-.03em!important;
+        white-space:nowrap!important;
+        text-shadow:
+          0 2px 0 #5d20b3,
+          0 0 8px #eb52ff,
+          0 0 15px rgba(129,71,255,.72)!important;
+      }
 
       html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
         .pl-mode-toggle {
@@ -4648,6 +5064,10 @@
           gap:4px!important;
         }
 
+        html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
+          .pl-title-mode > h1::after {
+          font-size:.94rem!important;
+        }
 
         html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
           .pl-mode-toggle {
@@ -5031,13 +5451,11 @@
       const roomTitle = root.querySelector(".pl-title-mode > h1");
       if (roomTitle) {
         roomTitle.textContent =
-          currentLobbyState()?.gameType === "bombe"
-            ? "Bombe - Salon Privé"
-            : liveMode === "quick"
-            ? "Baccalauréat - Partie Rapide"
+          liveMode === "quick"
+            ? "Partie Classique Rapide"
             : liveMode === "public"
-              ? "Baccalauréat - Salon Public"
-              : "Baccalauréat - Salon Privé";
+              ? "Salon Public"
+              : "Salon Privé";
       }
 
       if (liveMode === "quick") {
@@ -5114,15 +5532,9 @@
     );
     let nextDuration = Number(state.duration || 60);
     let nextDifficulty = state.categoryDifficulty || "medium";
-    let nextBombLives = Number(state.bombLives || 3);
-    let nextBombSpeed = state.bombSpeed || "medium";
 
     if (setting === "rounds") {
       nextRounds = cycleValue(rounds, nextRounds, direction);
-    } else if (state.gameType === "bombe" && setting === "bombLives") {
-      nextBombLives = cycleValue([1, 2, 3], nextBombLives, direction);
-    } else if (state.gameType === "bombe" && setting === "bombSpeed") {
-      nextBombSpeed = cycleValue(["fast", "medium", "slow"], nextBombSpeed, direction);
     } else if (setting === "categoryCount") {
       const normalized = categoryCounts.includes(nextCategoryCount)
         ? nextCategoryCount
@@ -5161,9 +5573,7 @@
         rounds: nextRounds,
         duration: nextDuration,
         categoryCount: nextCategoryCount,
-        categoryDifficulty: nextDifficulty,
-        bombLives: nextBombLives,
-        bombSpeed: nextBombSpeed
+        categoryDifficulty: nextDifficulty
       },
       res => {
         privateLobbyV3State.busy = false;
@@ -5228,21 +5638,30 @@
       return;
     }
 
-    if (event.target.closest?.("#plVoiceMic")) {
+    if (
+      event.target.closest?.("#plVoiceMic") ||
+      event.target.closest?.("#plGameVoiceMic")
+    ) {
       event.preventDefault();
       event.stopPropagation();
       toggleRoomVoiceMic();
       return;
     }
 
-    if (event.target.closest?.("#plVoiceHeadphones")) {
+    if (
+      event.target.closest?.("#plVoiceHeadphones") ||
+      event.target.closest?.("#plGameVoiceHeadphones")
+    ) {
       event.preventDefault();
       event.stopPropagation();
       toggleRoomVoiceHeadphones();
       return;
     }
 
-    if (event.target.closest?.("#plVoiceSettings")) {
+    if (
+      event.target.closest?.("#plVoiceSettings") ||
+      event.target.closest?.("#plGameVoiceSettings")
+    ) {
       event.preventDefault();
       event.stopPropagation();
       openRoomVoiceSettings();
@@ -5448,16 +5867,15 @@
   );
 
   if (typeof socket !== "undefined") {
-    socket.on("connect", () => setTimeout(refreshAdminState, 120));
+    socket.on("connect", () => {
+      setTimeout(refreshAdminState, 120);
+      scheduleRoomVoiceReconnect();
+    });
     socket.on("room:chat:message", receiveRoomChatMessage);
     socket.on("room:voice:signal", receiveRoomVoiceSignal);
     socket.on("room:voice:peer-joined", receiveRoomVoicePeerJoined);
     socket.on("room:voice:peer-left", receiveRoomVoicePeerLeft);
-    socket.on("disconnect", () => {
-      if (roomVoiceState.joined || roomVoiceState.joining) {
-        leaveRoomVoice({ silent: true });
-      }
-    });
+    socket.on("disconnect", roomVoiceHandleSocketDisconnect);
   }
 
   window.addEventListener("online", () => setTimeout(refreshAdminState, 120));
