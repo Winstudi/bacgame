@@ -409,13 +409,12 @@ function prepareBombTurnVisual(state) {
   const index = state.players.findIndex(player => player.id === bomb.turnPlayerId);
   const angle = index < 0 ? 0 : 360 * index / state.players.length;
   const answerKey = JSON.stringify(bomb.lastAnswer || null);
-  const sameCycle = previous && previous.code === state.code &&
-    previous.round === bomb.round && previous.cycle === bomb.cycle;
-  let transition = sameCycle ? previous.transition : null;
-  if (!sameCycle || bomb.status !== "playing") transition = null;
-  else if (previous.version !== bomb.turnVersion) {
+  const sameRound = previous && previous.code === state.code && previous.round === bomb.round;
+  let transition = sameRound && previous.cycle === bomb.cycle ? previous.transition : null;
+  if (!sameRound || bomb.status !== "playing") transition = null;
+  else if (previous.playerId !== bomb.turnPlayerId) {
     transition = null;
-    if (previous.playerId && bomb.turnPlayerId && bomb.lastAnswer && answerKey !== previous.answerKey) {
+    if (previous.playerId && bomb.turnPlayerId) {
       const pointer = document.querySelector(".bomb-pointer");
       const matrix = pointer && getComputedStyle(pointer).transform;
       let from = previous.angle;
@@ -425,8 +424,13 @@ function prepareBombTurnVisual(state) {
         from = (Math.atan2(transform.b, transform.a) * 180 / Math.PI + 360) % 360;
       }
       const sweep = (angle - from + 360) % 360;
-      transition = { startedAt:performance.now(), from, to:from + sweep };
+      transition = {
+        startedAt:performance.now(), from, to:from + sweep,
+        wordChanged:!!bomb.lastAnswer && answerKey !== previous.answerKey
+      };
     }
+  } else if (previous.version !== bomb.turnVersion || previous.cycle !== bomb.cycle) {
+    transition = null;
   }
   bombTurnVisual = {
     code:state.code, round:bomb.round, cycle:bomb.cycle,
@@ -449,25 +453,27 @@ function animateBombTurn() {
   animate(".bomb-pointer", [
     { transform:`translateX(-50%) rotate(${transition.from}deg)` },
     { transform:`translateX(-50%) rotate(${transition.to}deg)` }
-  ], 360);
-  animate(".bomb-last-word strong", [
-    { opacity:0, transform:"translateY(5px) scale(.88)" },
-    { opacity:1, transform:"translateY(0) scale(1.06)", offset:.65 },
-    { opacity:1, transform:"translateY(0) scale(1)" }
-  ], 320);
+  ], 1050);
+  if (transition.wordChanged) {
+    animate(".bomb-last-word strong", [
+      { opacity:0, transform:"translateY(5px) scale(.88)" },
+      { opacity:1, transform:"translateY(0) scale(1.06)", offset:.65 },
+      { opacity:1, transform:"translateY(0) scale(1)" }
+    ], 440);
+  }
   animate(".bomb-player.is-turn .bomb-player-badge", [
     { transform:"scale(1)", boxShadow:"0 0 6px #ffda5560" },
     { transform:"scale(1.06)", boxShadow:"0 0 15px #ffda55,0 0 25px #ffc83cba", offset:.45 },
     { transform:"scale(1)", boxShadow:"0 0 10px #ffda55e0,0 0 22px #ffc83cba,inset 0 0 12px #ffe6794d" }
-  ], 380, 180);
+  ], 530, 470);
   animate(".bomb-category strong", [
     { opacity:0, transform:"translateY(10px)" },
     { opacity:1, transform:"translateY(5px)" }
-  ], 250);
+  ], 390);
   animate(".bomb-letter b", [
     { opacity:0, transform:"scale(.86)" },
     { opacity:1, transform:"scale(1)" }
-  ], 250);
+  ], 390);
 }
 
 function renderBombGame() {
