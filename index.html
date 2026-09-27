@@ -481,33 +481,6 @@
       overflow:hidden!important;
     }
 
-    /* Le titre du salon reste celui du DOM. */
-    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
-      .pl-title-mode > h1{
-      flex:1 1 auto!important;
-      min-width:0!important;
-      margin:0!important;
-      font-size:clamp(.72rem,2.8vw,.88rem)!important;
-      line-height:1.08!important;
-      white-space:normal!important;
-    }
-
-    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
-      .pl-title-mode > h1::after{
-      content:none!important;
-      display:none!important;
-      color:#fff;
-      font-size:1.12rem;
-      line-height:1;
-      font-weight:1000;
-      letter-spacing:-.03em;
-      white-space:nowrap;
-      text-shadow:
-        0 2px 0 #5d20b3,
-        0 0 8px #eb52ff,
-        0 0 15px rgba(129,71,255,.72);
-    }
-
     html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
       .pl-mode-toggle{
       flex:none!important;
@@ -712,10 +685,6 @@
         gap:4px!important;
       }
 
-      html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
-        .pl-title-mode > h1::after{
-        font-size:.94rem;
-      }
 
       html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
         .pl-mode-toggle{

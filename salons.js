@@ -4564,31 +4564,7 @@
         overflow:hidden!important;
       }
 
-      html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
-        .pl-title-mode > h1 {
-        flex:1 1 auto!important;
-        min-width:0!important;
-        margin:0!important;
-        font-size:clamp(.72rem,2.8vw,.88rem)!important;
-        line-height:1.08!important;
-        white-space:normal!important;
-      }
 
-      html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
-        .pl-title-mode > h1::after {
-        content:none!important;
-        display:none!important;
-        color:#fff!important;
-        font-size:1.12rem!important;
-        line-height:1!important;
-        font-weight:1000!important;
-        letter-spacing:-.03em!important;
-        white-space:nowrap!important;
-        text-shadow:
-          0 2px 0 #5d20b3,
-          0 0 8px #eb52ff,
-          0 0 15px rgba(129,71,255,.72)!important;
-      }
 
       html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
         .pl-mode-toggle {
@@ -4652,10 +4628,6 @@
           gap:4px!important;
         }
 
-        html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
-          .pl-title-mode > h1::after {
-          font-size:.94rem!important;
-        }
 
         html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
           .pl-mode-toggle {
