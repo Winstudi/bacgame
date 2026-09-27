@@ -1301,6 +1301,7 @@ function normalizeRestoredRoom(raw, persistedAt = Date.now()) {
     "round",
     "validation",
     "scoreboard",
+    "bomb",
     "finished"
   ]);
   if (!/^[A-Z0-9]{4,8}$/.test(code) || !allowedPhases.has(phase)) return null;
@@ -1311,7 +1312,7 @@ function normalizeRestoredRoom(raw, persistedAt = Date.now()) {
     code,
     phase,
     // Les salons créés avant le choix du mode restent des parties classiques.
-    gameType:source.gameType === "bombe" && source.mode === "private" && phase === "lobby" ? "bombe" : "classic",
+    gameType:source.gameType === "bombe" && source.mode === "private" ? "bombe" : "classic",
     createdAt:Number(source.createdAt) || Number(persistedAt) || Date.now(),
     economyStartPending:false,
     categoryRerollPending:"",
@@ -1424,6 +1425,7 @@ function removeRoom(code) {
   if (!safeCode) return false;
 
   cancelMatchmakingBotFill(safeCode);
+  clearBombTimer(safeCode);
   const timer = roomPersistTimers.get(safeCode);
   if (timer) clearTimeout(timer);
   roomPersistTimers.delete(safeCode);
@@ -1458,6 +1460,12 @@ function scheduleRestoredRoomExpiry(room, persistedAt) {
 
 function resumeRestoredRoomRuntime(room) {
   if (!room) return;
+
+  if (room.gameType === "bombe" && room.phase === "bomb") {
+    if (room.bomb?.status === "intermission") scheduleBombNextRound(room);
+    else if (room.bomb?.endsAt) scheduleBombExplosion(room);
+    return;
+  }
 
   ensureCategoryChooser(room);
   ensureLetterChooser(room);
@@ -1792,6 +1800,10 @@ function publicRoom(room, viewerPlayerId = null) {
     gameType: room.gameType || "classic",
     bombLives: room.bombLives || 3,
     bombSpeed: room.bombSpeed || "medium",
+    // L'instant exact de l'explosion reste exclusivement côté serveur.
+    bomb: room.gameType === "bombe" && room.bomb
+      ? (({ endsAt, ...visible }) => visible)(room.bomb)
+      : null,
     economyEnabled: isEconomyMode(room.mode),
     progressionEnabled: isEconomyMode(room.mode),
     quickJoinable: isPublicRoomDiscoverable(room),
@@ -3171,6 +3183,158 @@ function localBotAnswer(category, letter, usedAnswers = new Set()) {
   return choices[Math.floor(Math.random() * choices.length)];
 }
 
+// Le mode Bombe partage les catégories et l'arbitre du Baccalauréat, mais
+// possède son propre état, ses propres délais et aucun effet sur l'économie.
+const bombTimers = new Map();
+const BOMB_LETTERS = "ABCDEFGHILMNOPRSTV".split("");
+const BOMB_SPEED_SECONDS = { fast:[10, 15], medium:[15, 30], slow:[30, 45] };
+
+function clearBombTimer(code) {
+  const timer = bombTimers.get(code);
+  if (timer) clearTimeout(timer);
+  bombTimers.delete(code);
+}
+
+function bombActivePlayers(room) {
+  return room.players.filter(player => Number(room.bomb?.lives?.[player.id] || 0) > 0);
+}
+
+function bombRandomPlayer(room, excludedId = "") {
+  const alive = bombActivePlayers(room);
+  const connected = alive.filter(player => player.connected || player.isBot);
+  const candidates = connected.length ? connected : alive;
+  const other = candidates.filter(player => player.id !== excludedId);
+  const pool = other.length ? other : candidates;
+  return pool[Math.floor(Math.random() * pool.length)] || null;
+}
+
+function bombNextCategory(room) {
+  const candidates = pickCategories(room.categoryDifficulty || "medium", 6);
+  const other = candidates.filter(category => category !== room.bomb?.category);
+  return (other.length ? other : candidates)[Math.floor(Math.random() * (other.length || candidates.length))];
+}
+
+function bombNextLetter(room) {
+  const other = BOMB_LETTERS.filter(letter => letter !== room.bomb?.letter);
+  return other[Math.floor(Math.random() * other.length)];
+}
+
+function scheduleBombExplosion(room) {
+  clearBombTimer(room.code);
+  if (room.phase !== "bomb" || room.bomb?.status !== "playing") return;
+  const cycle = room.bomb.cycle;
+  const timer = setTimeout(() => {
+    bombTimers.delete(room.code);
+    if (rooms.get(room.code) !== room || room.phase !== "bomb" || room.bomb?.cycle !== cycle || room.bomb.status !== "playing") return;
+    bombExplode(room);
+  }, Math.max(0, room.bomb.endsAt - Date.now()));
+  timer.unref?.();
+  bombTimers.set(room.code, timer);
+}
+
+function scheduleBombNextRound(room) {
+  clearBombTimer(room.code);
+  const round = room.bomb.round;
+  const timer = setTimeout(() => {
+    bombTimers.delete(room.code);
+    if (rooms.get(room.code) !== room || room.phase !== "bomb" || room.bomb?.round !== round || room.bomb.status !== "intermission") return;
+    bombBeginRound(room, round + 1);
+  }, Math.max(0, (room.bomb.nextRoundAt || Date.now()) - Date.now()));
+  timer.unref?.();
+  bombTimers.set(room.code, timer);
+}
+
+function bombNewCycle(room, previousPlayerId = "") {
+  const bomb = room.bomb;
+  const [min, max] = BOMB_SPEED_SECONDS[room.bombSpeed] || BOMB_SPEED_SECONDS.medium;
+  bomb.cycle += 1;
+  bomb.category = bombNextCategory(room);
+  bomb.letter = bombNextLetter(room);
+  bomb.usedWords = [];
+  bomb.turnPlayerId = bombRandomPlayer(room, previousPlayerId)?.id || null;
+  bomb.turnVersion += 1;
+  bomb.checkingPlayerId = null;
+  bomb.status = "playing";
+  bomb.endsAt = Date.now() + (min + Math.floor(Math.random() * (max - min + 1))) * 1000;
+  emitRoom(room);
+  scheduleBombExplosion(room);
+}
+
+function bombBeginRound(room, round) {
+  const bomb = room.bomb;
+  bomb.round = round;
+  bomb.lives = Object.fromEntries(room.players.map(player => [player.id, room.bombLives || 3]));
+  bomb.lastExplosion = null;
+  bomb.nextRoundAt = null;
+  bombNewCycle(room);
+}
+
+function bombStart(room) {
+  if (room.gameType !== "bombe" || room.mode !== "private" || room.phase !== "lobby") return false;
+  if (!privateLobbyReady(room)) return false;
+  room.phase = "bomb";
+  room.bomb = { round:0, cycle:0, turnVersion:0, wins:{}, lives:{}, usedWords:[], status:"playing", lastExplosion:null };
+  bombBeginRound(room, 1);
+  return true;
+}
+
+function bombFinishRound(room, winner) {
+  const bomb = room.bomb;
+  bomb.wins[winner.id] = (bomb.wins[winner.id] || 0) + 1;
+  bomb.lastWinnerId = winner.id;
+  bomb.turnPlayerId = null;
+  bomb.checkingPlayerId = null;
+  bomb.endsAt = null;
+  clearBombTimer(room.code);
+  if (bomb.round >= room.rounds) {
+    bomb.status = "finished";
+    room.phase = "finished";
+    emitRoom(room);
+    return;
+  }
+  bomb.status = "intermission";
+  bomb.nextRoundAt = Date.now() + 3500;
+  emitRoom(room);
+  scheduleBombNextRound(room);
+}
+
+function bombExplode(room) {
+  const bomb = room.bomb;
+  if (room.phase !== "bomb" || bomb?.status !== "playing") return;
+  const unlucky = getPlayer(room, bomb.turnPlayerId);
+  if (unlucky) bomb.lives[unlucky.id] = Math.max(0, (bomb.lives[unlucky.id] || 0) - 1);
+  bomb.lastExplosion = { playerId:unlucky?.id || null, eliminated:unlucky && bomb.lives[unlucky.id] === 0, at:Date.now() };
+  const alive = bombActivePlayers(room);
+  if (alive.length <= 1) {
+    if (alive[0]) bombFinishRound(room, alive[0]);
+    else { room.phase = "finished"; bomb.status = "finished"; emitRoom(room); }
+  } else bombNewCycle(room, unlucky?.id);
+}
+
+async function bombValidateAnswer(category, letter, answer) {
+  const item = { id:id(), category, answer };
+  if (localSemanticDecision(item)?.status === "invalid") return { ok:false, error:"Ce mot ne correspond pas à la catégorie." };
+  if ((BOT_ANSWER_BANK[category] || []).some(value => normalizeAnswer(value) === normalizeAnswer(answer))) return { ok:true };
+  const learned = learnedAnswers.get(learnedAnswerKey(category, answer));
+  if (learned && Number(learned.confidence || 0) >= 95 && ["valid", "invalid"].includes(learned.status)) {
+    return { ok:learned.status === "valid", error:"Ce mot n'est pas accepté pour cette catégorie." };
+  }
+  const cached = getValidationCacheEntry(validationCacheKey(category, answer));
+  if (cached?.engineVersion === VALIDATION_ENGINE_VERSION && ["valid", "invalid"].includes(cached.status)) {
+    return { ok:cached.status === "valid", error:"Ce mot n'est pas accepté pour cette catégorie." };
+  }
+  if (!OPENAI_API_KEY) return { ok:false, error:"Correction momentanément indisponible. Réessaie avec un autre mot." };
+  try {
+    let response = (await validateInBatches([item], letter))[0];
+    if (!shouldAcceptPrimary(item, response)) response = (await validateInBatches([item], letter, { review:true }))[0];
+    const decision = normalizeAiResult(response);
+    if (decision?.verdict === "valid" && decision.confidence >= decisionThresholds(category).valid) return { ok:true };
+    return { ok:false, error:decision?.verdict === "invalid" ? "Ce mot ne correspond pas à la catégorie." : "Réponse non confirmée. Essaie un autre mot." };
+  } catch {
+    return { ok:false, error:"Correction momentanément indisponible. Réessaie avec un autre mot." };
+  }
+}
+
 function botThinkDelay(room, botIndex, answerIndex, answerCount, persona) {
   const totalMs = Math.max(10000, Number(room.duration || 60) * 1000);
   const pace = Number(persona?.pace || 1);
@@ -3528,6 +3692,39 @@ async function ptitBacHandleExplicitLeave(socket, payload = {}, cb = () => {}) {
       ok:false,
       error:"Lancement en cours, réessaie dans un instant."
     });
+  }
+
+  if (room.gameType === "bombe" && room.phase === "bomb") {
+    const wasHost = player.isHost;
+    room.players = room.players.filter(candidate => candidate.id !== player.id);
+    ptitBacDetachSocketFromRoom(socket, room, player);
+    if (!room.players.length) {
+      removeRoom(room.code);
+    } else {
+      if (wasHost) ptitBacTransferHost(room, player.id);
+      delete room.bomb.lives[player.id];
+      delete room.bomb.wins[player.id];
+      const alive = bombActivePlayers(room);
+      if (alive.length === 1) {
+        clearBombTimer(room.code);
+        room.bomb.wins[alive[0].id] = Math.max(room.rounds, room.bomb.wins[alive[0].id] || 0);
+        room.bomb.lastWinnerId = alive[0].id;
+        room.bomb.turnPlayerId = null;
+        room.bomb.checkingPlayerId = null;
+        room.bomb.endsAt = null;
+        room.bomb.status = "finished";
+        room.phase = "finished";
+        emitRoom(room);
+      }
+      else if (alive.length === 0) { clearBombTimer(room.code); room.phase = "finished"; room.bomb.status = "finished"; emitRoom(room); }
+      else if (room.bomb.turnPlayerId === player.id) {
+        room.bomb.turnPlayerId = bombRandomPlayer(room)?.id || null;
+        room.bomb.turnVersion += 1;
+        room.bomb.checkingPlayerId = null;
+        emitRoom(room);
+      } else emitRoom(room);
+    }
+    return cb({ ok:true, outcome:"left_room" });
   }
 
   const wasHost = !!player.isHost;
@@ -3939,7 +4136,10 @@ function joinGameRoom(socket, { code, name, avatar, frameId, friendCode, walletT
 async function startGame(socket, payload, automatic = false) {
     const { room, player } = requireMember(socket, payload);
     if (!room || !player?.isHost || room.phase !== "lobby" || room.economyStartPending) return;
-    if (room.gameType === "bombe") return socket.emit("toast", "Le mode Bombe sera bientôt jouable.");
+    if (room.gameType === "bombe") {
+      if (!bombStart(room)) return socket.emit("toast", "Tous les joueurs doivent être prêts.");
+      return true;
+    }
     if (room.mode === "quick" && !automatic) return false;
     if (room.mode !== "quick" && !privateLobbyReady(room)) return socket.emit("toast", "Tous les joueurs doivent être prêts.");
     if (room.players.length < 2) {
@@ -4309,7 +4509,6 @@ io.on("connection", socket => {
     if (!player.isHost) {
       return cb({ ok: false, error: "Seul l’hôte peut lancer la partie." });
     }
-    if (room.gameType === "bombe") return cb({ ok: false, error: "Le mode Bombe sera bientôt jouable." });
 
     if (room.phase !== "lobby") {
       return cb({ ok: false, error: "La partie a déjà commencé." });
@@ -4754,6 +4953,7 @@ io.on("connection", socket => {
   socket.on("room:addBot", payload => {
     const { room, player } = requireMember(socket, payload);
     if (!room || !player?.isHost || room.phase !== "lobby" || room.economyStartPending) return;
+    if (room.gameType === "bombe") return socket.emit("toast", "Les bots de test ne sont pas disponibles pour Bombe.");
     if (room.mode !== "private") {
       return socket.emit("toast", "Les bots de test sont disponibles uniquement en salon privé.");
     }
@@ -4787,6 +4987,38 @@ io.on("connection", socket => {
       console.error("Lancement:", err.message);
       socket.emit("toast", "Le lancement a échoué. Réessaie.");
     });
+  });
+
+  socket.on("bomb:answer", async (payload = {}, cb = () => {}) => {
+    const { room, player } = requireMember(socket, payload);
+    const bomb = room?.bomb;
+    if (!room || room.gameType !== "bombe" || room.phase !== "bomb" || bomb?.status !== "playing" || bomb.turnPlayerId !== player?.id || bomb.checkingPlayerId) {
+      return cb({ ok:false, error:"Ce n'est pas ton tour." });
+    }
+    if (Date.now() >= bomb.endsAt) { bombExplode(room); return cb({ ok:false, error:"La bombe a explosé." }); }
+    const answer = String(payload.answer || "").trim().slice(0, 80);
+    const normalized = normalizeAnswer(answer);
+    if (!answer || !startsWithLetter(answer, bomb.letter)) return cb({ ok:false, error:`Le mot doit commencer par ${bomb.letter}.` });
+    if (bomb.category === "Mot de 4 lettres" && countLetters(answer) !== 4) return cb({ ok:false, error:"Il faut un mot de 4 lettres." });
+    if (bomb.usedWords.includes(normalized)) return cb({ ok:false, error:"Ce mot a déjà été utilisé pour cette bombe." });
+    if (Date.now() - Number(player.bombLastAnswerAt || 0) < 300) return cb({ ok:false, error:"Attends un instant avant de réessayer." });
+    player.bombLastAnswerAt = Date.now();
+    const cycle = bomb.cycle;
+    const turn = bomb.turnVersion;
+    bomb.checkingPlayerId = player.id;
+    emitRoom(room);
+    const verdict = await bombValidateAnswer(bomb.category, bomb.letter, answer);
+    if (rooms.get(room.code) !== room || room.phase !== "bomb" || bomb.status !== "playing" || bomb.cycle !== cycle || bomb.turnVersion !== turn || bomb.turnPlayerId !== player.id) {
+      return cb({ ok:false, error:"Le tour a changé pendant la correction." });
+    }
+    bomb.checkingPlayerId = null;
+    if (Date.now() >= bomb.endsAt) { bombExplode(room); return cb({ ok:false, error:"La bombe a explosé." }); }
+    if (!verdict.ok) { emitRoom(room); return cb(verdict); }
+    bomb.usedWords.push(normalized);
+    bomb.turnPlayerId = bombRandomPlayer(room, player.id)?.id || player.id;
+    bomb.turnVersion += 1;
+    emitRoom(room);
+    cb({ ok:true, nextPlayerId:bomb.turnPlayerId });
   });
 
   socket.on("game:rerollCategories", async payload => {
@@ -5099,6 +5331,7 @@ io.on("connection", socket => {
     }
 
     room.phase = "lobby";
+    if (room.gameType === "bombe") { clearBombTimer(room.code); room.bomb = null; }
     resetPrivateReady(room);
     room.categories = pickCategories(room.categoryDifficulty || "beginner", room.categoryCount || 6);
     room.letters = [];
@@ -5138,6 +5371,14 @@ io.on("connection", socket => {
     player.connected = false;
     player.lobbyReady = false;
     player.rematchReady = false;
+    if (room.gameType === "bombe" && room.phase === "bomb" && room.bomb?.status === "playing" && room.bomb.turnPlayerId === player.id) {
+      const next = bombRandomPlayer(room, player.id);
+      if (next && next.id !== player.id) {
+        room.bomb.turnPlayerId = next.id;
+        room.bomb.turnVersion += 1;
+        room.bomb.checkingPlayerId = null;
+      }
+    }
 
     if (player.isHost) {
       ptitBacScheduleHostTransfer(room, player);

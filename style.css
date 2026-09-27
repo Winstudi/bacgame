@@ -2264,3 +2264,61 @@ body{
    ------------------------- */
 
 /* Quand le clavier est ouvert, on évite qu'une barre sticky recouvre un champ. */
+
+/* Mode Bombe : jeu autonome dans le même salon privé. */
+.bomb-screen {
+  box-sizing:border-box;
+  min-height:100dvh;
+  color:#f7f4ff;
+  background:radial-gradient(ellipse at 50% 37%,#26216a 0%,#121437 54%,#080d23 100%);
+  font-family:inherit;
+  padding:0 14px 24px;
+}
+.bomb-header { height:66px;display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:560px;margin:auto;border-bottom:1px solid #6b57c755; }
+.bomb-header button { border:0;background:#322b78;color:white;border-radius:13px;width:40px;height:40px;font-size:32px;line-height:1;cursor:pointer; }
+.bomb-header img { width:50px;height:42px;object-fit:contain; }
+.bomb-header span { font-size:.82rem;font-weight:800;color:#d5c9ff; }
+.bomb-content,.bomb-result-content { max-width:560px;margin:0 auto;text-align:center; }
+.bomb-prompt { display:grid;grid-template-columns:1fr auto;align-items:center;text-align:left;gap:3px 14px;margin:18px auto 4px;padding:12px 17px;border:1px solid #aa78ff88;border-radius:17px;background:#ffffff0a;box-shadow:0 0 20px #8f56f331; }
+.bomb-prompt span { font-size:.61rem;font-weight:900;letter-spacing:.16em;color:#af9efa; }
+.bomb-prompt strong { grid-column:1;max-width:100%;font-size:1.04rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.bomb-prompt b { grid-column:2;grid-row:1 / span 2;font-size:2.4rem;line-height:1;color:#ffe4a2;text-shadow:0 0 16px #ffbf49; }
+.bomb-prompt span:nth-of-type(2) { grid-column:2;grid-row:3;text-align:center; }
+.bomb-arena { position:relative;width:min(100%,390px,max(280px,calc(100dvh - 410px)));aspect-ratio:1;margin:4px auto 0; }
+.bomb-orbit { position:absolute;inset:17%;border:1px solid #bb8fff3b;border-radius:50%;box-shadow:0 0 30px #914cff16,inset 0 0 30px #914cff13; }
+.bomb-player { position:absolute;transform:translate(-50%,-50%);width:76px;display:flex;align-items:center;flex-direction:column;gap:1px;z-index:2;transition:opacity .2s,filter .2s; }
+.bomb-player-avatar { display:grid;place-items:center;width:46px;height:46px;border-radius:16px;border:2px solid #7568bc;background:#241d55;box-shadow:0 2px 12px #0008;font-size:1.55rem;overflow:hidden; }
+.bomb-player-avatar img { width:100%;height:100%;object-fit:cover; }
+.bomb-player strong { display:block;max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.68rem; }
+.bomb-hearts { min-height:14px;font-size:.83rem;letter-spacing:1px;color:#ff647e;text-shadow:0 0 9px #e91c66; }
+.bomb-player.is-turn .bomb-player-avatar { border-color:#ffc66e;box-shadow:0 0 18px #ffad47b0; }
+.bomb-player.is-out { opacity:.38;filter:grayscale(1); }
+.bomb-center { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1;width:99px;height:99px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle at 40% 35%,#633586,#281c53 75%);border:2px solid #a65ee1;box-shadow:0 0 30px #b655ee65;font-size:2.9rem; }
+.bomb-center.is-active { animation:bomb-pulse 1.4s ease-in-out infinite alternate; }
+.bomb-center.is-explosion::after { content:"💥";position:absolute;font-size:3.3rem;animation:bomb-burst 1.6s ease-out both;pointer-events:none; }
+.bomb-center span { margin-top:-3px;font-size:.46rem;letter-spacing:.08em;font-weight:900; }
+.bomb-pointer { position:absolute;left:50%;top:50%;z-index:1;color:#ffca69;font-size:24px;text-shadow:0 0 10px #ffba47;transform:translate(-50%,-50%) rotate(var(--bomb-angle)) translateX(67px); }
+.bomb-status { min-height:42px;margin:0 auto 4px;display:grid;place-items:center;color:#ffdf9d;font-weight:800;font-size:.92rem; }
+.bomb-next { margin:14px auto;color:#cbbffa;font-size:.85rem; }
+.bomb-form { display:grid;gap:8px;text-align:left; }
+.bomb-form label { font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;font-weight:900;color:#c6b7ff; }
+.bomb-form > div { display:flex;gap:8px; }
+.bomb-form input { min-width:0;flex:1;box-sizing:border-box;padding:13px 12px;color:#fff;background:#191948;border:1px solid #8575d5;border-radius:12px;font-size:16px; }
+.bomb-form input:focus { outline:2px solid #e9bdff;outline-offset:1px; }
+.bomb-form button,.bomb-result-content > button { padding:10px 15px;color:#251147;background:linear-gradient(135deg,#f3bcff,#ffc777);border:0;border-radius:12px;font-weight:900;cursor:pointer; }
+.bomb-form button:disabled,.bomb-form input:disabled { opacity:.6;cursor:default; }
+.bomb-form small { color:#aaa4d8;line-height:1.4; }
+.bomb-result-content { display:flex;align-items:center;flex-direction:column;gap:12px;padding:20px 4px; }
+.bomb-result-icon { font-size:3rem; }
+.bomb-result-content h1 { margin:0;color:#ffdfa4;font-size:1.55rem; }
+.bomb-result-content p { margin:0; }
+.bomb-ranking { width:100%;margin:12px 0;display:grid;gap:8px; }
+.bomb-ranking > div { display:flex;align-items:center;gap:10px;padding:9px 13px;border:1px solid #836ed477;border-radius:12px;background:#ffffff0e;text-align:left; }
+.bomb-ranking > div img,.bomb-ranking > div > span:nth-child(2) { width:28px;height:28px;object-fit:cover;font-size:1.35rem; }
+.bomb-ranking > div strong { flex:1; }
+.bomb-ranking > div b { color:#ffdf9d;font-size:.79rem; }
+.bomb-result-content > button { min-width:190px; }
+.bomb-result-content > small { color:#b9ade4; }
+@keyframes bomb-pulse { from { box-shadow:0 0 12px #b655ee65; } to { box-shadow:0 0 35px #f49affaa; } }
+@keyframes bomb-burst { 0% { opacity:1;transform:scale(.6); } 65% { opacity:1;transform:scale(1.3); } 100% { opacity:0;transform:scale(1.7); } }
+@media(max-width:350px) { .bomb-player { width:65px; }.bomb-player-avatar { width:40px;height:40px; }.bomb-player strong { max-width:65px; } .bomb-arena { margin-top:0; } }

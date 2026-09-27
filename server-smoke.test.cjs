@@ -231,12 +231,13 @@ test(
 );
 
 
-test("un salon Bombe garde ses réglages et ne lance pas le jeu classique", { timeout:20_000 }, async () => {
+test("un salon Bombe joue, explose et garde ses règles séparées", { timeout:35_000 }, async () => {
   const port = await freePort();
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "ptitbac-bombe-"));
-  const child = spawn(process.execPath, ["server.js"], {
+  const mockValidation = `const actualFetch=global.fetch;global.fetch=(url,options)=>{if(String(url).includes("api.openai.com/v1/responses")){const items=JSON.parse(JSON.parse(options.body).input);return Promise.resolve(new Response(JSON.stringify({output_text:JSON.stringify({results:items.map(item=>({id:item.id,verdict:"valid",confidence:99,reason_code:"known",explanation:"",canonical_answer:"",correction:""}))})}),{status:200}));}return actualFetch(url,options)};require("./server.js")`;
+  const child = spawn(process.execPath, ["-e", mockValidation], {
     cwd:__dirname,
-    env:{ ...process.env, PORT:String(port), DATABASE_URL:"", OPENAI_API_KEY:"", OPENAI_BOT_API_KEY:"", BOT_AI_ENABLED:"false", RENDER:"false", PTITBAC_WALLET_FILE:path.join(tempDir,"wallets.json"), PTITBAC_ROOM_FILE:path.join(tempDir,"rooms.json") },
+    env:{ ...process.env, PORT:String(port), DATABASE_URL:"", OPENAI_API_KEY:"mock", OPENAI_BOT_API_KEY:"", BOT_AI_ENABLED:"false", RENDER:"false", PTITBAC_WALLET_FILE:path.join(tempDir,"wallets.json"), PTITBAC_ROOM_FILE:path.join(tempDir,"rooms.json") },
     stdio:["ignore", "pipe", "pipe"]
   });
   let host;
@@ -253,16 +254,47 @@ test("un salon Bombe garde ses réglages et ne lance pas le jeu classique", { ti
     assert.equal(created.state.mode, "private");
     const joined = await emitAck(guest, "room:join", { code:created.code, name:"Bob", walletToken:guestWallet.token });
     assert.equal(joined.state.gameType, "bombe");
-    const settings = await emitAck(host, "room:updateSettings", { code:created.code, playerId:created.playerId, bombLives:1, bombSpeed:"slow", rounds:5, categoryDifficulty:"hard" });
-    assert.equal(settings.state.bombLives, 1);
-    assert.equal(settings.state.bombSpeed, "slow");
-    assert.equal(settings.state.rounds, 5);
+    const settings = await emitAck(host, "room:updateSettings", { code:created.code, playerId:created.playerId, bombLives:2, bombSpeed:"fast", rounds:1, categoryDifficulty:"hard" });
+    assert.equal(settings.state.bombLives, 2);
+    assert.equal(settings.state.bombSpeed, "fast");
+    assert.equal(settings.state.rounds, 1);
     assert.equal(settings.state.categoryDifficulty, "hard");
     const publicMode = await emitAck(host, "room:setMode", { code:created.code, playerId:created.playerId, mode:"public" });
     assert.equal(publicMode.ok, false);
+    const premature = await emitAck(host, "lobby:startCountdown", { code:created.code, playerId:created.playerId });
+    assert.equal(premature.ok, false);
+    await emitAck(host, "lobby:setReady", { code:created.code, playerId:created.playerId, ready:true });
+    await emitAck(guest, "lobby:setReady", { code:created.code, playerId:joined.playerId, ready:true });
+    const initialPromise = waitForEvent(host, "room:state", state => state?.phase === "bomb" && state?.bomb?.cycle === 1);
     const launch = await emitAck(host, "lobby:startCountdown", { code:created.code, playerId:created.playerId });
-    assert.equal(launch.ok, false);
-    assert.equal(settings.state.phase, "lobby");
+    assert.equal(launch.ok, true);
+    const initial = await initialPromise;
+    assert.equal(initial.bomb.round, 1);
+    assert.equal("endsAt" in initial.bomb, false);
+    assert.deepEqual(Object.values(initial.bomb.lives), [2, 2]);
+    const currentSocket = initial.bomb.turnPlayerId === created.playerId ? host : guest;
+    const currentId = initial.bomb.turnPlayerId;
+    const wrongLetter = initial.bomb.letter === "Z" ? "A" : "Z";
+    const invalid = await emitAck(currentSocket, "bomb:answer", { code:created.code, playerId:currentId, answer:`${wrongLetter}èbre` });
+    assert.equal(invalid.ok, false);
+    const word = `${initial.bomb.letter}${initial.bomb.category === "Mot de 4 lettres" ? "ami" : "urite"}`;
+    const accepted = await emitAck(currentSocket, "bomb:answer", { code:created.code, playerId:currentId, answer:word });
+    assert.equal(accepted.ok, true);
+    assert.notEqual(accepted.nextPlayerId, currentId);
+    const nextSocket = accepted.nextPlayerId === created.playerId ? host : guest;
+    const repeated = await emitAck(nextSocket, "bomb:answer", { code:created.code, playerId:accepted.nextPlayerId, answer:word });
+    assert.equal(repeated.ok, false);
+    const cyclePromise = waitForEvent(host, "room:state", state => state?.phase === "bomb" && state?.bomb?.cycle === 2, 18_000);
+    const afterExplosion = await cyclePromise;
+    assert.notEqual(afterExplosion.bomb.letter, initial.bomb.letter);
+    assert.notEqual(afterExplosion.bomb.category, initial.bomb.category);
+    assert.equal(Object.values(afterExplosion.bomb.lives).reduce((sum, life) => sum + life, 0), 3);
+    assert.deepEqual(afterExplosion.bomb.usedWords, []);
+    const finishedPromise = waitForEvent(host, "room:state", state => state?.phase === "finished" && state?.gameType === "bombe");
+    const departed = await emitAck(guest, "room:leave", { code:created.code, playerId:joined.playerId });
+    assert.equal(departed.ok, true);
+    const finished = await finishedPromise;
+    assert.equal(finished.bomb.wins[created.playerId], 1);
   } finally {
     host?.close();
     guest?.close();

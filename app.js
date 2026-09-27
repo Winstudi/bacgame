@@ -125,6 +125,11 @@ socket.on("room:state", state => {
     overwrite: previous?.phase !== "round"
   });
   session.state = state;
+  if (state.phase === "bomb" && previous?.phase === "bomb" &&
+      state.bomb?.cycle === previous.bomb?.cycle &&
+      state.bomb?.turnVersion === previous.bomb?.turnVersion &&
+      state.bomb?.checkingPlayerId === previous.bomb?.checkingPlayerId &&
+      document.querySelector(".bomb-answer-input")) return;
   // Keep the actual input nodes (and the mobile keyboard) during peer updates.
   if (state.phase === "round" && previous?.phase === "round" &&
       state.code === previous.code && state.roundEndsAt === previous.roundEndsAt &&
@@ -362,6 +367,11 @@ function render() {
   clearInterval(session.timerHandle);
   session.timerHandle = null;
 
+  if (session.state.gameType === "bombe") {
+    if (session.state.phase === "bomb") return renderBombGame();
+    if (session.state.phase === "finished") return renderBombResults();
+  }
+
   switch (session.state.phase) {
     case "lobby": return renderLobby();
     case "category_selection": return renderCategorySelection();
@@ -372,6 +382,121 @@ function render() {
     case "finished": return renderFinished();
     default: return renderHome();
   }
+}
+
+function bombAvatarMarkup(player) {
+  const avatar = String(player.avatar || "🐼");
+  return avatar.startsWith("/")
+    ? `<img src="${escapeHtml(avatar)}" alt="">`
+    : `<span>${escapeHtml(avatar)}</span>`;
+}
+
+function bombLeave() {
+  if (!window.confirm("Quitter la partie Bombe ?")) return;
+  socket.emit("room:leave", { code:session.code, playerId:session.playerId }, response => {
+    if (!response?.ok) return toast(response?.error || "Impossible de quitter la partie.");
+    clearSession();
+    renderHome();
+  });
+}
+
+function renderBombGame() {
+  const state = session.state;
+  const bomb = state.bomb;
+  if (!bomb) return renderHome();
+  const active = bomb.status === "playing";
+  const myTurn = active && bomb.turnPlayerId === session.playerId;
+  const checking = bomb.checkingPlayerId === session.playerId;
+  const current = state.players.find(player => player.id === bomb.turnPlayerId);
+  const explosion = bomb.lastExplosion;
+  const unlucky = state.players.find(player => player.id === explosion?.playerId);
+  const winner = state.players.find(player => bomb.status === "intermission" && player.id === bomb.lastWinnerId);
+  const players = state.players.map((player, index) => {
+    const angle = 2 * Math.PI * index / state.players.length - Math.PI / 2;
+    const x = 50 + 38 * Math.cos(angle);
+    const y = 50 + 38 * Math.sin(angle);
+    const lives = Number(bomb.lives?.[player.id] || 0);
+    return `<div class="bomb-player ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 ? "is-out" : ""}" style="left:${x}%;top:${y}%">
+      <div class="bomb-player-avatar">${bombAvatarMarkup(player)}</div>
+      <strong>${escapeHtml(player.name)}</strong>
+      <span class="bomb-hearts" aria-label="${lives} vie${lives > 1 ? "s" : ""}">${"♥".repeat(lives)}${"♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives))}</span>
+    </div>`;
+  }).join("");
+  const status = bomb.status === "intermission"
+    ? `Manche ${bomb.round} terminée${winner ? ` · ${escapeHtml(winner.name)} gagne` : ""}`
+    : explosion && Date.now() - explosion.at < 4500 && unlucky
+      ? `${escapeHtml(unlucky.name)} perd une vie${explosion.eliminated ? " et quitte cette manche" : ""} !`
+      : myTurn ? "À toi de jouer !" : `Au tour de ${escapeHtml(current?.name || "un joueur")}`;
+
+  setScreen(`<main class="screen bomb-screen">
+    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Quitter la partie">‹</button><img src="/ptitbac.logo.png" alt="P'tit Bac"><span>Manche ${bomb.round}/${state.rounds}</span></header>
+    <div class="bomb-content">
+      <div class="bomb-prompt"><span>CATÉGORIE</span><strong>${escapeHtml(bomb.category || "—")}</strong><span>LETTRE</span><b>${escapeHtml(bomb.letter || "—")}</b></div>
+      <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
+        <div class="bomb-orbit"></div>${players}
+        <div class="bomb-center ${active ? "is-active" : ""} ${explosion && Date.now() - explosion.at < 1600 ? "is-explosion" : ""}" aria-label="Bombe en cours">💣<span>${active ? "À QUI LE TOUR ?" : "MANCHE TERMINÉE"}</span></div>
+        ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true">➤</div>` : ""}
+      </div>
+      <p class="bomb-status" role="status">${status}</p>
+      ${bomb.status === "intermission" ? `<p class="bomb-next">Nouvelle manche dans quelques secondes… Les vies vont être réinitialisées.</p>` : `
+      <form id="bombAnswerForm" class="bomb-form">
+        <label for="bombAnswerInput">${myTurn ? "Trouve un mot" : "Attends ton tour"}</label>
+        <div><input id="bombAnswerInput" class="bomb-answer-input" type="text" maxlength="80" autocomplete="off" autocapitalize="sentences" placeholder="Un mot en ${escapeHtml(bomb.letter || "")}…" ${myTurn && !checking ? "" : "disabled"} required><button type="submit" ${myTurn && !checking ? "" : "disabled"}>${checking ? "Vérification…" : "Valider"}</button></div>
+        <small>${myTurn ? "Un mot validé passe la bombe à un autre joueur." : "La bombe peut exploser à tout moment."}</small>
+      </form>`}
+    </div>
+  </main>`);
+  document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
+  document.getElementById("bombAnswerForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    const input = document.getElementById("bombAnswerInput");
+    const answer = input?.value.trim();
+    if (!answer || !myTurn || checking) return;
+    const button = event.currentTarget.querySelector("button");
+    input.disabled = true;
+    button.disabled = true;
+    button.textContent = "Vérification…";
+    socket.emit("bomb:answer", { code:state.code, playerId:session.playerId, answer }, response => {
+      if (response?.ok) return;
+      toast(response?.error || "Mot refusé.");
+      if (session.state?.bomb?.turnPlayerId === session.playerId &&
+          session.state?.bomb?.cycle === bomb.cycle &&
+          session.state?.bomb?.turnVersion === bomb.turnVersion) {
+        renderBombGame();
+        const refreshed = document.getElementById("bombAnswerInput");
+        if (refreshed) { refreshed.value = answer; refreshed.focus(); refreshed.select(); }
+      }
+    });
+  });
+}
+
+function renderBombResults() {
+  const state = session.state;
+  const wins = state.bomb?.wins || {};
+  const ranking = [...state.players].sort((a, b) => (wins[b.id] || 0) - (wins[a.id] || 0));
+  const maximum = Math.max(0, ...Object.values(wins).map(Number));
+  const leaders = ranking.filter(player => (wins[player.id] || 0) === maximum);
+  const ready = !!me()?.rematchReady;
+  setScreen(`<main class="screen bomb-screen bomb-results">
+    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Retour à l'accueil">‹</button><img src="/ptitbac.logo.png" alt="P'tit Bac"><span>Résultats</span></header>
+    <div class="bomb-result-content"><span class="bomb-result-icon">🏆</span><h1>Partie terminée</h1>
+      <p>${leaders.length === 1 ? `${escapeHtml(leaders[0]?.name || "")} remporte la partie !` : "Égalité !"}</p>
+      <div class="bomb-ranking">${ranking.map((player, index) => `<div><span>${index + 1}.</span>${bombAvatarMarkup(player)}<strong>${escapeHtml(player.name)}</strong><b>${wins[player.id] || 0} manche${(wins[player.id] || 0) > 1 ? "s" : ""}</b></div>`).join("")}</div>
+      <button id="bombRematch" type="button">${ready ? "Annuler" : "✓ Rejouer"}</button>
+      ${me()?.isHost && state.rematch?.allReady ? `<button id="bombRestart" type="button">Retourner au salon</button>` : `<small>${state.rematch?.readyCount || 0}/${state.rematch?.count || 0} joueurs prêts pour rejouer</small>`}
+    </div>
+  </main>`);
+  document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
+  document.getElementById("bombRematch")?.addEventListener("click", () => {
+    socket.emit("game:rematchReady", { code:state.code, playerId:session.playerId, ready:!ready }, response => {
+      if (!response?.ok) toast(response?.error || "Impossible de rejouer.");
+    });
+  });
+  document.getElementById("bombRestart")?.addEventListener("click", () => {
+    socket.emit("game:restart", { code:state.code, playerId:session.playerId }, response => {
+      if (!response?.ok) toast(response?.error || "Impossible de retourner au salon.");
+    });
+  });
 }
 
 function statIcon(type) {

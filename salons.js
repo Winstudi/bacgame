@@ -1580,8 +1580,8 @@
             ${quickMode
               ? ""
               : user?.isHost
-                ? `<button id="startBtn" type="button" ${allReady && state.gameType !== "bombe" ? "" : "disabled"}>${state.gameType === "bombe" ? "Mode Bombe en préparation" : "▶ Lancer la partie"}</button>`
-                : `<span class="pl-wait">${state.gameType === "bombe" ? "Mode Bombe en préparation" : "L’hôte lancera la partie."}</span>`}
+                ? `<button id="startBtn" type="button" ${allReady ? "" : "disabled"}>▶ Lancer la partie</button>`
+                : `<span class="pl-wait">L’hôte lancera la partie.</span>`}
           </div>
 
           ${!quickMode && user?.isHost && state.mode === "private"
