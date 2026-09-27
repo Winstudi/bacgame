@@ -2212,6 +2212,25 @@ html main.lobby-v5.pl-private {
   line-height:14px;
 }
 
+.pl-private[data-mode="private"]:not(.pl-quick-v3) > .pl-actions > .pl-test {
+  justify-self:center;
+  min-width:min(100%,260px);
+  min-height:38px;
+  padding:7px 16px;
+  border:1px solid #bd72ff;
+  border-radius:12px;
+  background:linear-gradient(135deg,#4c286f,#302052);
+  box-shadow:0 0 14px rgba(173,94,255,.25);
+  color:#f2dcff!important;
+  font-size:13px!important;
+  font-weight:800;
+  line-height:18px;
+}
+
+.pl-private[data-mode="private"]:not(.pl-quick-v3) > .pl-actions > .pl-test:disabled {
+  opacity:.48;
+}
+
 @media(max-height:620px) {
   html main.lobby-v5.pl-private {
     gap:6px!important;
@@ -3431,8 +3450,7 @@ html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-q
   filter:saturate(.55)!important;
 }
 
-html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-launch-hint,
-html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-test {
+html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-launch-hint {
   display:none!important;
 }
 
