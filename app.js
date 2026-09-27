@@ -511,7 +511,7 @@ function renderBombResults() {
     <div class="fin-actions">
       <p role="status">Revanche · ${Number(state.rematch?.readyCount || 0)} / ${Number(state.rematch?.count || 0)} joueurs partants</p>
       <button id="bombRematch" class="fin-primary" type="button" aria-pressed="${ready}">${ready ? "✓ Partant · Annuler" : "↻ Je rejoue"}</button>
-      ${host ? `<button id="bombRestart" class="fin-secondary" type="button" ${allReady ? "" : "disabled"}>Retour au même salon</button>` : `<p>L’hôte ramènera le groupe au salon.</p>`}
+      ${host ? `<button id="bombRestart" class="fin-secondary" type="button" ${allReady ? "" : "disabled"}>Retour au même salon</button>` : ""}
       <button id="bombLeave" class="fin-secondary" type="button">⌂ Retour à l’accueil</button>
     </div>
   </main>`);

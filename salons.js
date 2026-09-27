@@ -4988,7 +4988,6 @@
   }
 
   function decorateBottom(root) {
-    root.querySelector(".pl-test")?.remove();
     root.querySelector(".pl-launch-hint")?.remove();
 
     if (
