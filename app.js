@@ -409,6 +409,7 @@ function renderBombGame() {
   const checking = bomb.checkingPlayerId === session.playerId;
   const current = state.players.find(player => player.id === bomb.turnPlayerId);
   const explosion = bomb.lastExplosion;
+  const lastAnswerPlayer = state.players.find(player => player.id === bomb.lastAnswer?.playerId);
   const unlucky = state.players.find(player => player.id === explosion?.playerId);
   const winner = state.players.find(player => bomb.status === "intermission" && player.id === bomb.lastWinnerId);
   const players = state.players.map((player, index) => {
@@ -436,6 +437,7 @@ function renderBombGame() {
       <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
         <div class="bomb-orbit"></div>${players}
         <div class="bomb-center ${explosion && Date.now() - explosion.at < 1600 ? "is-explosion" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><img src="/bomb-neon.png?v=1.48.0-bombe-assets2" alt=""></div>
+        ${lastAnswerPlayer && bomb.lastAnswer?.answer ? `<div class="bomb-last-word" aria-live="polite"><span>${escapeHtml(lastAnswerPlayer.name)} a écrit</span><strong>${escapeHtml(bomb.lastAnswer.answer)}</strong></div>` : ""}
         ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"><img src="/bomb-arrow-neon.png?v=1.48.0-bombe-assets2" alt=""></div>` : ""}
       </div>
       <p class="bomb-status" role="status">${status}</p>

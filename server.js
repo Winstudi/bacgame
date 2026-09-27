@@ -3252,9 +3252,10 @@ function scheduleBombBotTurn(room) {
     const answer = choices[Math.floor(Math.random() * choices.length)];
     currentBomb.usedWords ||= [];
     currentBomb.usedWords.push(normalizeAnswer(answer));
+    currentBomb.lastAnswer = { playerId:player.id, answer };
     currentBomb.category = bombNextCategory(room);
     currentBomb.letter = bombNextLetter(room);
-    currentBomb.turnPlayerId = bombRandomPlayer(room, player.id)?.id || player.id;
+    currentBomb.turnPlayerId = bombNextClockwisePlayer(room, player.id)?.id || null;
     currentBomb.turnVersion += 1;
     emitRoom(room);
     scheduleBombBotTurn(room);
@@ -3275,6 +3276,27 @@ function bombRandomPlayer(room, excludedId = "") {
   const other = candidates.filter(player => player.id !== excludedId);
   const pool = other.length ? other : candidates;
   return pool[Math.floor(Math.random() * pool.length)] || null;
+}
+
+function bombNextClockwisePlayer(room, afterPlayerId = "") {
+  const players = room?.players || [];
+  if (!players.length) return null;
+
+  const aliveIds = new Set(bombActivePlayers(room).map(player => player.id));
+  const connectedPlayers = players.filter(player =>
+    aliveIds.has(player.id) && (player.connected || player.isBot)
+  );
+  const candidates = new Set((connectedPlayers.length ? connectedPlayers : players.filter(player => aliveIds.has(player.id)))
+    .map(player => player.id));
+  if (!candidates.size) return null;
+
+  const currentIndex = players.findIndex(player => player.id === afterPlayerId);
+  for (let step = 1; step <= players.length; step += 1) {
+    const index = (currentIndex + step + players.length) % players.length;
+    const candidate = players[index];
+    if (candidates.has(candidate.id)) return candidate;
+  }
+  return players.find(player => candidates.has(player.id)) || null;
 }
 
 function bombNextCategory(room) {
@@ -3321,7 +3343,10 @@ function bombNewCycle(room, previousPlayerId = "") {
   bomb.category = bombNextCategory(room);
   bomb.letter = bombNextLetter(room);
   bomb.usedWords = [];
-  bomb.turnPlayerId = bombRandomPlayer(room, previousPlayerId)?.id || null;
+  bomb.lastAnswer = null;
+  bomb.turnPlayerId = previousPlayerId
+    ? bombNextClockwisePlayer(room, previousPlayerId)?.id || null
+    : bombRandomPlayer(room)?.id || null;
   bomb.turnVersion += 1;
   bomb.checkingPlayerId = null;
   bomb.status = "playing";
@@ -3344,7 +3369,7 @@ function bombStart(room) {
   if (room.gameType !== "bombe" || room.mode !== "private" || room.phase !== "lobby") return false;
   if (!privateLobbyReady(room)) return false;
   room.phase = "bomb";
-  room.bomb = { round:0, cycle:0, turnVersion:0, wins:{}, lives:{}, usedWords:[], status:"playing", lastExplosion:null };
+  room.bomb = { round:0, cycle:0, turnVersion:0, wins:{}, lives:{}, usedWords:[], lastAnswer:null, status:"playing", lastExplosion:null };
   bombBeginRound(room, 1);
   return true;
 }
@@ -3769,6 +3794,9 @@ async function ptitBacHandleExplicitLeave(socket, payload = {}, cb = () => {}) {
 
   if (room.gameType === "bombe" && room.phase === "bomb") {
     const wasHost = player.isHost;
+    const nextClockwisePlayer = room.bomb.turnPlayerId === player.id
+      ? bombNextClockwisePlayer(room, player.id)
+      : null;
     room.players = room.players.filter(candidate => candidate.id !== player.id);
     ptitBacDetachSocketFromRoom(socket, room, player);
     if (!room.players.length) {
@@ -3792,7 +3820,7 @@ async function ptitBacHandleExplicitLeave(socket, payload = {}, cb = () => {}) {
       }
       else if (alive.length === 0) { clearBombTimer(room.code); clearBombBotTimer(room.code); room.phase = "finished"; room.bomb.status = "finished"; emitRoom(room); }
       else if (room.bomb.turnPlayerId === player.id) {
-        room.bomb.turnPlayerId = bombRandomPlayer(room)?.id || null;
+        room.bomb.turnPlayerId = nextClockwisePlayer?.id || null;
         room.bomb.turnVersion += 1;
         room.bomb.checkingPlayerId = null;
         emitRoom(room);
@@ -5090,9 +5118,10 @@ io.on("connection", socket => {
     if (Date.now() >= bomb.endsAt) { bombExplode(room); return cb({ ok:false, error:"La bombe a explosé." }); }
     if (!verdict.ok) { emitRoom(room); return cb(verdict); }
     bomb.usedWords.push(normalized);
+    bomb.lastAnswer = { playerId:player.id, answer };
     bomb.category = bombNextCategory(room);
     bomb.letter = bombNextLetter(room);
-    bomb.turnPlayerId = bombRandomPlayer(room, player.id)?.id || player.id;
+    bomb.turnPlayerId = bombNextClockwisePlayer(room, player.id)?.id || null;
     bomb.turnVersion += 1;
     emitRoom(room);
     scheduleBombBotTurn(room);
@@ -5450,7 +5479,7 @@ io.on("connection", socket => {
     player.lobbyReady = false;
     player.rematchReady = false;
     if (room.gameType === "bombe" && room.phase === "bomb" && room.bomb?.status === "playing" && room.bomb.turnPlayerId === player.id) {
-      const next = bombRandomPlayer(room, player.id);
+      const next = bombNextClockwisePlayer(room, player.id);
       if (next && next.id !== player.id) {
         room.bomb.turnPlayerId = next.id;
         room.bomb.turnVersion += 1;

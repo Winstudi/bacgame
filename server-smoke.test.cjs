@@ -274,6 +274,8 @@ test("un salon Bombe joue, explose et garde ses règles séparées", { timeout:3
     assert.deepEqual(Object.values(initial.bomb.lives), [2, 2]);
     const currentSocket = initial.bomb.turnPlayerId === created.playerId ? host : guest;
     const currentId = initial.bomb.turnPlayerId;
+    const playerOrder = initial.players.map(player => player.id);
+    const expectedNextPlayerId = playerOrder[(playerOrder.indexOf(currentId) + 1) % playerOrder.length];
     const wrongLetter = initial.bomb.letter === "Z" ? "A" : "Z";
     const invalid = await emitAck(currentSocket, "bomb:answer", { code:created.code, playerId:currentId, answer:`${wrongLetter}èbre` });
     assert.equal(invalid.ok, false);
@@ -281,11 +283,12 @@ test("un salon Bombe joue, explose et garde ses règles séparées", { timeout:3
     const passedPromise = waitForEvent(host, "room:state", state => state?.phase === "bomb" && state?.bomb?.turnVersion > initial.bomb.turnVersion && state?.bomb?.turnPlayerId !== currentId);
     const accepted = await emitAck(currentSocket, "bomb:answer", { code:created.code, playerId:currentId, answer:word });
     assert.equal(accepted.ok, true);
-    assert.notEqual(accepted.nextPlayerId, currentId);
+    assert.equal(accepted.nextPlayerId, expectedNextPlayerId);
     const afterPass = await passedPromise;
     assert.notEqual(afterPass.bomb.letter, initial.bomb.letter);
     assert.notEqual(afterPass.bomb.category, initial.bomb.category);
     assert.equal(afterPass.bomb.usedWords.length, 1);
+    assert.deepEqual(afterPass.bomb.lastAnswer, { playerId:currentId, answer:word });
     const nextSocket = accepted.nextPlayerId === created.playerId ? host : guest;
     const repeated = await emitAck(nextSocket, "bomb:answer", { code:created.code, playerId:accepted.nextPlayerId, answer:word });
     assert.equal(repeated.ok, false);
@@ -293,8 +296,11 @@ test("un salon Bombe joue, explose et garde ses règles séparées", { timeout:3
     const afterExplosion = await cyclePromise;
     assert.notEqual(afterExplosion.bomb.letter, afterPass.bomb.letter);
     assert.notEqual(afterExplosion.bomb.category, afterPass.bomb.category);
+    const explodedPlayerIndex = playerOrder.indexOf(afterExplosion.bomb.lastExplosion.playerId);
+    assert.equal(afterExplosion.bomb.turnPlayerId, playerOrder[(explodedPlayerIndex + 1) % playerOrder.length]);
     assert.equal(Object.values(afterExplosion.bomb.lives).reduce((sum, life) => sum + life, 0), 3);
     assert.deepEqual(afterExplosion.bomb.usedWords, []);
+    assert.equal(afterExplosion.bomb.lastAnswer, null);
     const finishedPromise = waitForEvent(host, "room:state", state => state?.phase === "finished" && state?.gameType === "bombe");
     const departed = await emitAck(guest, "room:leave", { code:created.code, playerId:joined.playerId });
     assert.equal(departed.ok, true);
