@@ -435,8 +435,8 @@ function renderBombGame() {
     <div class="bomb-content">
       <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
         <div class="bomb-orbit"></div>${players}
-        <div class="bomb-center ${explosion && Date.now() - explosion.at < 1600 ? "is-explosion" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><img src="/bomb-neon.png" alt=""></div>
-        ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"><img src="/bomb-arrow-neon.png" alt=""></div>` : ""}
+        <div class="bomb-center ${explosion && Date.now() - explosion.at < 1600 ? "is-explosion" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><img src="/bomb-neon.png?v=1.48.0-bombe-assets2" alt=""></div>
+        ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"><img src="/bomb-arrow-neon.png?v=1.48.0-bombe-assets2" alt=""></div>` : ""}
       </div>
       <p class="bomb-status" role="status">${status}</p>
       <div class="bomb-prompt"><div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div></div>
