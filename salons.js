@@ -4566,18 +4566,18 @@
 
       html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
         .pl-title-mode > h1 {
-        flex:0 1 auto!important;
+        flex:1 1 auto!important;
         min-width:0!important;
         margin:0!important;
-        font-size:0!important;
-        line-height:1!important;
-        white-space:nowrap!important;
+        font-size:clamp(.72rem,2.8vw,.88rem)!important;
+        line-height:1.08!important;
+        white-space:normal!important;
       }
 
       html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
         .pl-title-mode > h1::after {
         content:none!important;
-        display:inline-block!important;
+        display:none!important;
         color:#fff!important;
         font-size:1.12rem!important;
         line-height:1!important;
