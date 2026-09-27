@@ -434,7 +434,8 @@ function prepareBombTurnVisual(state) {
   }
   bombTurnVisual = {
     code:state.code, round:bomb.round, cycle:bomb.cycle,
-    version:bomb.turnVersion, playerId:bomb.turnPlayerId, angle, answerKey, transition
+    version:bomb.turnVersion, playerId:bomb.turnPlayerId, angle, answerKey, transition,
+    cycleStartedAt:sameRound && previous.cycle === bomb.cycle ? previous.cycleStartedAt : performance.now()
   };
 }
 
@@ -476,6 +477,38 @@ function animateBombTurn() {
   ], 390);
 }
 
+// Purely visual tension: the random explosion deadline remains on the server.
+function animateBombTension(state) {
+  if (state.bomb?.status !== "playing" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const art = document.querySelector(".bomb-art");
+  if (!art?.animate) return;
+  const elapsed = Math.max(0, performance.now() - bombTurnVisual.cycleStartedAt);
+  const ramp = { fast:10000, medium:20000, slow:35000 }[state.bombSpeed] || 20000;
+  const duration = 60000;
+  const frames = [];
+  const frame = (time, scale) => ({ offset:time / duration, transform:`scale(${scale})` });
+  for (let time = 0; time < duration;) {
+    const tension = Math.min(1, time / ramp);
+    const period = 1750 - 1050 * tension;
+    const end = Math.min(duration, time + period);
+    frames.push(frame(time, 1), frame(time + (end - time) * .45, 1.025 + .045 * tension), frame(end, 1));
+    time = end;
+  }
+  const pulse = art.animate(frames, { duration, iterations:Infinity, easing:"linear" });
+  pulse.currentTime = elapsed;
+  const spark = document.querySelector(".bomb-spark");
+  if (spark?.animate) {
+    const glow = spark.animate([
+      { opacity:.3, transform:"translate(-50%,-50%) scale(.8)" },
+      { opacity:.85, transform:"translate(-50%,-50%) scale(1.2)", offset:.4 },
+      { opacity:.5, transform:"translate(-50%,-50%) scale(.95)", offset:.7 },
+      { opacity:.3, transform:"translate(-50%,-50%) scale(.8)" }
+    ], { duration:950, iterations:Infinity, easing:"ease-in-out" });
+    glow.currentTime = elapsed;
+  }
+}
+
 function renderBombGame() {
   const state = session.state;
   const bomb = state.bomb;
@@ -513,7 +546,7 @@ function renderBombGame() {
     <div class="bomb-content">
       <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
         <div class="bomb-orbit"></div>${players}
-        <div class="bomb-center ${explosion && Date.now() - explosion.at < 1600 ? "is-explosion" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><img src="/bomb-neon.png?v=1.48.0-bombe-assets2" alt=""></div>
+        <div class="bomb-center ${explosion && Date.now() - explosion.at < 1600 ? "is-explosion" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><div class="bomb-art"><img src="/bomb-neon.png?v=1.48.0-bombe-assets2" alt="">${active ? '<span class="bomb-spark" aria-hidden="true"></span>' : ""}</div></div>
         ${lastAnswerPlayer && bomb.lastAnswer?.answer ? `<div class="bomb-last-word" aria-live="polite"><span>${escapeHtml(lastAnswerPlayer.name)} a écrit</span><strong>${escapeHtml(bomb.lastAnswer.answer)}</strong></div>` : ""}
         ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"><img src="/bomb-arrow-neon.png?v=1.48.0-bombe-assets2" alt=""></div>` : ""}
       </div>
@@ -526,6 +559,7 @@ function renderBombGame() {
     </div>
   </main>`);
   animateBombTurn();
+  animateBombTension(state);
   document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
   document.getElementById("bombAnswerForm")?.addEventListener("submit", event => {
     event.preventDefault();

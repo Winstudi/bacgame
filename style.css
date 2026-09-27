@@ -2299,7 +2299,9 @@ html body .screen.bomb-screen {
 .bomb-player.is-turn .bomb-player-badge { border-color:#ffe17b;box-shadow:0 0 10px #ffda55e0,0 0 22px #ffc83cba,inset 0 0 12px #ffe6794d; }
 .bomb-player.is-out { opacity:.38;filter:grayscale(1); }
 .bomb-center { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:92px;height:87px;display:grid;place-items:center;overflow:visible; }
-.bomb-center > img { display:block;width:100%;height:100%;object-fit:contain;transform:translateY(-16%);filter:drop-shadow(0 0 9px #a94cff75); }
+.bomb-art { position:relative;width:100%;height:100%;transform-origin:50% 50%; }
+.bomb-spark { position:absolute;left:77%;top:8%;width:9px;height:9px;pointer-events:none;opacity:.45;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fffde3 0 15%,#ffe37699 40%,#ffb32a00 72%);box-shadow:0 0 7px #ffdc6680; }
+.bomb-art > img { display:block;width:100%;height:100%;object-fit:contain;transform:translateY(-16%);filter:drop-shadow(0 0 9px #a94cff75); }
 .bomb-last-word { position:absolute;top:calc(50% + 46px);left:50%;transform:translateX(-50%);z-index:4;display:grid;justify-items:center;gap:2px;width:max-content;max-width:calc(100% - 24px);box-sizing:border-box;padding:4px 10px;border:1px solid #b86aff;border-radius:10px;background:linear-gradient(135deg,#24104eeF,#11163ff2);box-shadow:0 0 12px #b34cff88,inset 0 0 8px #a745ff32; }
 .bomb-last-word span { max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#c8b5ff;font-size:8px;font-weight:800;line-height:1.1; }
 .bomb-last-word strong { max-width:100%;overflow-wrap:anywhere;color:#fff;font-size:12px;line-height:1.1; }
