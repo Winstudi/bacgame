@@ -413,8 +413,8 @@ function renderBombGame() {
   const winner = state.players.find(player => bomb.status === "intermission" && player.id === bomb.lastWinnerId);
   const players = state.players.map((player, index) => {
     const angle = 2 * Math.PI * index / state.players.length - Math.PI / 2;
-    const x = 50 + 38 * Math.cos(angle);
-    const y = 50 + 38 * Math.sin(angle);
+    const x = 50 + 40 * Math.cos(angle);
+    const y = 50 + 40 * Math.sin(angle);
     const lives = Number(bomb.lives?.[player.id] || 0);
     return `<div class="bomb-player ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 ? "is-out" : ""}" style="left:${x}%;top:${y}%">
       <div class="bomb-player-avatar">${bombAvatarMarkup(player)}</div>
@@ -431,19 +431,19 @@ function renderBombGame() {
   setScreen(`<main class="screen bomb-screen">
     <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Quitter la partie"><img src="/back-arrow.png" alt=""></button><img class="bomb-brand" src="/ptitbac.logo.png" alt="P'tit Bac"><span>Manche ${bomb.round}/${state.rounds}</span></header>
     <div class="bomb-content">
-      <div class="bomb-prompt"><div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div></div>
       <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
         <div class="bomb-orbit"></div>${players}
         <div class="bomb-center ${active ? "is-active" : ""} ${explosion && Date.now() - explosion.at < 1600 ? "is-explosion" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}">💣</div>
         ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"></div>` : ""}
       </div>
       <p class="bomb-status" role="status">${status}</p>
-      ${bomb.status === "intermission" ? `<p class="bomb-next">Nouvelle manche dans quelques secondes… Les vies vont être réinitialisées.</p>` : `
+      <div class="bomb-prompt"><div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div></div>
+      ${bomb.status === "intermission" ? `<p class="bomb-next">Nouvelle manche dans quelques secondes… Les vies vont être réinitialisées.</p>` : myTurn ? `
       <form id="bombAnswerForm" class="bomb-form">
-        <label for="bombAnswerInput">${myTurn ? "Trouve un mot" : "Attends ton tour"}</label>
+        <label for="bombAnswerInput">Écris ta réponse</label>
         <div><input id="bombAnswerInput" class="bomb-answer-input" type="text" maxlength="80" autocomplete="off" autocapitalize="sentences" placeholder="Un mot en ${escapeHtml(bomb.letter || "")}…" ${myTurn && !checking ? "" : "disabled"} required><button type="submit" ${myTurn && !checking ? "" : "disabled"}>${checking ? "Vérification…" : "Valider"}</button></div>
-        <small>${myTurn ? "Un mot validé passe la bombe à un autre joueur." : "La bombe peut exploser à tout moment."}</small>
-      </form>`}
+        <small>Un mot validé passe la bombe à un autre joueur.</small>
+      </form>` : ""}
     </div>
   </main>`);
   document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
