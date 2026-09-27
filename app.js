@@ -429,13 +429,13 @@ function renderBombGame() {
       : myTurn ? "À toi de jouer !" : `Au tour de ${escapeHtml(current?.name || "un joueur")}`;
 
   setScreen(`<main class="screen bomb-screen">
-    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Quitter la partie">‹</button><img src="/ptitbac.logo.png" alt="P'tit Bac"><span>Manche ${bomb.round}/${state.rounds}</span></header>
+    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Quitter la partie"><img src="/back-arrow.png" alt=""></button><img class="bomb-brand" src="/ptitbac.logo.png" alt="P'tit Bac"><span>Manche ${bomb.round}/${state.rounds}</span></header>
     <div class="bomb-content">
-      <div class="bomb-prompt"><span>CATÉGORIE</span><strong>${escapeHtml(bomb.category || "—")}</strong><span>LETTRE</span><b>${escapeHtml(bomb.letter || "—")}</b></div>
+      <div class="bomb-prompt"><div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div></div>
       <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
         <div class="bomb-orbit"></div>${players}
-        <div class="bomb-center ${active ? "is-active" : ""} ${explosion && Date.now() - explosion.at < 1600 ? "is-explosion" : ""}" aria-label="Bombe en cours">💣<span>${active ? "À QUI LE TOUR ?" : "MANCHE TERMINÉE"}</span></div>
-        ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true">➤</div>` : ""}
+        <div class="bomb-center ${active ? "is-active" : ""} ${explosion && Date.now() - explosion.at < 1600 ? "is-explosion" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}">💣</div>
+        ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"></div>` : ""}
       </div>
       <p class="bomb-status" role="status">${status}</p>
       ${bomb.status === "intermission" ? `<p class="bomb-next">Nouvelle manche dans quelques secondes… Les vies vont être réinitialisées.</p>` : `
@@ -478,7 +478,7 @@ function renderBombResults() {
   const leaders = ranking.filter(player => (wins[player.id] || 0) === maximum);
   const ready = !!me()?.rematchReady;
   setScreen(`<main class="screen bomb-screen bomb-results">
-    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Retour à l'accueil">‹</button><img src="/ptitbac.logo.png" alt="P'tit Bac"><span>Résultats</span></header>
+    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Retour à l'accueil"><img src="/back-arrow.png" alt=""></button><img class="bomb-brand" src="/ptitbac.logo.png" alt="P'tit Bac"><span>Résultats</span></header>
     <div class="bomb-result-content"><span class="bomb-result-icon">🏆</span><h1>Partie terminée</h1>
       <p>${leaders.length === 1 ? `${escapeHtml(leaders[0]?.name || "")} remporte la partie !` : "Égalité !"}</p>
       <div class="bomb-ranking">${ranking.map((player, index) => `<div><span>${index + 1}.</span>${bombAvatarMarkup(player)}<strong>${escapeHtml(player.name)}</strong><b>${wins[player.id] || 0} manche${(wins[player.id] || 0) > 1 ? "s" : ""}</b></div>`).join("")}</div>
