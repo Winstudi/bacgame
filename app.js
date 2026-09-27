@@ -419,9 +419,9 @@ function renderBombGame() {
     return `<div class="bomb-player ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 ? "is-out" : ""}" style="left:${x}%;top:${y}%">
       <div class="bomb-player-badge">
         <div class="bomb-player-avatar">${bombAvatarMarkup(player)}</div>
+        <strong>${escapeHtml(player.name)}</strong>
         <span class="bomb-hearts" aria-label="${lives} vie${lives > 1 ? "s" : ""}">${"♥".repeat(lives)}${"♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives))}</span>
       </div>
-      <strong>${escapeHtml(player.name)}</strong>
     </div>`;
   }).join("");
   const status = bomb.status === "intermission"
