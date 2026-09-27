@@ -1463,7 +1463,8 @@ function resumeRestoredRoomRuntime(room) {
   if (!room) return;
 
   if (room.gameType === "bombe" && room.phase === "bomb") {
-    if (room.bomb?.status === "intermission") scheduleBombNextRound(room);
+    if (room.bomb?.status === "exploding") scheduleBombExplosionEnd(room);
+    else if (room.bomb?.status === "intermission") scheduleBombNextRound(room);
     else if (room.bomb?.endsAt) {
       scheduleBombExplosion(room);
       scheduleBombBotTurn(room);
@@ -3395,18 +3396,39 @@ function bombFinishRound(room, winner) {
   scheduleBombNextRound(room);
 }
 
+function scheduleBombExplosionEnd(room) {
+  clearBombTimer(room.code);
+  const at = room.bomb?.lastExplosion?.at;
+  if (room.phase !== "bomb" || room.bomb?.status !== "exploding" || !at) return;
+  const timer = setTimeout(() => {
+    bombTimers.delete(room.code);
+    if (rooms.get(room.code) !== room || room.phase !== "bomb" ||
+        room.bomb?.status !== "exploding" || room.bomb.lastExplosion?.at !== at) return;
+    const bomb = room.bomb;
+    const unlucky = getPlayer(room, bomb.lastExplosion.playerId);
+    if (unlucky) bomb.lives[unlucky.id] = Math.max(0, (bomb.lives[unlucky.id] || 0) - 1);
+    const alive = bombActivePlayers(room);
+    if (alive.length <= 1) {
+      if (alive[0]) bombFinishRound(room, alive[0]);
+      else { room.phase = "finished"; bomb.status = "finished"; emitRoom(room); }
+    } else bombNewCycle(room, bomb.lastExplosion.playerId);
+  }, Math.max(0, at + 1800 - Date.now()));
+  timer.unref?.();
+  bombTimers.set(room.code, timer);
+}
+
 function bombExplode(room) {
   const bomb = room.bomb;
   if (room.phase !== "bomb" || bomb?.status !== "playing") return;
+  clearBombTimer(room.code);
   clearBombBotTimer(room.code);
   const unlucky = getPlayer(room, bomb.turnPlayerId);
-  if (unlucky) bomb.lives[unlucky.id] = Math.max(0, (bomb.lives[unlucky.id] || 0) - 1);
-  bomb.lastExplosion = { playerId:unlucky?.id || null, eliminated:unlucky && bomb.lives[unlucky.id] === 0, at:Date.now() };
-  const alive = bombActivePlayers(room);
-  if (alive.length <= 1) {
-    if (alive[0]) bombFinishRound(room, alive[0]);
-    else { room.phase = "finished"; bomb.status = "finished"; emitRoom(room); }
-  } else bombNewCycle(room, unlucky?.id);
+  bomb.lastExplosion = { playerId:unlucky?.id || null, eliminated:!!unlucky && bomb.lives[unlucky.id] <= 1, at:Date.now() };
+  bomb.status = "exploding";
+  bomb.checkingPlayerId = null;
+  bomb.endsAt = null;
+  emitRoom(room);
+  scheduleBombExplosionEnd(room);
 }
 
 async function bombValidateAnswer(category, letter, answer) {

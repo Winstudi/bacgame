@@ -292,8 +292,16 @@ test("un salon Bombe joue, explose et garde ses règles séparées", { timeout:3
     const nextSocket = accepted.nextPlayerId === created.playerId ? host : guest;
     const repeated = await emitAck(nextSocket, "bomb:answer", { code:created.code, playerId:accepted.nextPlayerId, answer:word });
     assert.equal(repeated.ok, false);
-    const cyclePromise = waitForEvent(host, "room:state", state => state?.phase === "bomb" && state?.bomb?.cycle === 2, 18_000);
+    const explosionPromise = waitForEvent(host, "room:state", state => state?.bomb?.status === "exploding", 18_000);
+    const cyclePromise = waitForEvent(host, "room:state", state => state?.phase === "bomb" && state?.bomb?.cycle === 2, 21_000);
+    const exploding = await explosionPromise;
+    assert.equal(exploding.bomb.cycle, 1);
+    assert.equal(Object.values(exploding.bomb.lives).reduce((sum, life) => sum + life, 0), 4);
+    const duringExplosion = await emitAck(nextSocket, "bomb:answer", { code:created.code, playerId:accepted.nextPlayerId, answer:word });
+    assert.equal(duringExplosion.ok, false);
     const afterExplosion = await cyclePromise;
+    assert.ok(afterExplosion.serverNow - exploding.bomb.lastExplosion.at >= 1750);
+
     assert.notEqual(afterExplosion.bomb.letter, afterPass.bomb.letter);
     assert.notEqual(afterExplosion.bomb.category, afterPass.bomb.category);
     const explodedPlayerIndex = playerOrder.indexOf(afterExplosion.bomb.lastExplosion.playerId);

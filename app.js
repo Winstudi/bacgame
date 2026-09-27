@@ -477,26 +477,13 @@ function animateBombTurn() {
   ], 390);
 }
 
-// Purely visual tension: the random explosion deadline remains on the server.
+// The fuse particles share a cycle clock across room snapshots.
 function animateBombTension(state) {
   if (state.bomb?.status !== "playing" ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const art = document.querySelector(".bomb-art");
   if (!art?.animate) return;
   const elapsed = Math.max(0, performance.now() - bombTurnVisual.cycleStartedAt);
-  const ramp = { fast:10000, medium:20000, slow:35000 }[state.bombSpeed] || 20000;
-  const duration = 60000;
-  const frames = [];
-  const frame = (time, scale) => ({ offset:time / duration, transform:`scale(${scale})` });
-  for (let time = 0; time < duration;) {
-    const tension = Math.min(1, time / ramp);
-    const period = 1750 - 1050 * tension;
-    const end = Math.min(duration, time + period);
-    frames.push(frame(time, 1), frame(time + (end - time) * .45, 1.025 + .045 * tension), frame(end, 1));
-    time = end;
-  }
-  const pulse = art.animate(frames, { duration, iterations:Infinity, easing:"linear" });
-  pulse.currentTime = elapsed;
   const spark = document.querySelector(".bomb-spark");
   if (spark?.animate) {
     const glow = spark.animate([
@@ -507,6 +494,66 @@ function animateBombTension(state) {
     ], { duration:950, iterations:Infinity, easing:"ease-in-out" });
     glow.currentTime = elapsed;
   }
+  document.querySelectorAll(".bomb-spark-particle").forEach((particle, index) => {
+    const angle = index * Math.PI * 2 / 7;
+    const distance = 12 + index % 3 * 5;
+    const effect = particle.animate([
+      { opacity:0, transform:"translate(-50%,-50%) scale(.4)", offset:0 },
+      { opacity:1, transform:"translate(-50%,-50%) scale(1)", offset:.15 },
+      { opacity:0, transform:`translate(calc(-50% + ${Math.cos(angle)*distance}px),calc(-50% + ${Math.sin(angle)*distance}px)) scale(.2)` }
+    ], { duration:700 + index * 45, delay:index * 95, iterations:Infinity, easing:"ease-out" });
+    effect.currentTime = elapsed;
+  });
+
+}
+
+function animateBombExplosion(state) {
+  if (state.bomb?.status !== "exploding") return;
+  const elapsed = Math.max(0, serverNowMs() - state.bomb.lastExplosion.at);
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const arena = document.querySelector(".bomb-arena");
+  const index = state.players.findIndex(player => player.id === state.bomb.lastExplosion.playerId);
+  if (!arena || index < 0) return;
+  const angle = 2 * Math.PI * index / state.players.length - Math.PI / 2;
+  const dx = arena.clientWidth * .4 * Math.cos(angle);
+  const dy = arena.clientHeight * .4 * Math.sin(angle);
+  const play = (selector, frames, duration, delay = 0) => {
+    const node = document.querySelector(selector);
+    if (!node?.animate || reduced) return;
+    const effect = node.animate(frames, { duration, delay, fill:"both", easing:"ease-out" });
+    effect.currentTime = elapsed;
+  };
+  play(".bomb-center.is-flying", [
+    { opacity:1, transform:"translate(-50%,-50%) scale(1)" },
+    { opacity:1, transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.8)`, offset:.95 },
+    { opacity:0, transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.9)` }
+  ], 420);
+  play(".bomb-impact-flash", [
+    {opacity:0,transform:"scale(.2)"}, {opacity:.9,transform:"scale(1)",offset:.25}, {opacity:0,transform:"scale(1.5)"}
+  ], 450, 400);
+  for (let i=0;i<8;i++) {
+    const a=i*Math.PI/4;
+    play(`.bomb-smoke-${i}`, [
+      {opacity:0,transform:"translate(-50%,-50%) scale(.3)"},
+      {opacity:.65,transform:`translate(calc(-50% + ${Math.cos(a)*18}px),calc(-50% + ${Math.sin(a)*14}px)) scale(1)`,offset:.2},
+      {opacity:0,transform:`translate(calc(-50% + ${Math.cos(a)*42}px),calc(-50% + ${Math.sin(a)*24-24}px)) scale(1.8)`}
+    ], 1150, 430+i*20);
+    play(`.bomb-impact-bit-${i}`, [
+      {opacity:0,transform:"translate(-50%,-50%) scale(.4)"},
+      {opacity:1,transform:"translate(-50%,-50%) scale(1)",offset:.1},
+      {opacity:0,transform:`translate(calc(-50% + ${Math.cos(a)*55}px),calc(-50% + ${Math.sin(a)*55}px)) scale(.1)`}
+    ], 550, 410);
+  }
+  play(".bomb-player.is-hit .bomb-player-badge", [
+    {transform:"translateX(0)",filter:"brightness(1)"},
+    {transform:"translateX(-3px)",filter:"brightness(1.6)",offset:.2},
+    {transform:"translateX(3px)",filter:"brightness(1.2)",offset:.45},
+    {transform:"translateX(0)",filter:"brightness(1)"}
+  ], 420, 410);
+  play(".bomb-lost-heart", [
+    {opacity:1,transform:"translateY(0) scale(1)"},
+    {opacity:0,transform:"translateY(-14px) scale(1.5)"}
+  ], 550, 450);
 }
 
 function renderBombGame() {
@@ -519,6 +566,7 @@ function renderBombGame() {
   const checking = bomb.checkingPlayerId === session.playerId;
   const current = state.players.find(player => player.id === bomb.turnPlayerId);
   const explosion = bomb.lastExplosion;
+  const exploding = bomb.status === "exploding";
   const lastAnswerPlayer = state.players.find(player => player.id === bomb.lastAnswer?.playerId);
   const unlucky = state.players.find(player => player.id === explosion?.playerId);
   const winner = state.players.find(player => bomb.status === "intermission" && player.id === bomb.lastWinnerId);
@@ -527,11 +575,12 @@ function renderBombGame() {
     const x = 50 + 40 * Math.cos(angle);
     const y = 50 + 40 * Math.sin(angle);
     const lives = Number(bomb.lives?.[player.id] || 0);
-    return `<div class="bomb-player ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 ? "is-out" : ""}" style="left:${x}%;top:${y}%">
+    const hit = exploding && player.id === explosion?.playerId;
+    return `<div class="bomb-player ${hit ? "is-hit" : ""} ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 ? "is-out" : ""}" style="left:${x}%;top:${y}%">
       <div class="bomb-player-badge">
         <div class="bomb-player-avatar">${bombAvatarMarkup(player)}</div>
         <strong>${escapeHtml(player.name)}</strong>
-        <span class="bomb-hearts" aria-label="${lives} vie${lives > 1 ? "s" : ""}">${"♥".repeat(lives)}${"♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives))}</span>
+        <span class="bomb-hearts" aria-label="${lives} vie${lives > 1 ? "s" : ""}">${"♥".repeat(Math.max(0, lives - (hit ? 1 : 0)))}${hit && lives > 0 ? '<span class="bomb-lost-heart">♥</span>' : ""}${"♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives))}</span>
       </div>
     </div>`;
   }).join("");
@@ -546,7 +595,8 @@ function renderBombGame() {
     <div class="bomb-content">
       <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
         <div class="bomb-orbit"></div>${players}
-        <div class="bomb-center ${explosion && Date.now() - explosion.at < 1600 ? "is-explosion" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><div class="bomb-art"><img src="/bomb-neon.png?v=1.48.0-bombe-assets2" alt="">${active ? '<span class="bomb-spark" aria-hidden="true"></span>' : ""}</div></div>
+        ${exploding && unlucky ? `<div class="bomb-impact" aria-hidden="true" style="left:${50+40*Math.cos(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%;top:${50+40*Math.sin(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%"><span class="bomb-impact-flash"></span>${Array.from({length:8},(_,i)=>`<i class="bomb-smoke bomb-smoke-${i}"></i><i class="bomb-impact-bit bomb-impact-bit-${i}"></i>`).join("")}</div>` : ""}
+        <div class="bomb-center ${exploding ? "is-flying" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><div class="bomb-art"><img src="/bomb-neon.png?v=1.48.0-bombe-assets2" alt="">${active ? '<span class="bomb-spark" aria-hidden="true"></span><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i>' : ""}</div></div>
         ${lastAnswerPlayer && bomb.lastAnswer?.answer ? `<div class="bomb-last-word" aria-live="polite"><span>${escapeHtml(lastAnswerPlayer.name)} a écrit</span><strong>${escapeHtml(bomb.lastAnswer.answer)}</strong></div>` : ""}
         ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"><img src="/bomb-arrow-neon.png?v=1.48.0-bombe-assets2" alt=""></div>` : ""}
       </div>
@@ -560,6 +610,7 @@ function renderBombGame() {
   </main>`);
   animateBombTurn();
   animateBombTension(state);
+  animateBombExplosion(state);
   document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
   document.getElementById("bombAnswerForm")?.addEventListener("submit", event => {
     event.preventDefault();
