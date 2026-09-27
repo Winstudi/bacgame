@@ -4627,3 +4627,20 @@ html body main.lobby-v5.pl-private-v3.pl-quick-v3
   .pl-mode-toggle {
   display:none!important;
 }
+
+/* Titres du mode Baccalauréat : texte réel sur deux lignes si nécessaire. */
+html body main.lobby-v5.pl-private.pl-private-v3[data-lobby-kind] .pl-title-mode > h1,
+html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"][data-lobby-kind="public"] .pl-title-mode > h1,
+html body main.lobby-v5.pl-private.pl-private-v3.pl-quick-v3[data-mode="private"][data-lobby-kind="quick"] .pl-title-mode > h1 {
+  flex:1 1 auto!important;
+  min-width:0!important;
+  font-size:clamp(.72rem,2.8vw,.88rem)!important;
+  line-height:1.08!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+html body main.lobby-v5.pl-private.pl-private-v3[data-lobby-kind] .pl-title-mode > h1::after {
+  content:none!important;
+  display:none!important;
+}

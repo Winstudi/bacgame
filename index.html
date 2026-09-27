@@ -481,7 +481,7 @@
       overflow:hidden!important;
     }
 
-    /* Affiche exactement "Salon Privé". */
+    /* Le titre du salon reste celui du DOM. */
     html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
       .pl-title-mode > h1{
       flex:0 1 auto!important;
@@ -494,7 +494,7 @@
 
     html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
       .pl-title-mode > h1::after{
-      content:"Salon Privé";
+      content:none;
       display:inline-block;
       color:#fff;
       font-size:1.12rem;

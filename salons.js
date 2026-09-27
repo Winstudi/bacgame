@@ -147,7 +147,7 @@
 
     return `
       <div class="pl-title-mode">
-        <h1>Salon ${publicMode ? "public" : "privé"}</h1>
+        <h1>Baccalauréat - Salon ${publicMode ? "Public" : "Privé"}</h1>
         <button
           id="plModeToggle"
           class="pl-mode-toggle ${publicMode ? "is-public" : ""}"
@@ -1519,7 +1519,7 @@
 
           ${quickMode
             ? `<div class="pl-title-mode">
-                <h1>Partie Classique Rapide</h1>
+                <h1>Baccalauréat - Partie Rapide</h1>
               </div>`
             : roomModeToggleMarkup(state, user)}
 
@@ -3944,7 +3944,7 @@
         <header class="pl-room-chat-header">
           <div>
             <strong>Chat du salon</strong>
-            <small id="plRoomChatSubtitle">Salon privé</small>
+            <small id="plRoomChatSubtitle">Baccalauréat - Salon Privé</small>
           </div>
           <button id="plRoomChatClose" type="button" aria-label="Fermer">×</button>
         </header>
@@ -4237,10 +4237,10 @@
     if (subtitle) {
       subtitle.textContent =
         state.mode === "quick"
-          ? "Partie rapide"
+          ? "Baccalauréat - Partie Rapide"
           : state.mode === "public"
-            ? "Salon public"
-            : "Salon privé";
+            ? "Baccalauréat - Salon Public"
+            : "Baccalauréat - Salon Privé";
     }
 
     roomChatState.open = true;
@@ -4576,7 +4576,7 @@
 
       html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
         .pl-title-mode > h1::after {
-        content:"Salon Public"!important;
+        content:none!important;
         display:inline-block!important;
         color:#fff!important;
         font-size:1.12rem!important;
@@ -5040,10 +5040,10 @@
       if (roomTitle) {
         roomTitle.textContent =
           liveMode === "quick"
-            ? "Partie Classique Rapide"
+            ? "Baccalauréat - Partie Rapide"
             : liveMode === "public"
-              ? "Salon Public"
-              : "Salon Privé";
+              ? "Baccalauréat - Salon Public"
+              : "Baccalauréat - Salon Privé";
       }
 
       if (liveMode === "quick") {

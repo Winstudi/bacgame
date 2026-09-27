@@ -586,7 +586,7 @@
           <div class="hm-mode-grid">
             <button id="homePlaqueQuick" class="hm-quick" type="button">
               ${img("lightning")}
-              <b>Classique ${chevronIcon()}</b>
+              <b>Baccalauréat ${chevronIcon()}</b>
               <span class="hm-quick-lives"><span><strong id="homeQuickLives">${lives}</strong> vie(s) restante(s)</span></span>
             </button>
             <button id="homeBomb" class="hm-bomb" type="button" data-soon="Mode Bombe" aria-label="Bombe, bientôt disponible">
@@ -651,7 +651,7 @@
           </form>
           <h2 id="homeGameModeTitle">Choisir un mode de jeu</h2>
           <button id="homeCreateClassic" class="hm-game-picker-choice" type="button">
-            <strong>Classique</strong><span>Créer le salon</span>
+            <strong>Baccalauréat</strong><span>Créer le salon</span>
           </button>
           <button class="hm-game-picker-choice" type="button" disabled>
             <strong>Bombe</strong><span>À venir</span>
