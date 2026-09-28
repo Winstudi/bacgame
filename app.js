@@ -435,22 +435,18 @@ let bombTurnVisual = null;
 
 // Sound is controlled from room state so DOM re-renders never restart the tracks.
 const bombAudio = {
-  tickling:null, fuse:null, explosion:null, snapshot:null, resumeTimer:null,
+  tickling:null, explosion:null, snapshot:null, resumeTimer:null,
   lastExplosionKey:"", shouldPlayLoops:false, primed:false
 };
 
 function getBombAudio() {
   if (!bombAudio.tickling) {
     bombAudio.tickling = new Audio("/bomb-tickling.wav");
-    bombAudio.fuse = new Audio("/bomb-fuse.wav");
     bombAudio.explosion = new Audio("/bomb-explosion.wav");
     bombAudio.tickling.loop = true;
-    bombAudio.fuse.loop = true;
     bombAudio.tickling.preload = "auto";
-    bombAudio.fuse.preload = "auto";
     bombAudio.explosion.preload = "auto";
     bombAudio.tickling.volume = .32;
-    bombAudio.fuse.volume = .42;
     bombAudio.explosion.volume = .8;
   }
   return bombAudio;
@@ -459,20 +455,16 @@ function getBombAudio() {
 function startBombLoops() {
   const audio = getBombAudio();
   bombAudio.shouldPlayLoops = true;
-  for (const track of [audio.tickling, audio.fuse]) {
-    if (!track.paused) continue;
-    const playback = track.play();
-    playback?.catch?.(() => {});
-  }
+  if (!audio.tickling.paused) return;
+  const playback = audio.tickling.play();
+  playback?.catch?.(() => {});
 }
 
 function pauseBombLoops(reset = true) {
-  for (const track of [bombAudio.tickling, bombAudio.fuse]) {
-    if (!track) continue;
+  const track = bombAudio.tickling;
+  if (track) {
     track.pause();
-    if (reset) {
-      try { track.currentTime = 0; } catch {}
-    }
+    if (reset) try { track.currentTime = 0; } catch {}
   }
   bombAudio.shouldPlayLoops = false;
 }
@@ -495,7 +487,7 @@ function primeBombAudioFromGesture() {
   if (bombAudio.primed) return;
   bombAudio.primed = true;
   const audio = getBombAudio();
-  const tracks = [audio.tickling, audio.fuse, audio.explosion];
+  const tracks = [audio.tickling, audio.explosion];
   Promise.allSettled(tracks.map(track => {
     if (!track.paused) return Promise.resolve();
     track.muted = true;
