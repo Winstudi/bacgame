@@ -2338,9 +2338,9 @@ html body .screen.bomb-screen {
 .bomb-pointer { position:absolute;left:50%;top:auto;bottom:50%;z-index:1;width:clamp(38px,14%,56px);height:calc(32% - 36px);transform-origin:50% 100%;transform:translateX(-50%) rotate(calc(var(--bomb-angle) + 90deg));filter:drop-shadow(0 0 7px #ffba47c9); }
 .bomb-pointer > img { display:block;width:100%;height:100%;object-fit:contain; }
 .bomb-status { min-height:32px;margin:0 auto 8px;display:grid;place-items:center;color:#ffdf9d;font-weight:800;font-size:14px;line-height:1.35; }
-.bomb-content.has-bomb-reroll .bomb-arena { margin-bottom:1px; }
+.bomb-content.has-bomb-reroll .bomb-arena { margin-bottom:16px; }
 .bomb-content.has-bomb-reroll .bomb-status { margin-bottom:0; }
-.bomb-content.has-bomb-reroll .bomb-prompt { margin-top:31px; }
+.bomb-content.has-bomb-reroll .bomb-prompt { margin-top:16px; }
 .bomb-reroll-button { position:absolute;left:calc(100% + 5px);top:50%;transform:translateY(-50%);box-sizing:border-box;width:50px;height:30px;min-height:30px;margin:0;padding:0 3px;display:flex;align-items:center;justify-content:center;gap:2px;color:#f5eaff;border:1px solid #bd71ff;border-radius:9px;background:linear-gradient(120deg,#32136f,#25114f);box-shadow:0 0 11px #a84dff66,inset 0 0 8px #bd63ff22;cursor:pointer; }
 .bomb-reroll-button:focus-visible { outline:2px solid #f0d4ff;outline-offset:2px; }
 .bomb-reroll-button > svg { width:15px;height:15px;flex:0 0 15px;fill:currentColor; }
