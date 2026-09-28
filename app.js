@@ -637,10 +637,58 @@ function animateBombLastWord(state) {
   fade.currentTime = elapsed;
 }
 
+function renderBombIntermission(state) {
+  const bomb = state.bomb;
+  const winner = state.players.find(player => player.id === bomb.lastWinnerId);
+  const answer = bomb.lastCorrectAnswer;
+  const answerPlayer = answer ? state.players.find(player => player.id === answer.playerId) : null;
+  const players = state.players.map(player => {
+    const lives = Math.max(0, Number(bomb.lives?.[player.id] || 0));
+    const frame = !!window.PtitBacFrames?.asset?.(player.frameId);
+    return `<div class="bomb-summary-player ${lives ? "" : "is-out"}">
+      <span class="bomb-summary-avatar bomb-player-avatar ${frame ? "ptb-has-equipped-frame" : ""}">${bombAvatarMarkup(player)}</span>
+      <strong>${escapeHtml(player.name)}</strong>
+      <span class="bomb-summary-lives" aria-label="${lives} vie${lives > 1 ? "s" : ""}">${"♥".repeat(lives)}${"♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives))}</span>
+      <small>${lives ? "En jeu" : "Éliminé"}</small>
+    </div>`;
+  }).join("");
+  const nextRoundAt = Number(bomb.nextRoundAt || serverNowMs() + 5000);
+
+  setScreen(`<main class="screen bomb-screen bomb-intermission-screen">
+    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Quitter la partie"><img src="/back-arrow.png" alt=""></button><img class="bomb-brand" src="/ptitbac.logo.png" alt="P'tit Bac"><span>Manche ${bomb.round}/${state.rounds}</span></header>
+    <section class="bomb-intermission-content" aria-labelledby="bombIntermissionTitle">
+      <div class="bomb-intermission-heading"><span>PAUSE ENTRE LES MANCHES</span><h1 id="bombIntermissionTitle">Manche ${bomb.round} terminée</h1></div>
+      <section class="bomb-intermission-card bomb-round-players" aria-labelledby="bombRoundPlayersTitle">
+        <h2 id="bombRoundPlayersTitle">Joueurs</h2><div class="bomb-summary-player-list">${players}</div>
+      </section>
+      <section class="bomb-intermission-card bomb-round-winner" aria-labelledby="bombRoundWinnerTitle">
+        <h2 id="bombRoundWinnerTitle">Gagnant de la manche</h2>
+        ${winner ? `<div class="bomb-summary-winner"><span class="bomb-summary-avatar bomb-player-avatar ${window.PtitBacFrames?.asset?.(winner.frameId) ? "ptb-has-equipped-frame" : ""}">${bombAvatarMarkup(winner)}</span><strong>${escapeHtml(winner.name)}</strong></div>` : `<p>Aucun gagnant</p>`}
+      </section>
+      <section class="bomb-intermission-card bomb-round-answer" aria-labelledby="bombRoundAnswerTitle">
+        <h2 id="bombRoundAnswerTitle">Mot correct</h2>
+        <strong>${answer?.answer ? escapeHtml(answer.answer) : "Aucun mot valide"}</strong>
+        ${answerPlayer && answer?.answer ? `<small>Écrit par ${escapeHtml(answerPlayer.name)}</small>` : ""}
+      </section>
+      <p class="bomb-intermission-countdown" aria-live="polite">La prochaine manche commence dans <strong id="bombIntermissionCountdown">5</strong>s</p>
+    </section>
+  </main>`);
+
+  document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
+  const countdown = document.getElementById("bombIntermissionCountdown");
+  const updateCountdown = () => {
+    if (!countdown) return;
+    countdown.textContent = String(Math.max(0, Math.ceil((nextRoundAt - serverNowMs()) / 1000)));
+  };
+  updateCountdown();
+  session.timerHandle = window.setInterval(updateCountdown, 200);
+}
+
 function renderBombGame() {
   const state = session.state;
   const bomb = state.bomb;
   if (!bomb) return renderHome();
+  if (bomb.status === "intermission") return renderBombIntermission(state);
   prepareBombTurnVisual(state);
   const active = bomb.status === "playing";
   const myTurn = active && bomb.turnPlayerId === session.playerId;
@@ -652,7 +700,6 @@ function renderBombGame() {
   const showLastAnswer = !!bomb.lastAnswer?.answer && lastAnswerAge >= 0 && lastAnswerAge < 2000;
   const lastAnswerPlayer = showLastAnswer ? state.players.find(player => player.id === bomb.lastAnswer.playerId) : null;
   const unlucky = state.players.find(player => player.id === explosion?.playerId);
-  const winner = state.players.find(player => bomb.status === "intermission" && player.id === bomb.lastWinnerId);
   const players = state.players.map((player, index) => {
     const angle = 2 * Math.PI * index / state.players.length - Math.PI / 2;
     const x = 50 + 40 * Math.cos(angle);
@@ -676,9 +723,7 @@ function renderBombGame() {
       </div>
     </div>`;
   }).join("");
-  const status = bomb.status === "intermission"
-    ? `Manche ${bomb.round} terminée${winner ? ` · ${escapeHtml(winner.name)} gagne` : ""}`
-    : explosion && Date.now() - explosion.at < 4500 && unlucky
+  const status = explosion && Date.now() - explosion.at < 4500 && unlucky
       ? `${escapeHtml(unlucky.name)} perd une vie${explosion.eliminated ? " et quitte cette manche" : ""} !`
       : myTurn ? "À toi de jouer !" : `Au tour de ${escapeHtml(current?.name || "un joueur")}`;
 
@@ -694,7 +739,7 @@ function renderBombGame() {
       </div>
       <p class="bomb-status" role="status">${status}</p>
       <div class="bomb-prompt"><div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div></div>
-      ${bomb.status === "intermission" ? `<p class="bomb-next">Nouvelle manche dans quelques secondes… Les vies vont être réinitialisées.</p>` : myTurn ? `
+      ${myTurn ? `
       <form id="bombAnswerForm" class="bomb-form">
         <div><input id="bombAnswerInput" class="bomb-answer-input" type="text" maxlength="80" autocomplete="off" autocapitalize="sentences" placeholder="Écris ta réponse" aria-label="Écris ta réponse" ${myTurn && !checking ? "" : "disabled"} required><button type="submit" aria-label="Envoyer la réponse" title="Envoyer la réponse" ${myTurn && !checking ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.2 21 3l-5.3 18-3.1-7.1L3 11.2Zm9.6 2.7L21 3"/></svg></button></div>
       </form>` : ""}

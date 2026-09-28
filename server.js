@@ -3254,6 +3254,7 @@ function scheduleBombBotTurn(room) {
     currentBomb.usedWords ||= [];
     currentBomb.usedWords.push(normalizeAnswer(answer));
     currentBomb.lastAnswer = { playerId:player.id, answer, at:Date.now() };
+    currentBomb.lastCorrectAnswer = currentBomb.lastAnswer;
     currentBomb.category = bombNextCategory(room);
     currentBomb.letter = bombNextLetter(room);
     currentBomb.turnPlayerId = bombNextClockwisePlayer(room, player.id)?.id || null;
@@ -3363,6 +3364,7 @@ function bombBeginRound(room, round) {
   bomb.lives = Object.fromEntries(room.players.map(player => [player.id, room.bombLives || 3]));
   bomb.lastExplosion = null;
   bomb.nextRoundAt = null;
+  bomb.lastCorrectAnswer = null;
   bombNewCycle(room);
 }
 
@@ -3370,7 +3372,7 @@ function bombStart(room) {
   if (room.gameType !== "bombe" || room.mode !== "private" || room.phase !== "lobby") return false;
   if (!privateLobbyReady(room)) return false;
   room.phase = "bomb";
-  room.bomb = { round:0, cycle:0, turnVersion:0, wins:{}, lives:{}, usedWords:[], lastAnswer:null, status:"playing", lastExplosion:null };
+  room.bomb = { round:0, cycle:0, turnVersion:0, wins:{}, lives:{}, usedWords:[], lastAnswer:null, lastCorrectAnswer:null, status:"playing", lastExplosion:null };
   bombBeginRound(room, 1);
   return true;
 }
@@ -3391,7 +3393,7 @@ function bombFinishRound(room, winner) {
     return;
   }
   bomb.status = "intermission";
-  bomb.nextRoundAt = Date.now() + 3500;
+  bomb.nextRoundAt = Date.now() + 5000;
   emitRoom(room);
   scheduleBombNextRound(room);
 }
@@ -5141,6 +5143,7 @@ io.on("connection", socket => {
     if (!verdict.ok) { emitRoom(room); return cb(verdict); }
     bomb.usedWords.push(normalized);
     bomb.lastAnswer = { playerId:player.id, answer, at:Date.now() };
+    bomb.lastCorrectAnswer = bomb.lastAnswer;
     bomb.category = bombNextCategory(room);
     bomb.letter = bombNextLetter(room);
     bomb.turnPlayerId = bombNextClockwisePlayer(room, player.id)?.id || null;
