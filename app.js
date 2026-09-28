@@ -760,10 +760,10 @@ function renderBombGame() {
         ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"><img src="/bomb-arrow-neon.png?v=1.48.0-bombe-assets2" alt=""></div>` : ""}
       </div>
       <p class="bomb-status" role="status">${status}</p>
-      ${myTurn && !checking ? `<button id="bombRerollButton" class="bomb-reroll-button" type="button" data-cost="${rerollCost}" aria-label="Relancer la catégorie et la lettre pour ${rerollCost} pièces" title="Relancer la catégorie et la lettre" ${canAffordReroll ? "" : "disabled"}>
-        <span class="bomb-reroll-copy"><strong>Relancer</strong></span><b><img src="/coin.png" alt="">${rerollCost}</b>
-      </button>` : ""}
-      <div class="bomb-prompt"><div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div></div>
+      <div class="bomb-prompt">
+        ${myTurn && !checking ? `<button id="bombRerollButton" class="bomb-reroll-button" type="button" data-cost="${rerollCost}" aria-label="Relancer la catégorie et la lettre pour ${rerollCost} pièces" title="Relancer la catégorie et la lettre — ${rerollCost} pièces" ${canAffordReroll ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M20 12a8 8 0 1 1-2.34-5.66L20 7"/></svg><b><img src="/coin.png" alt="">${rerollCost}</b></button>` : ""}
+        <div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div>
+      </div>
       ${myTurn ? `
       <form id="bombAnswerForm" class="bomb-form">
         <div><input id="bombAnswerInput" class="bomb-answer-input" type="text" maxlength="80" autocomplete="off" autocapitalize="sentences" placeholder="Écris ta réponse" aria-label="Écris ta réponse" ${myTurn && !checking ? "" : "disabled"} required><button type="submit" aria-label="Envoyer la réponse" title="Envoyer la réponse" ${myTurn && !checking ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.2 21 3l-5.3 18-3.1-7.1L3 11.2Zm9.6 2.7L21 3"/></svg></button></div>

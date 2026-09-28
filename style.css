@@ -2283,7 +2283,7 @@ html body .screen.bomb-screen {
 .bomb-header-coins img { width:15px;height:15px;object-fit:contain; }
 .bomb-header-coins strong { font-size:inherit;line-height:1; }
 .bomb-content,.bomb-result-content { width:100%;max-width:410px;margin:0 auto;text-align:center; }
-.bomb-prompt { display:grid;width:min(60%,300px);box-sizing:border-box;grid-template-columns:minmax(0,1fr) 52px;align-items:start;gap:8px;text-align:center;margin:8px auto 0;padding:5px 10px;border:1px solid #a759ff;border-radius:8px;background:linear-gradient(110deg,#20124e,#101743);box-shadow:0 0 14px #9d49ff40,inset 0 0 12px #ad52ff18; }
+.bomb-prompt { position:relative;display:grid;width:min(60%,300px);box-sizing:border-box;grid-template-columns:minmax(0,1fr) 52px;align-items:start;gap:8px;text-align:center;margin:8px auto 0;padding:5px 10px;border:1px solid #a759ff;border-radius:8px;background:linear-gradient(110deg,#20124e,#101743);box-shadow:0 0 14px #9d49ff40,inset 0 0 12px #ad52ff18; }
 .bomb-category { text-align:center; }
 .bomb-category strong { transform:translateY(5px); }
 .bomb-prompt span { display:block;font-size:8px;line-height:1;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#af9efa; }
@@ -2332,13 +2332,12 @@ html body .screen.bomb-screen {
 .bomb-status { min-height:32px;margin:0 auto 8px;display:grid;place-items:center;color:#ffdf9d;font-weight:800;font-size:14px;line-height:1.35; }
 .bomb-content.has-bomb-reroll .bomb-arena { margin-bottom:1px; }
 .bomb-content.has-bomb-reroll .bomb-status { margin-bottom:0; }
-.bomb-content.has-bomb-reroll .bomb-prompt { margin-top:0; }
-.bomb-reroll-button { position:relative;box-sizing:border-box;width:85px;height:30px;min-height:30px;margin:0 auto;padding:0 3px;display:flex;align-items:center;justify-content:center;transform:translateY(-4px);color:#f5eaff;border:1px solid #bd71ff;border-radius:9px;background:linear-gradient(120deg,#32136f,#25114f);box-shadow:0 0 11px #a84dff66,inset 0 0 8px #bd63ff22;font:inherit;cursor:pointer; }
+.bomb-content.has-bomb-reroll .bomb-prompt { margin-top:31px; }
+.bomb-reroll-button { position:absolute;right:calc(100% + 5px);top:50%;transform:translateY(-50%);box-sizing:border-box;width:50px;height:30px;min-height:30px;margin:0;padding:0 3px;display:flex;align-items:center;justify-content:center;gap:2px;color:#f5eaff;border:1px solid #bd71ff;border-radius:9px;background:linear-gradient(120deg,#32136f,#25114f);box-shadow:0 0 11px #a84dff66,inset 0 0 8px #bd63ff22;cursor:pointer; }
 .bomb-reroll-button:focus-visible { outline:2px solid #f0d4ff;outline-offset:2px; }
-.bomb-reroll-copy { position:absolute;left:50%;transform:translateX(-50%);display:grid;line-height:1.05;text-align:center; }
-.bomb-reroll-copy strong { font-size:9px;font-weight:900; }
-.bomb-reroll-button > b { position:absolute;right:3px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:2px;color:#ffdfa0;font-size:8.5px;font-weight:900; }
-.bomb-reroll-button > b img { width:10px;height:10px;object-fit:contain; }
+.bomb-reroll-button > svg { width:13px;height:13px;flex:0 0 13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
+.bomb-reroll-button > b { display:flex;align-items:center;gap:1px;color:#ffdfa0;font-size:8px;font-weight:900; }
+.bomb-reroll-button > b img { width:9px;height:9px;object-fit:contain; }
 .bomb-reroll-button:disabled { color:#aaa6b7;border-color:#625d72;background:linear-gradient(120deg,#34313f,#252333);box-shadow:none;cursor:not-allowed;filter:grayscale(1);opacity:.68; }
 .bomb-reroll-button:disabled > b { color:#aaa6b7; }
 .bomb-reroll-button.is-loading { cursor:wait;opacity:.75; }
