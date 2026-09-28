@@ -761,7 +761,7 @@ function renderBombGame() {
       </div>
       <p class="bomb-status" role="status">${status}</p>
       <div class="bomb-prompt">
-        ${myTurn && !checking ? `<button id="bombRerollButton" class="bomb-reroll-button" type="button" data-cost="${rerollCost}" aria-label="Relancer la catégorie et la lettre pour ${rerollCost} pièces" title="Relancer la catégorie et la lettre — ${rerollCost} pièces" ${canAffordReroll ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M20 12a8 8 0 1 1-2.34-5.66L20 7"/></svg><b><img src="/coin.png" alt="">${rerollCost}</b></button>` : ""}
+        ${myTurn && !checking ? `<button id="bombRerollButton" class="bomb-reroll-button" type="button" data-cost="${rerollCost}" aria-label="Relancer la catégorie et la lettre pour ${rerollCost} pièces" title="Relancer la catégorie et la lettre — ${rerollCost} pièces" ${canAffordReroll ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.93 9h-2.02A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg><b><img src="/coin.png" alt="">${rerollCost}</b></button>` : ""}
         <div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div>
       </div>
       ${myTurn ? `
