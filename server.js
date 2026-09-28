@@ -2324,11 +2324,15 @@ async function testOpenAIConnection() {
   }
 }
 
-async function callValidationModel(items, letter, { review = false } = {}) {
+async function callValidationModel(items, letter, { review = false, timeoutMs = AUTO_VALIDATION_TIMEOUT_MS } = {}) {
   if (!OPENAI_API_KEY || !items.length) return null;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), AUTO_VALIDATION_TIMEOUT_MS);
+  const requestedTimeout = Number(timeoutMs);
+  const timeoutDuration = Number.isFinite(requestedTimeout) && requestedTimeout > 0
+    ? Math.min(AUTO_VALIDATION_TIMEOUT_MS, requestedTimeout)
+    : AUTO_VALIDATION_TIMEOUT_MS;
+  const timeout = setTimeout(() => controller.abort(), timeoutDuration);
   const payloadItems = makeValidationPayload(items, letter);
 
   const reviewInstructions = review
@@ -3457,9 +3461,30 @@ async function bombValidateAnswer(category, letter, answer) {
   }
   if (!OPENAI_API_KEY) return { ok:false, error:"Correction momentanément indisponible. Réessaie avec un autre mot." };
   try {
-    let response = (await validateInBatches([item], letter))[0];
-    if (!shouldAcceptPrimary(item, response)) response = (await validateInBatches([item], letter, { review:true }))[0];
+    const deadline = Date.now() + 7000;
+    let response = (await validateInBatches([item], letter, {
+      timeoutMs:Math.min(AUTO_VALIDATION_TIMEOUT_MS, deadline - Date.now())
+    }))[0];
+    if (!shouldAcceptPrimary(item, response)) {
+      const remainingMs = deadline - Date.now();
+      response = remainingMs > 150
+        ? (await validateInBatches([item], letter, { review:true, timeoutMs:remainingMs }))[0]
+        : null;
+    }
     const decision = normalizeAiResult(response);
+    if (decision && shouldAcceptPrimary(item, response) && decision.confidence >= 90) {
+      validationCache.set(validationCacheKey(category, answer), {
+        engineVersion:VALIDATION_ENGINE_VERSION,
+        status:decision.verdict,
+        reason:decision.reasonCode || "bomb_ai",
+        correction:validCorrectionForLetter(decision.correction, letter),
+        canonicalAnswer:decision.canonicalAnswer || "",
+        confidence:decision.confidence,
+        explanation:decision.explanation || "",
+        updatedAt:Date.now()
+      });
+      setImmediate(saveValidationCache);
+    }
     if (decision?.verdict === "valid" && decision.confidence >= decisionThresholds(category).valid) return { ok:true };
     return { ok:false, error:decision?.verdict === "invalid" ? "Ce mot ne correspond pas à la catégorie." : "Réponse non confirmée. Essaie un autre mot." };
   } catch {

@@ -2339,6 +2339,11 @@ html body .screen.bomb-screen {
 .bomb-form button:focus-visible { outline:2px solid #e9bdff;outline-offset:2px; }
 .bomb-form button:disabled,.bomb-form input:disabled { opacity:.6;cursor:default; }
 .bomb-form small { color:#aaa4d8;line-height:1.4;font-size:10px; }
+.bomb-answer-feedback { display:none;align-items:center;justify-content:center;gap:7px;margin:0;color:#cbb9ff;font-size:11px;line-height:1.2; }
+.bomb-answer-feedback.is-visible { display:flex; }
+.bomb-answer-feedback::before { content:"";width:11px;height:11px;flex:0 0 11px;border:2px solid #b98aff66;border-top-color:#f0d4ff;border-radius:50%;animation:bomb-answer-loading .65s linear infinite; }
+@keyframes bomb-answer-loading { to { transform:rotate(360deg); } }
+@media(prefers-reduced-motion:reduce) { .bomb-answer-feedback::before { animation:none;border-color:#f0d4ff; } }
 .bomb-result-content { display:flex;align-items:center;flex-direction:column;gap:12px;padding:20px 4px; }
 .bomb-result-icon { font-size:3rem; }
 .bomb-result-content h1 { margin:0;color:#ffdfa4;font-size:1.55rem; }

@@ -753,6 +753,7 @@ function renderBombGame() {
       ${myTurn ? `
       <form id="bombAnswerForm" class="bomb-form">
         <div><input id="bombAnswerInput" class="bomb-answer-input" type="text" maxlength="80" autocomplete="off" autocapitalize="sentences" placeholder="Écris ta réponse" aria-label="Écris ta réponse" ${myTurn && !checking ? "" : "disabled"} required><button type="submit" aria-label="Envoyer la réponse" title="Envoyer la réponse" ${myTurn && !checking ? "" : "disabled"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.2 21 3l-5.3 18-3.1-7.1L3 11.2Zm9.6 2.7L21 3"/></svg></button></div>
+        <p id="bombAnswerFeedback" class="bomb-answer-feedback ${checking ? "is-visible" : ""}" role="status" aria-live="polite">${checking ? "Vérification du mot…" : ""}</p>
       </form>` : ""}
     </div>
   </main>`);
@@ -770,6 +771,11 @@ function renderBombGame() {
     input.disabled = true;
     button.disabled = true;
     button.setAttribute("aria-busy", "true");
+    const feedback = document.getElementById("bombAnswerFeedback");
+    if (feedback) {
+      feedback.textContent = "Vérification du mot…";
+      feedback.classList.add("is-visible");
+    }
     socket.emit("bomb:answer", { code:state.code, playerId:session.playerId, answer }, response => {
       if (response?.ok) return;
       toast(response?.error || "Mot refusé.");
