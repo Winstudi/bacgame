@@ -546,22 +546,6 @@ function syncBombAudio(state) {
 
   clearTimeout(bombAudio.resumeTimer);
   bombAudio.resumeTimer = null;
-  const passedToAnotherPlayer = previous?.status === "playing" &&
-    previous.code === next.code && previous.round === next.round &&
-    previous.cycle === next.cycle && previous.turnPlayerId &&
-    next.turnPlayerId && previous.turnPlayerId !== next.turnPlayerId;
-  if (passedToAnotherPlayer) {
-    pauseBombLoops();
-    const { code, round, cycle, turnVersion } = next;
-    bombAudio.resumeTimer = window.setTimeout(() => {
-      const latest = bombAudio.snapshot;
-      if (latest?.status === "playing" && latest.code === code &&
-          latest.round === round && latest.cycle === cycle &&
-          latest.turnVersion === turnVersion) startBombLoops();
-    }, 1050);
-    return;
-  }
-
   const resumedAfterExplosion = previous?.status === "exploding" ||
     previous?.status === "intermission" || previous?.code !== next.code ||
     previous?.round !== next.round || previous?.cycle !== next.cycle;
