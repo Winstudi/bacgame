@@ -2318,8 +2318,11 @@ html body .screen.bomb-screen {
 .bomb-impact-bit { position:absolute;left:0;top:0;width:6px;height:6px;border-radius:50%;opacity:0;background:#fff1a0;box-shadow:0 0 7px 2px #ffd34a,0 0 16px 4px #ff703f; }
 .bomb-impact-bit:nth-child(4n) { width:4px;height:11px;border-radius:4px;background:#ff6be9;box-shadow:0 0 8px 2px #f65fff; }
 @media(prefers-reduced-motion:reduce) { .bomb-spark { animation:none;opacity:.9; } }
-.bomb-lost-heart { display:inline-block; }
-@media(prefers-reduced-motion:reduce) { .bomb-center.is-flying,.bomb-lost-heart { visibility:hidden; } }
+.bomb-lost-heart { position:relative;display:inline-grid;place-items:center;vertical-align:baseline; }
+.bomb-lost-heart > span { grid-area:1/1; }
+.bomb-lost-heart-empty { position:relative;z-index:2;color:#ff9aaf; }
+.bomb-lost-heart-fill { position:relative;z-index:1; }
+@media(prefers-reduced-motion:reduce) { .bomb-center.is-flying,.bomb-lost-heart-fill { visibility:hidden; } }
 
 .bomb-pointer { position:absolute;left:50%;top:auto;bottom:50%;z-index:1;width:clamp(38px,14%,56px);height:calc(32% - 36px);transform-origin:50% 100%;transform:translateX(-50%) rotate(calc(var(--bomb-angle) + 90deg));filter:drop-shadow(0 0 7px #ffba47c9); }
 .bomb-pointer > img { display:block;width:100%;height:100%;object-fit:contain; }
@@ -2365,17 +2368,17 @@ html body .bomb-player-avatar.ptb-has-equipped-frame {
   box-shadow:none !important;
 }
 html body .bomb-player-avatar.ptb-has-equipped-frame > img:not(.ptb-equipped-frame-overlay) {
-  width:74% !important;
-  height:74% !important;
-  max-width:74% !important;
-  max-height:74% !important;
+  width:88% !important;
+  height:88% !important;
+  max-width:88% !important;
+  max-height:88% !important;
   border:0 !important;
   border-radius:0 !important;
   object-fit:cover !important;
 }
 html body .bomb-player-avatar.ptb-has-equipped-frame > span {
-  width:74% !important;
-  height:74% !important;
+  width:88% !important;
+  height:88% !important;
   display:grid !important;
   place-items:center !important;
   border-radius:0 !important;
@@ -2396,4 +2399,11 @@ html body .bomb-player-avatar.ptb-has-equipped-frame > .ptb-equipped-frame-overl
   object-fit:contain !important;
   transform:translate3d(-50%,-50%,0) !important;
   pointer-events:none !important;
+}
+html body .bomb-player.is-hit.is-out {
+  animation:bomb-elimination-gray .18s ease var(--bomb-elimination-delay,800ms) both;
+}
+@keyframes bomb-elimination-gray {
+  from { opacity:1;filter:none; }
+  to { opacity:.38;filter:grayscale(1); }
 }

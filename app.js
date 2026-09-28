@@ -601,7 +601,7 @@ function animateBombExplosion(state) {
     {transform:"translateX(3px)",filter:"brightness(1.2)",offset:.45},
     {transform:"translateX(0)",filter:"brightness(1)"}
   ], 600, 390);
-  play(".bomb-lost-heart", [
+  play(".bomb-lost-heart-fill", [
     {opacity:1,transform:"translateY(0) scale(1)"},
     {opacity:0,transform:"translateY(-14px) scale(1.5)"}
   ], 750, 390);
@@ -645,11 +645,18 @@ function renderBombGame() {
     const hit = exploding && player.id === explosion?.playerId;
     const eliminatedNow = hit && !!explosion?.eliminated;
     const frame = !!(window.PtitBacFrames?.asset?.(player.frameId));
-    return `<div class="bomb-player ${hit ? "is-hit" : ""} ${hit && player.id === session.playerId ? "is-self-hit" : ""} ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 || eliminatedNow ? "is-out" : ""}" style="left:${x}%;top:${y}%">
+    const shownLives = Math.max(0, lives - (hit && lives > 0 ? 1 : 0));
+    const eliminationDelay = eliminatedNow
+      ? Math.max(0, 800 - Math.max(0, serverNowMs() - Number(explosion.at || serverNowMs())))
+      : 800;
+    const renderedHearts = "♥".repeat(shownLives) +
+      (hit && lives > 0 ? '<span class="bomb-lost-heart"><span class="bomb-lost-heart-empty">♡</span><span class="bomb-lost-heart-fill">♥</span></span>' : "") +
+      "♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives));
+    return `<div class="bomb-player ${hit ? "is-hit" : ""} ${hit && player.id === session.playerId ? "is-self-hit" : ""} ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 || eliminatedNow ? "is-out" : ""}" style="left:${x}%;top:${y}%;--bomb-elimination-delay:${eliminationDelay}ms">
       <div class="bomb-player-badge">
         <div class="bomb-player-avatar ${frame ? "ptb-has-equipped-frame" : ""}">${bombAvatarMarkup(player)}</div>
         <strong>${escapeHtml(player.name)}</strong>
-        <span class="bomb-hearts" aria-label="${lives} vie${lives > 1 ? "s" : ""}">${"♥".repeat(Math.max(0, lives - (hit ? 1 : 0)))}${hit && lives > 0 ? '<span class="bomb-lost-heart">♥</span>' : ""}${"♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives))}</span>
+        <span class="bomb-hearts" aria-label="${shownLives} vie${shownLives > 1 ? "s" : ""}">${renderedHearts}</span>
       </div>
     </div>`;
   }).join("");
