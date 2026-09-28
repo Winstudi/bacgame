@@ -2293,6 +2293,12 @@ html body .screen.bomb-screen {
 .bomb-letter b { display:grid;width:32px;height:30px;margin:2px auto 0;place-items:center;border:1px solid #ac66ff99;border-radius:6px;background:#39206e88;box-shadow:0 0 10px #ab49ff45;font-size:18px; }
 .bomb-arena { position:relative;width:min(100%,410px,max(280px,calc(100dvh - 285px)));aspect-ratio:1;margin:24px auto 16px; }
 .bomb-orbit { position:absolute;inset:10%;border:1px dashed #a65cff78;border-radius:50%;box-shadow:0 0 22px #914cff24,inset 0 0 28px #914cff16; }
+.bomb-scene-decor { position:absolute;inset:0;z-index:1;pointer-events:none;overflow:visible; }
+.bomb-core-ring { position:absolute;left:50%;top:50%;width:50%;max-width:220px;aspect-ratio:1;box-sizing:border-box;transform:translate(-50%,-50%);border:1.5px solid #c04dff;border-radius:50%;background:radial-gradient(circle,#a138ff12 0%,#922cff08 58%,transparent 74%);box-shadow:0 0 8px #c04dffb0,0 0 22px #a53bff70,inset 0 0 18px #aa45ff20;animation:bomb-core-ring-glow 4.6s ease-in-out infinite; }
+.bomb-sparkle { position:absolute;left:var(--x);top:var(--y);width:var(--size,9px);height:var(--size,9px);display:block;background:#bd6bff;clip-path:polygon(50% 0,59% 40%,100% 50%,59% 60%,50% 100%,41% 60%,0 50%,41% 40%);filter:drop-shadow(0 0 4px #be6aff);opacity:.55;transform:translate(-50%,-50%) scale(.7);animation:bomb-star-shimmer 3s ease-in-out var(--delay,0s) infinite; }
+.bomb-sparkle.is-dot { border-radius:50%;clip-path:none;background:#74eaff;filter:drop-shadow(0 0 4px #47dfff); }
+@keyframes bomb-star-shimmer { 0%,100% { opacity:.28;transform:translate(-50%,-50%) scale(.65) rotate(0deg); } 48% { opacity:.9;transform:translate(-50%,-50%) scale(1.08) rotate(45deg); } }
+@keyframes bomb-core-ring-glow { 0%,100% { opacity:.72;box-shadow:0 0 7px #c04dff8a,0 0 17px #a53bff55,inset 0 0 12px #aa45ff16; } 50% { opacity:1;box-shadow:0 0 11px #d365ffbd,0 0 28px #a53bff8a,inset 0 0 20px #aa45ff30; } }
 .bomb-player { position:absolute;transform:translate(-50%,-50%);width:78px;display:flex;align-items:center;flex-direction:column;gap:1px;z-index:2;transition:opacity .2s,filter .2s; }
 .bomb-player-badge { display:flex;min-width:64px;box-sizing:border-box;flex-direction:column;align-items:center;gap:2px;padding:5px 6px 4px;border:1px solid #a66bff;border-radius:12px;background:linear-gradient(160deg,#21134eeb,#11153feF);box-shadow:0 0 12px #9d49ff92,inset 0 0 9px #b95dff2e; }
 .bomb-player-avatar { display:grid;place-items:center;width:46px;height:46px;border-radius:10px;border:1px solid #9e77e8;background:#241d55;box-shadow:0 2px 10px #0008;font-size:24px;overflow:hidden; }
@@ -2321,6 +2327,7 @@ html body .screen.bomb-screen {
 .bomb-impact-bit { position:absolute;left:0;top:0;width:6px;height:6px;border-radius:50%;opacity:0;background:#fff1a0;box-shadow:0 0 7px 2px #ffd34a,0 0 16px 4px #ff703f; }
 .bomb-impact-bit:nth-child(4n) { width:4px;height:11px;border-radius:4px;background:#ff6be9;box-shadow:0 0 8px 2px #f65fff; }
 @media(prefers-reduced-motion:reduce) { .bomb-spark { animation:none;opacity:.9; } }
+@media(prefers-reduced-motion:reduce) { .bomb-sparkle,.bomb-core-ring { animation:none; }.bomb-sparkle { opacity:.62;transform:translate(-50%,-50%) scale(.85); } }
 .bomb-lost-heart { position:relative;display:inline-grid;place-items:center;vertical-align:baseline; }
 .bomb-lost-heart > span { grid-area:1/1; }
 .bomb-lost-heart-empty { position:relative;z-index:2;color:#ff9aaf; }
