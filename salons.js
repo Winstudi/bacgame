@@ -3,6 +3,7 @@
   "use strict";
 
   const LOBBY_MAX_PLAYERS = 6;
+  const BOMB_LOBBY_MAX_PLAYERS = 8;
   const DIFFICULTY_ICON_URLS = {
     beginner: "/difficulty.png",
     medium: "/difficulty.png",
@@ -35,6 +36,12 @@
     } catch {
       return Date.now();
     }
+  }
+
+  function lobbyMaxPlayers(state) {
+    return state?.gameType === "bombe"
+      ? BOMB_LOBBY_MAX_PLAYERS
+      : LOBBY_MAX_PLAYERS;
   }
 
   function clearLobbyCountdown() {
@@ -1420,6 +1427,7 @@
     const quickMode = state.mode === "quick";
     const publicMode = state.mode === "public";
     const difficulty = difficultyInfo(state.categoryDifficulty);
+    const maxPlayers = lobbyMaxPlayers(state);
 
     const allReady =
       !quickMode &&
@@ -1481,7 +1489,7 @@
     }).join("");
 
     const emptySlots = Array.from(
-      { length:Math.max(0, LOBBY_MAX_PLAYERS - state.players.length) },
+      { length:Math.max(0, maxPlayers - state.players.length) },
       () => `
         <div class="pl-empty" aria-label="Place libre">
           <b aria-hidden="true">＋</b>
@@ -1552,7 +1560,7 @@
         </section>
 
         <section class="pl-players">
-          <h2>Joueurs <span>${state.players.length}/${LOBBY_MAX_PLAYERS}</span></h2>
+          <h2>Joueurs <span>${state.players.length}/${maxPlayers}</span></h2>
           <div class="pl-grid">${cards}${emptySlots}</div>
         </section>
 
@@ -1586,7 +1594,7 @@
           </div>
 
           ${!quickMode && user?.isHost && state.mode === "private"
-            ? `<button class="pl-test" data-add-bot="0" type="button" ${state.players.length >= LOBBY_MAX_PLAYERS ? "disabled" : ""}>Ajouter un joueur test</button>`
+            ? `<button class="pl-test" data-add-bot="0" type="button" ${state.players.length >= maxPlayers ? "disabled" : ""}>Ajouter un joueur test</button>`
             : ""}
         </div>
 
@@ -1816,7 +1824,7 @@
     document.querySelectorAll("[data-add-bot]").forEach(btn => {
       btn.addEventListener("click", () => {
         if (!user?.isHost) return;
-        if (state.players.length >= LOBBY_MAX_PLAYERS) return toast("Salon complet.");
+        if (state.players.length >= lobbyMaxPlayers(state)) return toast("Salon complet.");
         socket.emit("room:addBot", { code: state.code, playerId: session.playerId });
       });
     });

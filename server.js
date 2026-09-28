@@ -64,7 +64,7 @@ require("./friends-hook.js")(io, {
     const room = rooms.get(code);
     return !!room && room.mode !== "quick" && room.phase === "lobby" &&
       !room.economyStartPending &&
-      (room.players.length < 6 || room.players.some(publicBotEngine.isMatchmakingBot)) &&
+      (room.players.length < roomPlayerLimit(room) || room.players.some(publicBotEngine.isMatchmakingBot)) &&
       room.players.some(p => !p.isBot && p.walletToken === token && p.connected);
   },
   partyRoomAvailable: (code, token) => {
@@ -1725,6 +1725,9 @@ function startsWithLetter(answer, letter) {
 
 function privateLobbyReady(room) {
   return room.players.length >= 2 && room.players.every(p => p.isBot || (p.connected && p.lobbyReady === true));
+}
+function roomPlayerLimit(room) {
+  return room?.gameType === "bombe" ? 8 : 6;
 }
 function resetPrivateReady(room) {
   if (room.mode !== "quick") room.players.forEach(p => { p.lobbyReady = false; });
@@ -3865,6 +3868,29 @@ async function ptitBacHandleExplicitLeave(socket, payload = {}, cb = () => {}) {
       if (wasHost) ptitBacTransferHost(room, player.id);
       delete room.bomb.lives[player.id];
       delete room.bomb.wins[player.id];
+      delete room.bomb.validAnswers?.[player.id];
+      room.bomb.eliminationOrder = (room.bomb.eliminationOrder || []).filter(id => id !== player.id);
+      if (room.bomb.lastWinnerId === player.id) room.bomb.lastWinnerId = null;
+
+      if (room.bomb.status === "intermission") {
+        if (room.players.length > 1) {
+          emitRoom(room);
+          return cb({ ok:true, outcome:"left_room" });
+        }
+        const remaining = room.players[0];
+        clearBombTimer(room.code);
+        clearBombBotTimer(room.code);
+        room.bomb.wins[remaining.id] = Math.max(room.rounds, room.bomb.wins[remaining.id] || 0);
+        room.bomb.lastWinnerId = remaining.id;
+        room.bomb.turnPlayerId = null;
+        room.bomb.checkingPlayerId = null;
+        room.bomb.endsAt = null;
+        room.bomb.status = "finished";
+        room.phase = "finished";
+        emitRoom(room);
+        return cb({ ok:true, outcome:"left_room" });
+      }
+
       const alive = bombActivePlayers(room);
       if (alive.length === 1) {
         clearBombTimer(room.code);
@@ -4250,11 +4276,12 @@ function joinGameRoom(socket, { code, name, avatar, frameId, friendCode, walletT
     if (!room) return cb({ ok: false, error: "Partie introuvable." });
     if (room.phase !== "lobby") return cb({ ok: false, error: "La partie a déjà commencé." });
     if (!safeName) return cb({ ok: false, error: "Choisis un prénom." });
+    const playerLimit = roomPlayerLimit(room);
     if (
-      room.players.length >= 6 &&
+      room.players.length >= playerLimit &&
       !room.players.some(publicBotEngine.isMatchmakingBot)
     ) {
-      return cb({ ok: false, error: "Cette partie est pleine (6 joueurs maximum)." });
+      return cb({ ok: false, error: `Cette partie est pleine (${playerLimit} joueurs maximum).` });
     }
     const walletResult = ensureWallet(walletToken || socket.data.walletToken);
     if (hasActiveRoom(walletResult.token)) return cb({ok:false,error:"Quitte ta partie actuelle avant d’en rejoindre une autre."});
@@ -5121,7 +5148,10 @@ io.on("connection", socket => {
       return socket.emit("toast", "Les bots de test sont disponibles uniquement en salon privé.");
     }
 
-    if (room.players.length >= 6) { return socket.emit("toast", "Le salon est complet (6 joueurs maximum)."); }
+    const playerLimit = roomPlayerLimit(room);
+    if (room.players.length >= playerLimit) {
+      return socket.emit("toast", `Le salon est complet (${playerLimit} joueurs maximum).`);
+    }
 
     const identity = randomTestPlayerIdentity(room);
     const bot = {
@@ -5617,12 +5647,14 @@ io.on("connection", socket => {
     player.connected = false;
     player.lobbyReady = false;
     player.rematchReady = false;
+    let bombTurnAdvanced = false;
     if (room.gameType === "bombe" && room.phase === "bomb" && room.bomb?.status === "playing" && room.bomb.turnPlayerId === player.id) {
       const next = bombNextClockwisePlayer(room, player.id);
       if (next && next.id !== player.id) {
         room.bomb.turnPlayerId = next.id;
         room.bomb.turnVersion += 1;
         room.bomb.checkingPlayerId = null;
+        bombTurnAdvanced = true;
       }
     }
 
@@ -5637,6 +5669,7 @@ io.on("connection", socket => {
       ensureLetterChooser(room);
     }
     emitRoom(room);
+    if (bombTurnAdvanced) scheduleBombBotTurn(room);
     scheduleMatchmakingBotFill(room);
 
     // Nettoyage après 3 heures d'inactivité totale.
