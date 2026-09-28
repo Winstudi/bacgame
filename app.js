@@ -755,6 +755,7 @@ function renderBombGame() {
       <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
         <div class="bomb-orbit"></div>${players}
         <div class="bomb-scene-decor" aria-hidden="true">
+          <span class="bomb-edge-ring"></span>
           <span class="bomb-core-ring"></span>
           <i class="bomb-sparkle" style="--x:13%;--y:32%;--size:11px;--delay:-1.3s"></i>
           <i class="bomb-sparkle is-dot" style="--x:8%;--y:47%;--size:4px;--delay:-.4s"></i>
@@ -768,6 +769,14 @@ function renderBombGame() {
           <i class="bomb-sparkle is-dot" style="--x:64%;--y:42%;--size:4px;--delay:-1.5s"></i>
           <i class="bomb-sparkle" style="--x:39%;--y:63%;--size:10px;--delay:-.6s"></i>
           <i class="bomb-sparkle is-dot" style="--x:63%;--y:65%;--size:4px;--delay:-2.2s"></i>
+          <i class="bomb-sparkle" style="--x:4%;--y:22%;--size:8px;--delay:-1.8s"></i>
+          <i class="bomb-sparkle is-dot" style="--x:96%;--y:23%;--size:5px;--delay:-.7s"></i>
+          <i class="bomb-sparkle is-dot" style="--x:4%;--y:76%;--size:4px;--delay:-2.6s"></i>
+          <i class="bomb-sparkle" style="--x:96%;--y:77%;--size:9px;--delay:-1.1s"></i>
+          <i class="bomb-sparkle is-dot" style="--x:27%;--y:13%;--size:4px;--delay:-.3s"></i>
+          <i class="bomb-sparkle" style="--x:75%;--y:14%;--size:7px;--delay:-2.3s"></i>
+          <i class="bomb-sparkle" style="--x:25%;--y:87%;--size:7px;--delay:-1.4s"></i>
+          <i class="bomb-sparkle is-dot" style="--x:77%;--y:87%;--size:4px;--delay:-.9s"></i>
         </div>
         ${exploding && unlucky ? `<div class="bomb-impact" aria-hidden="true" style="left:${50+40*Math.cos(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%;top:${50+40*Math.sin(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%"><span class="bomb-impact-ring"></span><span class="bomb-impact-ring bomb-impact-ring-second"></span><span class="bomb-impact-flash"></span><span class="bomb-impact-core"></span>${Array.from({length:16},(_,i)=>`<i class="bomb-smoke bomb-smoke-${i}" style="--smoke-size:${34+(i%5)*8}px"></i><i class="bomb-impact-bit bomb-impact-bit-${i}"></i>`).join("")}</div>` : ""}
         <div class="bomb-center ${exploding ? "is-flying" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><div class="bomb-art"><img src="/bomb-neon.png?v=1.48.0-bombe-assets3" alt="">${active ? '<span class="bomb-spark" aria-hidden="true"></span>'+Array.from({length:16},()=>'<i class="bomb-spark-particle" aria-hidden="true"></i>').join("") : ""}</div></div>
