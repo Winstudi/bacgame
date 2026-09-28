@@ -524,7 +524,13 @@
     const tag = privateLobbyTagInfo(player);
     if (!tag) return "";
 
-    const visual = lobbyTagVisual(tag.id);
+    const knownAssets = {
+      tag_quantique: { asset:"/tag-quantique.png", name:"Tag Quantique" },
+      tag_game_over: { asset:"/tag-game-over.png", name:"Game Over" }
+    };
+    const catalogItem = window.PtitBacInventory?.tags?.[tag.id];
+    const item = catalogItem || knownAssets[tag.id];
+    const visual = item?.asset ? { asset:item.asset, name:item.name || tag.label } : null;
     if (visual) {
       return `
         <span class="pl-player-title private-tag-image" title="${escapeHtml(visual.name)}" data-private-tag-asset="${escapeHtml(visual.asset)}">
