@@ -371,7 +371,7 @@
               value: state.rounds,
               icon: "/lightning.png"
             })}
-            ${bomb ? card({ key: "bombLives", label: "Vies", value: state.bombLives || 3, icon: "/lobby-categories.png" }) : card({
+            ${bomb ? card({ key: "bombLives", label: "Vies", value: state.bombLives || 3, icon: "/heart.png" }) : card({
               key: "categoryCount",
               label: "Catégories",
               value: categoryCount,
@@ -1554,7 +1554,7 @@
           <div class="pl-setting-grid">
             ${settingCard({label:"Manches",value:state.rounds,icon:"/lightning.png"})}
             ${state.gameType === "bombe"
-              ? `${settingCard({label:"Vies",value:state.bombLives || 3,icon:"/lobby-categories.png"})}${settingCard({label:"Bombe",value:({fast:"Rapide",medium:"Moyen",slow:"Lent"})[state.bombSpeed] || "Moyen",icon:"/lobby-clock.png"})}`
+              ? `${settingCard({label:"Vies",value:state.bombLives || 3,icon:"/heart.png"})}${settingCard({label:"Bombe",value:({fast:"Rapide",medium:"Moyen",slow:"Lent"})[state.bombSpeed] || "Moyen",icon:"/lobby-clock.png"})}`
               : `${settingCard({label:"Catégories",value:state.categoryCount || 6,icon:"/lobby-categories.png"})}${settingCard({label:"Temps",value:state.duration+"s",icon:"/lobby-clock.png"})}`}
             ${settingCard({label:"Difficulté",value:difficulty.label,icon:difficulty.icon,difficulty:true})}
           </div>
@@ -1708,7 +1708,7 @@
         lobbyDifficultyLockUntil = now + 260;
       }
 
-      const rounds = [1, 3, 5];
+      const rounds = state.gameType === "bombe" ? [1, 2, 3] : [1, 3, 5];
       const durations = [30, 60, 90, 120];
       const difficulties = ["beginner", "medium", "hard"];
       const bomb = state.gameType === "bombe";
@@ -3071,7 +3071,7 @@
 
     if (state?.gameType === "bombe") return [
       { key: "rounds", label: "Manches", value: String(state.rounds || 1), icon: "/lightning.png" },
-      { key: "bombLives", label: "Vies", value: String(state.bombLives || 3), icon: "/lobby-categories.png" },
+      { key: "bombLives", label: "Vies", value: String(state.bombLives || 3), icon: "/heart.png" },
       { key: "bombSpeed", label: "Bombe", value: ({ fast: "Rapide", medium: "Moyen", slow: "Lent" })[state.bombSpeed] || "Moyen", icon: "/lobby-clock.png" },
       { key: "categoryDifficulty", label: "Difficulté", value: difficulty, icon: "/difficulty.png", difficulty: true }
     ];
@@ -5112,7 +5112,7 @@
       return privateLobbyToast("Seul l’hôte peut modifier les paramètres.");
     }
 
-    const rounds = [1, 3, 5];
+    const rounds = state.gameType === "bombe" ? [1, 2, 3] : [1, 3, 5];
     const categoryCounts = [6, 8, 10];
     const durations = [30, 60, 90];
     const difficulties = ["beginner", "medium", "hard"];

@@ -4200,7 +4200,8 @@ function hasActiveRoom(token) {
 
 function createGameRoom(socket, { name, rounds = 1, duration = 60, categoryCount = 6, categoryDifficulty = "medium", gameType = "classic", bombLives = 3, bombSpeed = "medium", avatar, frameId, friendCode, walletToken }, cb = () => {}, mode = "private") {
     const safeName = cleanName(name);
-    const safeRounds = [1, 3, 5].includes(Number(rounds)) ? Number(rounds) : 1;
+    const allowedRounds = mode === "private" && gameType === "bombe" ? [1, 2, 3] : [1, 3, 5];
+    const safeRounds = allowedRounds.includes(Number(rounds)) ? Number(rounds) : 1;
     const safeDuration = [30, 60, 90, 120].includes(Number(duration)) ? Number(duration) : 60;
     const safeCategoryCount = [6, 8, 10].includes(Number(categoryCount)) ? Number(categoryCount) : 6;
     const safeCategoryDifficulty = ["beginner", "medium", "hard"].includes(categoryDifficulty) ? categoryDifficulty : "beginner";
@@ -4918,7 +4919,7 @@ io.on("connection", socket => {
     if (room.mode === "quick") return cb({ok:false,error:"Le format rapide est fixe."});
     if (room.gameType === "bombe") {
       resetPrivateReady(room);
-      room.rounds = [1, 3, 5].includes(Number(rounds)) ? Number(rounds) : room.rounds;
+      room.rounds = [1, 2, 3].includes(Number(rounds)) ? Number(rounds) : room.rounds;
       room.bombLives = [1, 2, 3].includes(Number(bombLives)) ? Number(bombLives) : room.bombLives;
       room.bombSpeed = ["fast", "medium", "slow"].includes(bombSpeed) ? bombSpeed : room.bombSpeed;
       room.categoryDifficulty = ["beginner", "medium", "hard"].includes(categoryDifficulty) ? categoryDifficulty : room.categoryDifficulty;
