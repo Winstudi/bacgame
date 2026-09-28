@@ -4582,3 +4582,20 @@ html body main.lobby-v5.pl-private.pl-private-v3 .pl-title-mode > h1 {
   text-overflow:clip!important;
   text-shadow:0 2px 0 #5d20b3,0 0 8px #eb52ff,0 0 15px rgba(129,71,255,.72)!important;
 }
+
+/* Les tags PNG équipés restent dans leur carte, y compris sur iPhone. */
+html body main.pl-private-v3 .pl-player .pl-player-title-row .pl-player-title.private-tag-image {
+  width:100%!important;
+  max-width:100%!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+
+html body main.pl-private-v3 .pl-player .pl-player-title-row .pl-player-title.private-tag-image > img {
+  width:100%!important;
+  max-width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+}

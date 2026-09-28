@@ -509,7 +509,7 @@
       tag_debutant: { label:"Débutant", icon:"★" }
     };
 
-    if (known[id]) return known[id];
+    if (known[id]) return { id, ...known[id] };
 
     const label = id
       .replace(/^tag[_-]?/i, "")
@@ -517,12 +517,20 @@
       .replace(/\b\w/g, char => char.toUpperCase())
       .trim();
 
-    return label ? { label, icon:"★" } : null;
+    return label ? { id, label, icon:"★" } : null;
   }
 
   function privateLobbyTagMarkup(player) {
     const tag = privateLobbyTagInfo(player);
     if (!tag) return "";
+
+    const visual = lobbyTagVisual(tag.id);
+    if (visual) {
+      return `
+        <span class="pl-player-title private-tag-image" title="${escapeHtml(visual.name)}" data-private-tag-asset="${escapeHtml(visual.asset)}">
+          <img src="${escapeHtml(visual.asset)}" alt="${escapeHtml(visual.name)}" draggable="false">
+        </span>`;
+    }
 
     return `
       <span class="pl-player-title" title="Titre équipé">
