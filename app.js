@@ -387,9 +387,13 @@ function render() {
 
 function bombAvatarMarkup(player) {
   const avatar = String(player.avatar || "🐼");
-  return avatar.startsWith("/")
+  const markup = avatar.startsWith("/")
     ? `<img src="${escapeHtml(avatar)}" alt="">`
     : `<span>${escapeHtml(avatar)}</span>`;
+  const frame = window.PtitBacFrames?.asset?.(player.frameId) || "";
+  return markup + (frame
+    ? `<img class="ptb-equipped-frame-overlay" src="${escapeHtml(frame)}" alt="" aria-hidden="true" draggable="false">`
+    : "");
 }
 
 function bombLeave() {
@@ -639,9 +643,11 @@ function renderBombGame() {
     const y = 50 + 40 * Math.sin(angle);
     const lives = Number(bomb.lives?.[player.id] || 0);
     const hit = exploding && player.id === explosion?.playerId;
-    return `<div class="bomb-player ${hit ? "is-hit" : ""} ${hit && player.id === session.playerId ? "is-self-hit" : ""} ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 ? "is-out" : ""}" style="left:${x}%;top:${y}%">
+    const eliminatedNow = hit && !!explosion?.eliminated;
+    const frame = !!(window.PtitBacFrames?.asset?.(player.frameId));
+    return `<div class="bomb-player ${hit ? "is-hit" : ""} ${hit && player.id === session.playerId ? "is-self-hit" : ""} ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 || eliminatedNow ? "is-out" : ""}" style="left:${x}%;top:${y}%">
       <div class="bomb-player-badge">
-        <div class="bomb-player-avatar">${bombAvatarMarkup(player)}</div>
+        <div class="bomb-player-avatar ${frame ? "ptb-has-equipped-frame" : ""}">${bombAvatarMarkup(player)}</div>
         <strong>${escapeHtml(player.name)}</strong>
         <span class="bomb-hearts" aria-label="${lives} vie${lives > 1 ? "s" : ""}">${"♥".repeat(Math.max(0, lives - (hit ? 1 : 0)))}${hit && lives > 0 ? '<span class="bomb-lost-heart">♥</span>' : ""}${"♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives))}</span>
       </div>

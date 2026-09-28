@@ -2356,3 +2356,44 @@ html body:has(.bomb-screen) #economyHud { display:none!important; }
 
 .bomb-player.is-self-hit .bomb-player-badge { animation:bomb-self-hit-glow .48s ease-out both; }
 @keyframes bomb-self-hit-glow { 0% { filter:brightness(1); } 35% { filter:brightness(1.8) drop-shadow(0 0 18px #ffd45c); } 100% { filter:brightness(1); } }
+
+html body .bomb-player-avatar.ptb-has-equipped-frame {
+  overflow:visible !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+html body .bomb-player-avatar.ptb-has-equipped-frame > img:not(.ptb-equipped-frame-overlay) {
+  width:74% !important;
+  height:74% !important;
+  max-width:74% !important;
+  max-height:74% !important;
+  border:0 !important;
+  border-radius:0 !important;
+  object-fit:cover !important;
+}
+html body .bomb-player-avatar.ptb-has-equipped-frame > span {
+  width:74% !important;
+  height:74% !important;
+  display:grid !important;
+  place-items:center !important;
+  border-radius:0 !important;
+  font-size:20px !important;
+}
+html body .bomb-player-avatar.ptb-has-equipped-frame > .ptb-equipped-frame-overlay {
+  position:absolute !important;
+  z-index:7 !important;
+  left:50% !important;
+  top:50% !important;
+  width:124% !important;
+  height:124% !important;
+  max-width:none !important;
+  max-height:none !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  object-fit:contain !important;
+  transform:translate3d(-50%,-50%,0) !important;
+  pointer-events:none !important;
+}
