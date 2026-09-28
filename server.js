@@ -3253,7 +3253,7 @@ function scheduleBombBotTurn(room) {
     const answer = choices[Math.floor(Math.random() * choices.length)];
     currentBomb.usedWords ||= [];
     currentBomb.usedWords.push(normalizeAnswer(answer));
-    currentBomb.lastAnswer = { playerId:player.id, answer };
+    currentBomb.lastAnswer = { playerId:player.id, answer, at:Date.now() };
     currentBomb.category = bombNextCategory(room);
     currentBomb.letter = bombNextLetter(room);
     currentBomb.turnPlayerId = bombNextClockwisePlayer(room, player.id)?.id || null;
@@ -5140,7 +5140,7 @@ io.on("connection", socket => {
     if (Date.now() >= bomb.endsAt) { bombExplode(room); return cb({ ok:false, error:"La bombe a explosé." }); }
     if (!verdict.ok) { emitRoom(room); return cb(verdict); }
     bomb.usedWords.push(normalized);
-    bomb.lastAnswer = { playerId:player.id, answer };
+    bomb.lastAnswer = { playerId:player.id, answer, at:Date.now() };
     bomb.category = bombNextCategory(room);
     bomb.letter = bombNextLetter(room);
     bomb.turnPlayerId = bombNextClockwisePlayer(room, player.id)?.id || null;

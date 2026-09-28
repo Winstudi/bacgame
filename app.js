@@ -519,9 +519,16 @@ function animateBombExplosion(state) {
   const arena = document.querySelector(".bomb-arena");
   const index = state.players.findIndex(player => player.id === state.bomb.lastExplosion.playerId);
   if (!arena || index < 0) return;
-  const angle = 2 * Math.PI * index / state.players.length - Math.PI / 2;
-  const dx = arena.clientWidth * .4 * Math.cos(angle);
-  const dy = arena.clientHeight * .4 * Math.sin(angle);
+  const target = document.querySelector(".bomb-player.is-hit .bomb-player-avatar");
+  const bombNode = document.querySelector(".bomb-center.is-flying");
+  const bombRect = bombNode?.getBoundingClientRect();
+  const targetRect = target?.getBoundingClientRect();
+  const dx = bombRect && targetRect
+    ? targetRect.left + targetRect.width / 2 - (bombRect.left + bombRect.width / 2)
+    : arena.clientWidth * .4 * Math.cos(2 * Math.PI * index / state.players.length - Math.PI / 2);
+  const dy = bombRect && targetRect
+    ? targetRect.top + targetRect.height / 2 - (bombRect.top + bombRect.height / 2)
+    : arena.clientHeight * .4 * Math.sin(2 * Math.PI * index / state.players.length - Math.PI / 2);
   const play = (selector, frames, duration, delay = 0) => {
     const node = document.querySelector(selector);
     if (!node?.animate || reduced) return;
@@ -595,6 +602,20 @@ function animateBombExplosion(state) {
   ], 750, 390);
 }
 
+function animateBombLastWord(state) {
+  const answer = state.bomb?.lastAnswer;
+  const word = document.querySelector(".bomb-last-word");
+  if (!answer || !word?.animate) return;
+  const elapsed = Math.max(0, serverNowMs() - Number(answer.at || Date.now()));
+  if (elapsed >= 2000) { word.remove(); return; }
+  const fade = word.animate([
+    { opacity:1, transform:"translateX(-50%) scale(1)" },
+    { opacity:1, transform:"translateX(-50%) scale(1)", offset:.82 },
+    { opacity:0, transform:"translateX(-50%) scale(.94)" }
+  ], { duration:2000, fill:"forwards", easing:"ease-out" });
+  fade.currentTime = elapsed;
+}
+
 function renderBombGame() {
   const state = session.state;
   const bomb = state.bomb;
@@ -606,7 +627,9 @@ function renderBombGame() {
   const current = state.players.find(player => player.id === bomb.turnPlayerId);
   const explosion = bomb.lastExplosion;
   const exploding = bomb.status === "exploding";
-  const lastAnswerPlayer = state.players.find(player => player.id === bomb.lastAnswer?.playerId);
+  const lastAnswerAge = bomb.lastAnswer?.at ? serverNowMs() - Number(bomb.lastAnswer.at) : 0;
+  const showLastAnswer = !!bomb.lastAnswer?.answer && lastAnswerAge >= 0 && lastAnswerAge < 2000;
+  const lastAnswerPlayer = showLastAnswer ? state.players.find(player => player.id === bomb.lastAnswer.playerId) : null;
   const unlucky = state.players.find(player => player.id === explosion?.playerId);
   const winner = state.players.find(player => bomb.status === "intermission" && player.id === bomb.lastWinnerId);
   const players = state.players.map((player, index) => {
@@ -615,7 +638,7 @@ function renderBombGame() {
     const y = 50 + 40 * Math.sin(angle);
     const lives = Number(bomb.lives?.[player.id] || 0);
     const hit = exploding && player.id === explosion?.playerId;
-    return `<div class="bomb-player ${hit ? "is-hit" : ""} ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 ? "is-out" : ""}" style="left:${x}%;top:${y}%">
+    return `<div class="bomb-player ${hit ? "is-hit" : ""} ${hit && player.id === session.playerId ? "is-self-hit" : ""} ${player.id === bomb.turnPlayerId ? "is-turn" : ""} ${lives === 0 ? "is-out" : ""}" style="left:${x}%;top:${y}%">
       <div class="bomb-player-badge">
         <div class="bomb-player-avatar">${bombAvatarMarkup(player)}</div>
         <strong>${escapeHtml(player.name)}</strong>
@@ -650,6 +673,7 @@ function renderBombGame() {
   animateBombTurn();
   animateBombTension(state);
   animateBombExplosion(state);
+  animateBombLastWord(state);
   document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
   document.getElementById("bombAnswerForm")?.addEventListener("submit", event => {
     event.preventDefault();
