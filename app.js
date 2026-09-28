@@ -92,6 +92,9 @@ function toast(message) {
 socket.on("toast", toast);
 socket.on("wallet:update", ({ balance } = {}) => {
   setWalletState(session.walletToken, balance);
+  document.querySelectorAll(".bomb-header-coins strong").forEach(node => {
+    node.textContent = String(getCoins());
+  });
   const bombRerollButton = document.getElementById("bombRerollButton");
   if (bombRerollButton && bombRerollButton.dataset.pending !== "true") {
     bombRerollButton.disabled = getCoins() < Number(bombRerollButton.dataset.cost || 20);
@@ -675,7 +678,7 @@ function renderBombIntermission(state) {
   const nextRoundAt = Number(bomb.nextRoundAt || serverNowMs() + 5000);
 
   setScreen(`<main class="screen bomb-screen bomb-intermission-screen">
-    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Quitter la partie"><img src="/back-arrow.png" alt=""></button><img class="bomb-brand" src="/ptitbac.logo.png" alt="P'tit Bac"><span>Manche ${bomb.round}/${state.rounds}</span></header>
+    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Quitter la partie"><img src="/back-arrow.png" alt=""></button><img class="bomb-brand" src="/ptitbac.logo.png" alt="P'tit Bac"><span class="bomb-header-coins" aria-label="${getCoins()} pièces"><img src="/coin.png" alt=""><strong>${getCoins()}</strong></span><span>Manche ${bomb.round}/${state.rounds}</span></header>
     <section class="bomb-intermission-content" aria-labelledby="bombIntermissionTitle">
       <div class="bomb-intermission-heading"><span>PAUSE ENTRE LES MANCHES</span><h1 id="bombIntermissionTitle">Manche ${bomb.round} terminée</h1></div>
       <section class="bomb-intermission-card bomb-round-winner" aria-labelledby="bombRoundWinnerTitle">
@@ -745,8 +748,8 @@ function renderBombGame() {
       : myTurn ? "À toi de jouer !" : `Au tour de ${escapeHtml(current?.name || "un joueur")}`;
 
   setScreen(`<main class="screen bomb-screen">
-    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Quitter la partie"><img src="/back-arrow.png" alt=""></button><img class="bomb-brand" src="/ptitbac.logo.png" alt="P'tit Bac"><span>Manche ${bomb.round}/${state.rounds}</span></header>
-    <div class="bomb-content">
+    <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Quitter la partie"><img src="/back-arrow.png" alt=""></button><img class="bomb-brand" src="/ptitbac.logo.png" alt="P'tit Bac"><span class="bomb-header-coins" aria-label="${getCoins()} pièces"><img src="/coin.png" alt=""><strong>${getCoins()}</strong></span><span>Manche ${bomb.round}/${state.rounds}</span></header>
+    <div class="bomb-content ${myTurn && !checking ? "has-bomb-reroll" : ""}">
       <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
         <div class="bomb-orbit"></div>${players}
         ${exploding && unlucky ? `<div class="bomb-impact" aria-hidden="true" style="left:${50+40*Math.cos(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%;top:${50+40*Math.sin(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%"><span class="bomb-impact-ring"></span><span class="bomb-impact-ring bomb-impact-ring-second"></span><span class="bomb-impact-flash"></span><span class="bomb-impact-core"></span>${Array.from({length:16},(_,i)=>`<i class="bomb-smoke bomb-smoke-${i}" style="--smoke-size:${34+(i%5)*8}px"></i><i class="bomb-impact-bit bomb-impact-bit-${i}"></i>`).join("")}</div>` : ""}
@@ -756,7 +759,7 @@ function renderBombGame() {
       </div>
       <p class="bomb-status" role="status">${status}</p>
       ${myTurn && !checking ? `<button id="bombRerollButton" class="bomb-reroll-button" type="button" data-cost="${rerollCost}" aria-label="Relancer la catégorie et la lettre pour ${rerollCost} pièces" title="Relancer la catégorie et la lettre" ${canAffordReroll ? "" : "disabled"}>
-        <span class="bomb-reroll-copy"><strong>Relancer</strong><small>Catégorie et lettre</small></span><b><img src="/coin.png" alt="">${rerollCost}</b>
+        <span class="bomb-reroll-copy"><strong>Relancer</strong></span><b><img src="/coin.png" alt="">${rerollCost}</b>
       </button>` : ""}
       <div class="bomb-prompt"><div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div></div>
       ${myTurn ? `
