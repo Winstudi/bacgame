@@ -494,14 +494,19 @@ function animateBombTension(state) {
     ], { duration:950, iterations:Infinity, easing:"ease-in-out" });
     glow.currentTime = elapsed;
   }
-  document.querySelectorAll(".bomb-spark-particle").forEach((particle, index) => {
-    const angle = index * Math.PI * 2 / 7;
-    const distance = 12 + index % 3 * 5;
+  document.querySelectorAll(".bomb-spark-particle").forEach((particle, index, particles) => {
+    const angle = -Math.PI / 2 + index * Math.PI * 2 / particles.length;
+    const phase = (index * 113) % 520;
+    const distance = 20 + index % 4 * 9;
+    const dx = Math.cos(angle) * distance;
+    const dy = Math.sin(angle) * distance;
+    const rotation = angle * 180 / Math.PI + 90;
     const effect = particle.animate([
-      { opacity:0, transform:"translate(-50%,-50%) scale(.4)", offset:0 },
-      { opacity:1, transform:"translate(-50%,-50%) scale(1)", offset:.15 },
-      { opacity:0, transform:`translate(calc(-50% + ${Math.cos(angle)*distance}px),calc(-50% + ${Math.sin(angle)*distance}px)) scale(.2)` }
-    ], { duration:700 + index * 45, delay:index * 95, iterations:Infinity, easing:"ease-out" });
+      { opacity:0, transform:`translate(-50%,-50%) rotate(${rotation}deg) scale(.2,.4)`, offset:0 },
+      { opacity:1, transform:`translate(-50%,-50%) rotate(${rotation}deg) scale(1,1)`, offset:.12 },
+      { opacity:.85, transform:`translate(calc(-50% + ${dx*.35}px),calc(-50% + ${dy*.35}px)) rotate(${rotation}deg) scale(.8,.8)`, offset:.38 },
+      { opacity:0, transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(${rotation}deg) scale(.1,.25)` }
+    ], { duration:420 + index % 5 * 75, delay:phase, iterations:Infinity, easing:"ease-out" });
     effect.currentTime = elapsed;
   });
 
@@ -529,31 +534,65 @@ function animateBombExplosion(state) {
     { opacity:0, transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.9)` }
   ], 420);
   play(".bomb-impact-flash", [
-    {opacity:0,transform:"scale(.2)"}, {opacity:.9,transform:"scale(1)",offset:.25}, {opacity:0,transform:"scale(1.5)"}
-  ], 450, 400);
-  for (let i=0;i<8;i++) {
-    const a=i*Math.PI/4;
+    {opacity:0,transform:"scale(.15)"},
+    {opacity:1,transform:"scale(1)",offset:.12},
+    {opacity:.75,transform:"scale(1.2)",offset:.3},
+    {opacity:0,transform:"scale(1.8)"}
+  ], 680, 390);
+  play(".bomb-impact-core", [
+    {opacity:0,transform:"scale(.2)"},
+    {opacity:1,transform:"scale(1.15)",offset:.18},
+    {opacity:.7,transform:"scale(.85)",offset:.45},
+    {opacity:0,transform:"scale(.3)"}
+  ], 620, 390);
+  play(".bomb-impact-ring", [
+    {opacity:1,transform:"scale(.1)"},
+    {opacity:.95,transform:"scale(1)",offset:.12},
+    {opacity:.65,transform:"scale(2.7)",offset:.58},
+    {opacity:0,transform:"scale(3.5)"}
+  ], 850, 390);
+  play(".bomb-arena", [
+    {transform:"translateX(0)"},
+    {transform:"translateX(-6px)",offset:.12},
+    {transform:"translateX(5px)",offset:.24},
+    {transform:"translateX(-4px)",offset:.38},
+    {transform:"translateX(3px)",offset:.53},
+    {transform:"translateX(0)"}
+  ], 620, 390);
+  for (let i=0;i<16;i++) {
+    const a=-Math.PI/2+i*Math.PI*2/16;
+    const puffSize=34+(i%4)*12;
+    const dx=Math.cos(a)*(34+(i%3)*14);
+    const dy=Math.sin(a)*(20+(i%4)*10)-23;
     play(`.bomb-smoke-${i}`, [
-      {opacity:0,transform:"translate(-50%,-50%) scale(.3)"},
-      {opacity:.65,transform:`translate(calc(-50% + ${Math.cos(a)*18}px),calc(-50% + ${Math.sin(a)*14}px)) scale(1)`,offset:.2},
-      {opacity:0,transform:`translate(calc(-50% + ${Math.cos(a)*42}px),calc(-50% + ${Math.sin(a)*24-24}px)) scale(1.8)`}
-    ], 1150, 430+i*20);
+      {opacity:0,transform:"translate(-50%,-50%) scale(.2)"},
+      {opacity:.82,transform:`translate(calc(-50% + ${dx*.35}px),calc(-50% + ${dy*.35}px)) scale(1.05)`,offset:.2},
+      {opacity:.62,transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1.65)`,offset:.62},
+      {opacity:0,transform:`translate(calc(-50% + ${dx*1.2}px),calc(-50% + ${dy*1.25}px)) scale(2.1)`}
+    ], 1450+(i%4)*110, 410+(i%5)*32);
     play(`.bomb-impact-bit-${i}`, [
-      {opacity:0,transform:"translate(-50%,-50%) scale(.4)"},
-      {opacity:1,transform:"translate(-50%,-50%) scale(1)",offset:.1},
-      {opacity:0,transform:`translate(calc(-50% + ${Math.cos(a)*55}px),calc(-50% + ${Math.sin(a)*55}px)) scale(.1)`}
-    ], 550, 410);
+      {opacity:0,transform:"translate(-50%,-50%) scale(.1)"},
+      {opacity:1,transform:"translate(-50%,-50%) scale(1.3)",offset:.12},
+      {opacity:1,transform:`translate(calc(-50% + ${Math.cos(a)*puffSize*1.7}px),calc(-50% + ${Math.sin(a)*puffSize*1.7}px)) scale(.9)`,offset:.6},
+      {opacity:0,transform:`translate(calc(-50% + ${Math.cos(a)*puffSize*2}px),calc(-50% + ${Math.sin(a)*puffSize*2}px)) scale(.1)`}
+    ], 700+(i%3)*100, 390);
   }
-  play(".bomb-player.is-hit .bomb-player-badge", [
+  play(".bomb-player.is-hit .bomb-player-avatar", [
+    {transform:"scale(1)",boxShadow:"0 0 0 rgba(255,190,80,0)"},
+    {transform:"scale(1.2)",boxShadow:"0 0 38px 12px rgba(255,184,79,.95)",offset:.22},
+    {transform:"scale(.96)",boxShadow:"0 0 22px 6px rgba(179,91,255,.75)",offset:.52},
+    {transform:"scale(1)",boxShadow:"0 0 0 rgba(255,190,80,0)"}
+  ], 900, 390);
+  play(".bomb-player.is-hit .bomb-player-badge",[
     {transform:"translateX(0)",filter:"brightness(1)"},
     {transform:"translateX(-3px)",filter:"brightness(1.6)",offset:.2},
     {transform:"translateX(3px)",filter:"brightness(1.2)",offset:.45},
     {transform:"translateX(0)",filter:"brightness(1)"}
-  ], 420, 410);
+  ], 600, 390);
   play(".bomb-lost-heart", [
     {opacity:1,transform:"translateY(0) scale(1)"},
     {opacity:0,transform:"translateY(-14px) scale(1.5)"}
-  ], 550, 450);
+  ], 750, 390);
 }
 
 function renderBombGame() {
@@ -595,8 +634,8 @@ function renderBombGame() {
     <div class="bomb-content">
       <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
         <div class="bomb-orbit"></div>${players}
-        ${exploding && unlucky ? `<div class="bomb-impact" aria-hidden="true" style="left:${50+40*Math.cos(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%;top:${50+40*Math.sin(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%"><span class="bomb-impact-flash"></span>${Array.from({length:8},(_,i)=>`<i class="bomb-smoke bomb-smoke-${i}"></i><i class="bomb-impact-bit bomb-impact-bit-${i}"></i>`).join("")}</div>` : ""}
-        <div class="bomb-center ${exploding ? "is-flying" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><div class="bomb-art"><img src="/bomb-neon.png?v=1.48.0-bombe-assets2" alt="">${active ? '<span class="bomb-spark" aria-hidden="true"></span><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i><i class="bomb-spark-particle" aria-hidden="true"></i>' : ""}</div></div>
+        ${exploding && unlucky ? `<div class="bomb-impact" aria-hidden="true" style="left:${50+40*Math.cos(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%;top:${50+40*Math.sin(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%"><span class="bomb-impact-ring"></span><span class="bomb-impact-ring bomb-impact-ring-second"></span><span class="bomb-impact-flash"></span><span class="bomb-impact-core"></span>${Array.from({length:16},(_,i)=>`<i class="bomb-smoke bomb-smoke-${i}" style="--smoke-size:${38+(i%5)*13}px"></i><i class="bomb-impact-bit bomb-impact-bit-${i}"></i>`).join("")}</div>` : ""}
+        <div class="bomb-center ${exploding ? "is-flying" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><div class="bomb-art"><img src="/bomb-neon.png?v=1.48.0-bombe-assets3" alt="">${active ? '<span class="bomb-spark" aria-hidden="true"></span>'+Array.from({length:16},()=>'<i class="bomb-spark-particle" aria-hidden="true"></i>').join("") : ""}</div></div>
         ${lastAnswerPlayer && bomb.lastAnswer?.answer ? `<div class="bomb-last-word" aria-live="polite"><span>${escapeHtml(lastAnswerPlayer.name)} a écrit</span><strong>${escapeHtml(bomb.lastAnswer.answer)}</strong></div>` : ""}
         ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"><img src="/bomb-arrow-neon.png?v=1.48.0-bombe-assets2" alt=""></div>` : ""}
       </div>
