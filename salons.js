@@ -3,8 +3,6 @@
   "use strict";
 
   const LOBBY_MAX_PLAYERS = 6;
-  const BOMB_LOBBY_MAX_PLAYERS = 8;
-  const lobbyMaxPlayers = state => state?.gameType === "bombe" ? BOMB_LOBBY_MAX_PLAYERS : LOBBY_MAX_PLAYERS;
   const DIFFICULTY_ICON_URLS = {
     beginner: "/difficulty.png",
     medium: "/difficulty.png",
@@ -1417,7 +1415,7 @@
   }
 
   function privateMarkup(state, user) {
-    const maxPlayers = lobbyMaxPlayers(state);
+    const maxPlayers = LOBBY_MAX_PLAYERS;
     ensurePrivateLobbyV2Styles();
 
     const quickMode = state.mode === "quick";
@@ -1516,7 +1514,6 @@
         class="${rootClasses}"
         data-mode="${domMode}"
         data-lobby-kind="${quickMode ? "quick" : publicMode ? "public" : "private"}"
-        data-game-type="${state.gameType === "bombe" ? "bombe" : "baccalaureat"}"
         ${quickMode ? `data-quick-v3-upgraded="1"` : ""}
       >
         <header class="pl-header">
@@ -1820,7 +1817,7 @@
     document.querySelectorAll("[data-add-bot]").forEach(btn => {
       btn.addEventListener("click", () => {
         if (!user?.isHost) return;
-        if (state.players.length >= lobbyMaxPlayers(state)) return toast("Salon complet.");
+        if (state.players.length >= LOBBY_MAX_PLAYERS) return toast("Salon complet.");
         socket.emit("room:addBot", { code: state.code, playerId: session.playerId });
       });
     });
@@ -4905,7 +4902,7 @@
     title.innerHTML = `
       <img src="/friends.png" alt="">
       <span class="pl-v3-player-label">Joueurs</span>
-      <span class="pl-v3-player-count">(${count}/${lobbyMaxPlayers(state)})</span>
+      <span class="pl-v3-player-count">(${count}/${LOBBY_MAX_PLAYERS})</span>
     `;
 
     bar.appendChild(title);

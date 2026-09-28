@@ -1727,7 +1727,7 @@ function privateLobbyReady(room) {
   return room.players.length >= 2 && room.players.every(p => p.isBot || (p.connected && p.lobbyReady === true));
 }
 function roomPlayerLimit(room) {
-  return room?.gameType === "bombe" ? 8 : 6;
+  return 6;
 }
 function resetPrivateReady(room) {
   if (room.mode !== "quick") room.players.forEach(p => { p.lobbyReady = false; });
