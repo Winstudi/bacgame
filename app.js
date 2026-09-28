@@ -193,6 +193,7 @@ function saveSession(code, playerId) {
 function clearSession() {
   clearInterval(session.timerHandle);
   session.timerHandle = null;
+  stopBombAudio(true);
   session.code = "";
   session.playerId = "";
   session.state = null;
@@ -371,6 +372,7 @@ function renderShop() {
 }
 
 function render() {
+  syncBombAudio(session.state);
   if (!session.state) return renderHome();
   clearInterval(session.timerHandle);
   session.timerHandle = null;
@@ -430,6 +432,149 @@ function bombLeave(confirmBeforeLeave = true) {
 
 // Keep the animation clock across room snapshots, which replace the screen DOM.
 let bombTurnVisual = null;
+
+// Sound is controlled from room state so DOM re-renders never restart the tracks.
+const bombAudio = {
+  tickling:null, fuse:null, explosion:null, snapshot:null, resumeTimer:null,
+  lastExplosionKey:"", shouldPlayLoops:false, primed:false
+};
+
+function getBombAudio() {
+  if (!bombAudio.tickling) {
+    bombAudio.tickling = new Audio("/bomb-tickling.wav");
+    bombAudio.fuse = new Audio("/bomb-fuse.wav");
+    bombAudio.explosion = new Audio("/bomb-explosion.wav");
+    bombAudio.tickling.loop = true;
+    bombAudio.fuse.loop = true;
+    bombAudio.tickling.preload = "auto";
+    bombAudio.fuse.preload = "auto";
+    bombAudio.explosion.preload = "auto";
+    bombAudio.tickling.volume = .32;
+    bombAudio.fuse.volume = .42;
+    bombAudio.explosion.volume = .8;
+  }
+  return bombAudio;
+}
+
+function startBombLoops() {
+  const audio = getBombAudio();
+  bombAudio.shouldPlayLoops = true;
+  for (const track of [audio.tickling, audio.fuse]) {
+    if (!track.paused) continue;
+    const playback = track.play();
+    playback?.catch?.(() => {});
+  }
+}
+
+function pauseBombLoops(reset = true) {
+  for (const track of [bombAudio.tickling, bombAudio.fuse]) {
+    if (!track) continue;
+    track.pause();
+    if (reset) {
+      try { track.currentTime = 0; } catch {}
+    }
+  }
+  bombAudio.shouldPlayLoops = false;
+}
+
+function stopBombAudio(resetSnapshot = false) {
+  clearTimeout(bombAudio.resumeTimer);
+  bombAudio.resumeTimer = null;
+  pauseBombLoops();
+  if (bombAudio.explosion) {
+    bombAudio.explosion.pause();
+    try { bombAudio.explosion.currentTime = 0; } catch {}
+  }
+  if (resetSnapshot) {
+    bombAudio.snapshot = null;
+    bombAudio.lastExplosionKey = "";
+  }
+}
+
+function primeBombAudioFromGesture() {
+  if (bombAudio.primed) return;
+  bombAudio.primed = true;
+  const audio = getBombAudio();
+  const tracks = [audio.tickling, audio.fuse, audio.explosion];
+  Promise.allSettled(tracks.map(track => {
+    if (!track.paused) return Promise.resolve();
+    track.muted = true;
+    const playback = track.play();
+    if (!playback?.then) {
+      track.pause();
+      track.muted = false;
+      return Promise.resolve();
+    }
+    return playback.then(() => {
+      track.pause();
+      try { track.currentTime = 0; } catch {}
+      track.muted = false;
+    }).catch(() => { track.muted = false; });
+  })).then(() => {
+    if (bombAudio.shouldPlayLoops) startBombLoops();
+  });
+}
+
+document.addEventListener("pointerdown", primeBombAudioFromGesture, { capture:true });
+document.addEventListener("keydown", primeBombAudioFromGesture, { capture:true });
+
+function syncBombAudio(state) {
+  const bomb = state?.gameType === "bombe" && state.phase === "bomb" ? state.bomb : null;
+  const previous = bombAudio.snapshot;
+  const next = bomb ? {
+    code:state.code, round:bomb.round, cycle:bomb.cycle,
+    turnPlayerId:bomb.turnPlayerId, turnVersion:bomb.turnVersion,
+    status:bomb.status, explosionAt:bomb.lastExplosion?.at || null
+  } : null;
+  bombAudio.snapshot = next;
+
+  if (!next || next.status === "intermission" || next.status === "finished") {
+    stopBombAudio();
+    return;
+  }
+  if (next.status === "exploding") {
+    clearTimeout(bombAudio.resumeTimer);
+    bombAudio.resumeTimer = null;
+    pauseBombLoops();
+    const explosionKey = `${next.code}:${next.round}:${next.explosionAt || ""}`;
+    if (next.explosionAt && explosionKey !== bombAudio.lastExplosionKey) {
+      const audio = getBombAudio().explosion;
+      bombAudio.lastExplosionKey = explosionKey;
+      audio.pause();
+      try { audio.currentTime = 0; } catch {}
+      const playback = audio.play();
+      playback?.catch?.(() => {});
+    }
+    return;
+  }
+  if (next.status !== "playing") {
+    stopBombAudio();
+    return;
+  }
+
+  clearTimeout(bombAudio.resumeTimer);
+  bombAudio.resumeTimer = null;
+  const passedToAnotherPlayer = previous?.status === "playing" &&
+    previous.code === next.code && previous.round === next.round &&
+    previous.cycle === next.cycle && previous.turnPlayerId &&
+    next.turnPlayerId && previous.turnPlayerId !== next.turnPlayerId;
+  if (passedToAnotherPlayer) {
+    pauseBombLoops();
+    const { code, round, cycle, turnVersion } = next;
+    bombAudio.resumeTimer = window.setTimeout(() => {
+      const latest = bombAudio.snapshot;
+      if (latest?.status === "playing" && latest.code === code &&
+          latest.round === round && latest.cycle === cycle &&
+          latest.turnVersion === turnVersion) startBombLoops();
+    }, 1050);
+    return;
+  }
+
+  const resumedAfterExplosion = previous?.status === "exploding" ||
+    previous?.status === "intermission" || previous?.code !== next.code ||
+    previous?.round !== next.round || previous?.cycle !== next.cycle;
+  if (resumedAfterExplosion || !previous || previous.status !== "playing") startBombLoops();
+}
 
 function prepareBombTurnVisual(state) {
   const bomb = state.bomb;
