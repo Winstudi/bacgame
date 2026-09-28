@@ -272,9 +272,11 @@ module.exports = function installQuickMatch({
         const group =
           [...groups].find(candidate =>
             !candidate.matching &&
+            candidate.gameType === (profile.gameType === "bombe" ? "bombe" : "classic") &&
             candidate.entries.size < 6 &&
             (!candidate.starting || groupHasReplaceableFiller(candidate))
           ) || {
+            gameType: profile.gameType === "bombe" ? "bombe" : "classic",
             entries: new Set(),
             timer: null,
             deadline: null,

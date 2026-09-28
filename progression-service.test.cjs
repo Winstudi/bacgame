@@ -52,6 +52,22 @@ test("une partie rapide gagnée avec 6 réponses valides rapporte 42 XP", () => 
   assert.equal(xp.p1.trophies, 10);
 });
 
+test("la partie rapide Bombe récompense le gagnant et les réponses validées", () => {
+  const xp = calculateRoomXp(room({
+    gameType:"bombe", roundIndex:-1,
+    bomb:{
+      status:"finished", lastWinnerId:"p2", eliminationOrder:["p1"],
+      validAnswers:{p1:2,p2:3}
+    }
+  }));
+  assert.equal(xp.p2.rank, 1);
+  assert.equal(xp.p2.validAnswers, 3);
+  assert.equal(xp.p2.xp, 36);
+  assert.equal(xp.p2.trophies, 10);
+  assert.equal(xp.p1.rank, 2);
+  assert.equal(xp.p1.trophies, 6);
+});
+
 test("5 manches, 25 réponses valides et deuxième place rapportent 112 XP", () => {
   const xp = calculateRoomXp(room({
     rounds:5, roundIndex:4, paidPlayerIds:["p1","p2","p3"],

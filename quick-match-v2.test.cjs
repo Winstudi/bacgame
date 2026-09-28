@@ -63,11 +63,11 @@ function createHarness({ startDelayMs = 8 } = {}) {
     }
   });
 
-  async function join(id, char) {
+  async function join(id, char, gameType = "classic") {
     const socket = new FakeSocket(id);
     io.connect(socket);
     const result = await new Promise(resolve => {
-      socket.trigger("quick:join", { walletToken:token(char) }, resolve);
+      socket.trigger("quick:join", { walletToken:token(char), gameType }, resolve);
     });
     return { socket, result };
   }
@@ -87,6 +87,24 @@ function createHarness({ startDelayMs = 8 } = {}) {
     filler() { return filler; }
   };
 }
+
+test("les files rapides Bombe et Baccalauréat restent séparées", async () => {
+  const h = createHarness();
+  try {
+    const bomb = await h.join("bomb", "a", "bombe");
+    const classic = await h.join("classic", "b", "classic");
+    assert.equal(bomb.socket.last("quick:queued").count, 1);
+    assert.equal(classic.socket.last("quick:queued").count, 1);
+    const secondBomb = await h.join("bomb2", "c", "bombe");
+    assert.equal(bomb.socket.last("quick:queued").count, 2);
+    assert.equal(classic.socket.last("quick:queued").count, 1);
+    await h.ready(bomb.socket);
+    await h.ready(secondBomb.socket);
+    await wait(20);
+    assert.equal(h.matches.length, 1);
+    assert.deepEqual(h.matches[0], ["p1", "p3"]);
+  } finally { h.quick.close(); }
+});
 
 test("un joueur prêt peut démarrer avec un filler", async () => {
   const h = createHarness();

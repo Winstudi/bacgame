@@ -1312,7 +1312,7 @@ function normalizeRestoredRoom(raw, persistedAt = Date.now()) {
     code,
     phase,
     // Les salons créés avant le choix du mode restent des parties classiques.
-    gameType:source.gameType === "bombe" && source.mode === "private" ? "bombe" : "classic",
+    gameType:source.gameType === "bombe" && ["private", "quick"].includes(source.mode) ? "bombe" : "classic",
     createdAt:Number(source.createdAt) || Number(persistedAt) || Date.now(),
     economyStartPending:false,
     categoryRerollPending:"",
@@ -3381,8 +3381,10 @@ function bombBeginRound(room, round) {
 }
 
 function bombStart(room) {
-  if (room.gameType !== "bombe" || room.mode !== "private" || room.phase !== "lobby") return false;
-  if (!privateLobbyReady(room)) return false;
+  if (room.gameType !== "bombe" || !["private", "quick"].includes(room.mode) || room.phase !== "lobby") return false;
+  if (room.mode === "private" && !privateLobbyReady(room)) return false;
+  if (room.players.length < 2) return false;
+  cancelMatchmakingBotFill(room.code);
   room.phase = "bomb";
   room.bomb = { round:0, cycle:0, turnVersion:0, wins:{}, lives:{}, validAnswers:{}, eliminationOrder:[], usedWords:[], lastAnswer:null, lastCorrectAnswer:null, status:"playing", lastExplosion:null };
   bombBeginRound(room, 1);
@@ -3402,6 +3404,11 @@ function bombFinishRound(room, winner) {
     bomb.status = "finished";
     room.phase = "finished";
     emitRoom(room);
+    if (isEconomyMode(room.mode)) {
+      distributeProgression(room)
+        .then(() => emitRoom(room))
+        .catch(err => console.error("Progression Bombe:", err.message));
+    }
     return;
   }
   bomb.status = "intermission";
@@ -4231,9 +4238,9 @@ function createGameRoom(socket, { name, rounds = 1, duration = 60, categoryCount
     const room = {
       code,
       mode,
-      gameType: mode === "private" && gameType === "bombe" ? "bombe" : "classic",
-      bombLives: [1, 2, 3].includes(Number(bombLives)) ? Number(bombLives) : 3,
-      bombSpeed: ["fast", "medium", "slow"].includes(bombSpeed) ? bombSpeed : "medium",
+      gameType: ["private", "quick"].includes(mode) && gameType === "bombe" ? "bombe" : "classic",
+      bombLives: mode === "quick" && gameType === "bombe" ? 2 : [1, 2, 3].includes(Number(bombLives)) ? Number(bombLives) : 3,
+      bombSpeed: mode === "quick" && gameType === "bombe" ? "medium" : ["fast", "medium", "slow"].includes(bombSpeed) ? bombSpeed : "medium",
       phase: "lobby",
       players: [player],
       categoryCount: safeCategoryCount,
@@ -4328,7 +4335,7 @@ function joinGameRoom(socket, { code, name, avatar, frameId, friendCode, walletT
 async function startGame(socket, payload, automatic = false) {
     const { room, player } = requireMember(socket, payload);
     if (!room || !player?.isHost || room.phase !== "lobby" || room.economyStartPending) return;
-    if (room.gameType === "bombe") {
+    if (room.gameType === "bombe" && room.mode === "private") {
       if (!bombStart(room)) return socket.emit("toast", "Tous les joueurs doivent être prêts.");
       return true;
     }
@@ -4397,6 +4404,8 @@ async function startGame(socket, payload, automatic = false) {
         room.economyStartPending = false;
       }
     }
+
+    if (room.gameType === "bombe") return bombStart(room);
 
     room.gameSessionId ||= id();
     room.categories = pickCategories(room.categoryDifficulty || "beginner", room.categoryCount || 6);
@@ -4551,7 +4560,7 @@ const quickMatch = require("./quick-match-v2.js")({
     const reply = value => { result = value; };
 
     if (!peers.length) {
-      const publicRoom = findPublicLobbyForQuick(entry.profile.walletToken);
+      const publicRoom = entry.profile.gameType === "bombe" ? null : findPublicLobbyForQuick(entry.profile.walletToken);
 
       if (publicRoom) {
         const name = uniqueRoomPlayerName(publicRoom, entry.profile.name);
@@ -4583,7 +4592,10 @@ const quickMatch = require("./quick-match-v2.js")({
           rounds: 1,
           duration: 60,
           categoryCount: 6,
-          categoryDifficulty: "medium"
+          categoryDifficulty: "medium",
+          gameType: entry.profile.gameType === "bombe" ? "bombe" : "classic",
+          bombLives: 2,
+          bombSpeed: "medium"
         },
         reply,
         "quick"

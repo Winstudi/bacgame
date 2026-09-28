@@ -1537,7 +1537,7 @@
 
           ${quickMode
             ? `<div class="pl-title-mode">
-                <h1>Baccalauréat - Partie Rapide</h1>
+                <h1>${state.gameType === "bombe" ? "Bombe" : "Baccalauréat"} - Partie Rapide</h1>
               </div>`
             : roomModeToggleMarkup(state, user)}
 

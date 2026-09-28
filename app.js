@@ -1039,8 +1039,8 @@ function renderBombResults() {
     <section class="fin-podium fin-podium-${Math.min(top.length, 3)} ${leaders.length > 1 ? "fin-podium-shared-win" : ""}" aria-label="Classement">${podium}</section>
     ${remaining.length ? `<section class="fin-ranking ${ranking.length >= 5 ? "is-many" : ""}">${rows}</section>` : ""}
     <div class="fin-actions">
-      <button id="bombRematch" class="fin-primary bomb-rematch-button" type="button" aria-pressed="${ready}"><span>${ready ? "✓ Partant · Annuler" : "↻ Je rejoue"}</span><span class="bomb-rematch-count" role="status">${Number(state.rematch?.readyCount || 0)} / ${Number(state.rematch?.count || 0)} joueurs partants</span></button>
-      ${host ? `<button id="bombRestart" class="fin-secondary" type="button" ${allReady ? "" : "disabled"}>Retour au salon</button>` : ""}
+      ${state.mode === "quick" ? "" : `<button id="bombRematch" class="fin-primary bomb-rematch-button" type="button" aria-pressed="${ready}"><span>${ready ? "✓ Partant · Annuler" : "↻ Je rejoue"}</span><span class="bomb-rematch-count" role="status">${Number(state.rematch?.readyCount || 0)} / ${Number(state.rematch?.count || 0)} joueurs partants</span></button>`}
+      ${host && state.mode !== "quick" ? `<button id="bombRestart" class="fin-secondary" type="button" ${allReady ? "" : "disabled"}>Retour au salon</button>` : ""}
       <button id="bombLeave" class="fin-secondary" type="button">⌂ Retour à l’accueil</button>
     </div>
   </main>`);

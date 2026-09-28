@@ -8,11 +8,11 @@
     document.body.appendChild(overlay);return overlay;
   }
   let joining=false;
-  window.startQuickPlay=profile=>{
+  window.startQuickPlay=(profile,gameType="classic")=>{
     if(joining)return;
     if(!socket.connected||!session.walletToken)return toast("Attends la connexion au serveur puis réessaie.");
     joining=true;
-    socket.timeout(15000).emit("quick:join",{name:profile.name,avatar:profile.icon,walletToken:session.walletToken},(err,res)=>{
+    socket.timeout(15000).emit("quick:join",{name:profile.name,avatar:profile.icon,walletToken:session.walletToken,gameType:gameType==="bombe"?"bombe":"classic"},(err,res)=>{
       joining=false;
       if(err||!res?.ok){socket.emit("quick:cancel",{});if(!res?.cancelled)toast(res?.error||"La recherche n’a pas répondu. Réessaie.");}
     });

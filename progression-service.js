@@ -115,7 +115,8 @@ function calculateRoomXp(room) {
   if (!room || !isEconomyMode(room.mode)) return results;
   if (room.phase !== "finished") return results;
   if (!room.entryDebited || !room.gameSessionId) return results;
-  if (Number(room.roundIndex) + 1 !== Number(room.rounds)) return results;
+  const bombMode = room.gameType === "bombe";
+  if (bombMode ? room.bomb?.status !== "finished" : Number(room.roundIndex) + 1 !== Number(room.rounds)) return results;
   if (!Array.isArray(room.players)) return results;
 
   const humans = room.players.filter(
@@ -132,7 +133,12 @@ function calculateRoomXp(room) {
 
   const paid = new Set(room.paidPlayerIds || []);
   const ranks = competitiveHumanRewards
-    ? rankingForAllParticipants(room.players)
+    ? bombMode
+      ? Object.fromEntries([
+          room.bomb.lastWinnerId,
+          ...[...(room.bomb.eliminationOrder || [])].reverse()
+        ].filter(Boolean).map((id, index) => [id, index + 1]))
+      : rankingForAllParticipants(room.players)
     : {};
   const completedRounds = Math.max(0, Math.floor(Number(room.rounds) || 0));
 
@@ -146,7 +152,7 @@ function calculateRoomXp(room) {
     // indépendamment du score/classement de la partie.
     const validAnswers = Math.max(
       0,
-      Math.floor(Number(player.validAnswerCount ?? player.score) || 0)
+      Math.floor(Number(bombMode ? room.bomb.validAnswers?.[player.id] : (player.validAnswerCount ?? player.score)) || 0)
     );
     const xp =
       completedRounds * ROUND_XP +
