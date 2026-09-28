@@ -567,8 +567,8 @@ function animateBombExplosion(state) {
     play(`.bomb-smoke-${i}`, [
       {opacity:0,transform:"translate(-50%,-50%) scale(.2)"},
       {opacity:.82,transform:`translate(calc(-50% + ${dx*.35}px),calc(-50% + ${dy*.35}px)) scale(1.05)`,offset:.2},
-      {opacity:.62,transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1.65)`,offset:.62},
-      {opacity:0,transform:`translate(calc(-50% + ${dx*1.2}px),calc(-50% + ${dy*1.25}px)) scale(2.1)`}
+      {opacity:.62,transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1.35)`,offset:.62},
+      {opacity:0,transform:`translate(calc(-50% + ${dx*1.12}px),calc(-50% + ${dy*1.16}px)) scale(1.55)`}
     ], 1450+(i%4)*110, 410+(i%5)*32);
     play(`.bomb-impact-bit-${i}`, [
       {opacity:0,transform:"translate(-50%,-50%) scale(.1)"},
@@ -634,7 +634,7 @@ function renderBombGame() {
     <div class="bomb-content">
       <div class="bomb-arena" aria-label="Joueurs autour de la bombe">
         <div class="bomb-orbit"></div>${players}
-        ${exploding && unlucky ? `<div class="bomb-impact" aria-hidden="true" style="left:${50+40*Math.cos(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%;top:${50+40*Math.sin(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%"><span class="bomb-impact-ring"></span><span class="bomb-impact-ring bomb-impact-ring-second"></span><span class="bomb-impact-flash"></span><span class="bomb-impact-core"></span>${Array.from({length:16},(_,i)=>`<i class="bomb-smoke bomb-smoke-${i}" style="--smoke-size:${38+(i%5)*13}px"></i><i class="bomb-impact-bit bomb-impact-bit-${i}"></i>`).join("")}</div>` : ""}
+        ${exploding && unlucky ? `<div class="bomb-impact" aria-hidden="true" style="left:${50+40*Math.cos(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%;top:${50+40*Math.sin(2*Math.PI*state.players.indexOf(unlucky)/state.players.length-Math.PI/2)}%"><span class="bomb-impact-ring"></span><span class="bomb-impact-ring bomb-impact-ring-second"></span><span class="bomb-impact-flash"></span><span class="bomb-impact-core"></span>${Array.from({length:16},(_,i)=>`<i class="bomb-smoke bomb-smoke-${i}" style="--smoke-size:${34+(i%5)*8}px"></i><i class="bomb-impact-bit bomb-impact-bit-${i}"></i>`).join("")}</div>` : ""}
         <div class="bomb-center ${exploding ? "is-flying" : ""}" aria-label="${active ? "Bombe en cours" : "Manche terminée"}"><div class="bomb-art"><img src="/bomb-neon.png?v=1.48.0-bombe-assets3" alt="">${active ? '<span class="bomb-spark" aria-hidden="true"></span>'+Array.from({length:16},()=>'<i class="bomb-spark-particle" aria-hidden="true"></i>').join("") : ""}</div></div>
         ${lastAnswerPlayer && bomb.lastAnswer?.answer ? `<div class="bomb-last-word" aria-live="polite"><span>${escapeHtml(lastAnswerPlayer.name)} a écrit</span><strong>${escapeHtml(bomb.lastAnswer.answer)}</strong></div>` : ""}
         ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"><img src="/bomb-arrow-neon.png?v=1.48.0-bombe-assets2" alt=""></div>` : ""}
