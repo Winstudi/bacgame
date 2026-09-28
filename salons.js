@@ -4,6 +4,7 @@
 
   const LOBBY_MAX_PLAYERS = 6;
   const BOMB_LOBBY_MAX_PLAYERS = 8;
+  const lobbyMaxPlayers = state => state?.gameType === "bombe" ? BOMB_LOBBY_MAX_PLAYERS : LOBBY_MAX_PLAYERS;
   const DIFFICULTY_ICON_URLS = {
     beginner: "/difficulty.png",
     medium: "/difficulty.png",
@@ -36,12 +37,6 @@
     } catch {
       return Date.now();
     }
-  }
-
-  function lobbyMaxPlayers(state) {
-    return state?.gameType === "bombe"
-      ? BOMB_LOBBY_MAX_PLAYERS
-      : LOBBY_MAX_PLAYERS;
   }
 
   function clearLobbyCountdown() {
@@ -1422,12 +1417,12 @@
   }
 
   function privateMarkup(state, user) {
+    const maxPlayers = lobbyMaxPlayers(state);
     ensurePrivateLobbyV2Styles();
 
     const quickMode = state.mode === "quick";
     const publicMode = state.mode === "public";
     const difficulty = difficultyInfo(state.categoryDifficulty);
-    const maxPlayers = lobbyMaxPlayers(state);
 
     const allReady =
       !quickMode &&
@@ -1521,6 +1516,7 @@
         class="${rootClasses}"
         data-mode="${domMode}"
         data-lobby-kind="${quickMode ? "quick" : publicMode ? "public" : "private"}"
+        data-game-type="${state.gameType === "bombe" ? "bombe" : "baccalaureat"}"
         ${quickMode ? `data-quick-v3-upgraded="1"` : ""}
       >
         <header class="pl-header">
@@ -4909,7 +4905,7 @@
     title.innerHTML = `
       <img src="/friends.png" alt="">
       <span class="pl-v3-player-label">Joueurs</span>
-      <span class="pl-v3-player-count">(${count}/6)</span>
+      <span class="pl-v3-player-count">(${count}/${lobbyMaxPlayers(state)})</span>
     `;
 
     bar.appendChild(title);

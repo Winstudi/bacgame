@@ -1832,7 +1832,6 @@ function publicRoom(room, viewerPlayerId = null) {
     letterSpinVersion: room.letterSpinVersion || 0,
     letterRerollCost: LETTER_REROLL_COST,
     categoryRerollCost: CATEGORY_REROLL_COST,
-    bombRerollCost: CATEGORY_REROLL_COST,
     roundEndsAt: room.roundEndsAt,
     roundStartsAt: room.roundStartsAt || null,
     validation: room.validation
@@ -2328,15 +2327,11 @@ async function testOpenAIConnection() {
   }
 }
 
-async function callValidationModel(items, letter, { review = false, timeoutMs = AUTO_VALIDATION_TIMEOUT_MS } = {}) {
+async function callValidationModel(items, letter, { review = false } = {}) {
   if (!OPENAI_API_KEY || !items.length) return null;
 
   const controller = new AbortController();
-  const requestedTimeout = Number(timeoutMs);
-  const timeoutDuration = Number.isFinite(requestedTimeout) && requestedTimeout > 0
-    ? Math.min(AUTO_VALIDATION_TIMEOUT_MS, requestedTimeout)
-    : AUTO_VALIDATION_TIMEOUT_MS;
-  const timeout = setTimeout(() => controller.abort(), timeoutDuration);
+  const timeout = setTimeout(() => controller.abort(), AUTO_VALIDATION_TIMEOUT_MS);
   const payloadItems = makeValidationPayload(items, letter);
 
   const reviewInstructions = review
@@ -3465,30 +3460,9 @@ async function bombValidateAnswer(category, letter, answer) {
   }
   if (!OPENAI_API_KEY) return { ok:false, error:"Correction momentanément indisponible. Réessaie avec un autre mot." };
   try {
-    const deadline = Date.now() + 7000;
-    let response = (await validateInBatches([item], letter, {
-      timeoutMs:Math.min(AUTO_VALIDATION_TIMEOUT_MS, deadline - Date.now())
-    }))[0];
-    if (!shouldAcceptPrimary(item, response)) {
-      const remainingMs = deadline - Date.now();
-      response = remainingMs > 150
-        ? (await validateInBatches([item], letter, { review:true, timeoutMs:remainingMs }))[0]
-        : null;
-    }
+    let response = (await validateInBatches([item], letter))[0];
+    if (!shouldAcceptPrimary(item, response)) response = (await validateInBatches([item], letter, { review:true }))[0];
     const decision = normalizeAiResult(response);
-    if (decision && shouldAcceptPrimary(item, response) && decision.confidence >= 90) {
-      validationCache.set(validationCacheKey(category, answer), {
-        engineVersion:VALIDATION_ENGINE_VERSION,
-        status:decision.verdict,
-        reason:decision.reasonCode || "bomb_ai",
-        correction:validCorrectionForLetter(decision.correction, letter),
-        canonicalAnswer:decision.canonicalAnswer || "",
-        confidence:decision.confidence,
-        explanation:decision.explanation || "",
-        updatedAt:Date.now()
-      });
-      setImmediate(saveValidationCache);
-    }
     if (decision?.verdict === "valid" && decision.confidence >= decisionThresholds(category).valid) return { ok:true };
     return { ok:false, error:decision?.verdict === "invalid" ? "Ce mot ne correspond pas à la catégorie." : "Réponse non confirmée. Essaie un autre mot." };
   } catch {
@@ -3868,29 +3842,6 @@ async function ptitBacHandleExplicitLeave(socket, payload = {}, cb = () => {}) {
       if (wasHost) ptitBacTransferHost(room, player.id);
       delete room.bomb.lives[player.id];
       delete room.bomb.wins[player.id];
-      delete room.bomb.validAnswers?.[player.id];
-      room.bomb.eliminationOrder = (room.bomb.eliminationOrder || []).filter(id => id !== player.id);
-      if (room.bomb.lastWinnerId === player.id) room.bomb.lastWinnerId = null;
-
-      if (room.bomb.status === "intermission") {
-        if (room.players.length > 1) {
-          emitRoom(room);
-          return cb({ ok:true, outcome:"left_room" });
-        }
-        const remaining = room.players[0];
-        clearBombTimer(room.code);
-        clearBombBotTimer(room.code);
-        room.bomb.wins[remaining.id] = Math.max(room.rounds, room.bomb.wins[remaining.id] || 0);
-        room.bomb.lastWinnerId = remaining.id;
-        room.bomb.turnPlayerId = null;
-        room.bomb.checkingPlayerId = null;
-        room.bomb.endsAt = null;
-        room.bomb.status = "finished";
-        room.phase = "finished";
-        emitRoom(room);
-        return cb({ ok:true, outcome:"left_room" });
-      }
-
       const alive = bombActivePlayers(room);
       if (alive.length === 1) {
         clearBombTimer(room.code);
@@ -4271,12 +4222,12 @@ function createGameRoom(socket, { name, rounds = 1, duration = 60, categoryCount
 function joinGameRoom(socket, { code, name, avatar, frameId, friendCode, walletToken }, cb = () => {}, matchmaking = false) {
     const room = getRoom(code);
     const safeName = cleanName(name);
+    const playerLimit = roomPlayerLimit(room);
 
     if (room?.mode === "quick" && !matchmaking) return cb({ok:false,error:"Accès réservé à la recherche de partie rapide."});
     if (!room) return cb({ ok: false, error: "Partie introuvable." });
     if (room.phase !== "lobby") return cb({ ok: false, error: "La partie a déjà commencé." });
     if (!safeName) return cb({ ok: false, error: "Choisis un prénom." });
-    const playerLimit = roomPlayerLimit(room);
     if (
       room.players.length >= playerLimit &&
       !room.players.some(publicBotEngine.isMatchmakingBot)
@@ -5182,82 +5133,6 @@ io.on("connection", socket => {
     });
   });
 
-  socket.on("bomb:reroll", async (payload = {}, cb = () => {}) => {
-    const { room, player } = requireMember(socket, payload);
-    const bomb = room?.bomb;
-    const cycle = Number(payload?.cycle);
-    const turnVersion = Number(payload?.turnVersion);
-    if (!room || room.gameType !== "bombe" || room.phase !== "bomb" || bomb?.status !== "playing" ||
-        bomb.turnPlayerId !== player?.id || bomb.checkingPlayerId || player?.isBot || !player?.walletToken ||
-        cycle !== bomb.cycle || turnVersion !== bomb.turnVersion) {
-      return cb({ ok:false, error:"La relance n’est plus disponible pour ce tour." });
-    }
-    if (room.bombRerollPending) return cb({ ok:false, error:"Une relance est déjà en cours." });
-
-    const requestId = String(payload?.requestId || "").trim().slice(0, 160) ||
-      `bomb-reroll:${room.code}:${player.id}:${cycle}:${turnVersion}`;
-    const previousCategory = bomb.category;
-    const previousLetter = bomb.letter;
-    room.bombRerollPending = requestId;
-
-    try {
-      const debit = await changeWalletCoinsDurably({
-        walletToken:player.walletToken,
-        delta:-CATEGORY_REROLL_COST,
-        kind:"BOMB_REROLL",
-        details:{
-          roomCode:room.code,
-          category:previousCategory,
-          letter:previousLetter,
-          note:`Relance catégorie + lettre (-${CATEGORY_REROLL_COST})`
-        },
-        idempotencyKey:requestId
-      });
-      emitWallet(player);
-      if (!debit?.ok) {
-        return cb({
-          ok:false,
-          error:debit?.code === "insufficient"
-            ? `Il te faut ${CATEGORY_REROLL_COST} pièces pour relancer.`
-            : debit?.error || "Impossible de relancer pour le moment."
-        });
-      }
-      if (debit.duplicate) {
-        emitRoom(room);
-        return cb({ ok:true, duplicate:true, balance:walletBalance(player.walletToken) });
-      }
-
-      const current = rooms.get(room.code);
-      if (current !== room || room.phase !== "bomb" || room.bomb !== bomb || bomb.status !== "playing" ||
-          bomb.cycle !== cycle || bomb.turnVersion !== turnVersion || bomb.turnPlayerId !== player.id ||
-          bomb.category !== previousCategory || bomb.letter !== previousLetter || !room.players.includes(player)) {
-        if (!debit.infinite) {
-          await changeWalletCoinsDurably({
-            walletToken:player.walletToken,
-            delta:CATEGORY_REROLL_COST,
-            kind:"BOMB_REROLL_REFUND",
-            details:{ roomCode:room.code, note:`Relance Bombe annulée (+${CATEGORY_REROLL_COST})` },
-            idempotencyKey:`refund:${requestId}`
-          });
-          emitWallet(player);
-        }
-        return cb({ ok:false, error:"Le tour a changé avant la relance. Les pièces ont été rendues." });
-      }
-
-      bomb.category = bombNextCategory(room);
-      bomb.letter = bombNextLetter(room);
-      bomb.turnVersion += 1;
-      emitRoom(room);
-      cb({ ok:true, category:bomb.category, letter:bomb.letter, balance:walletBalance(player.walletToken) });
-    } catch (err) {
-      console.error("Relance Bombe atomique:", err.message);
-      emitWallet(player);
-      cb({ ok:false, error:"Impossible de relancer pour le moment." });
-    } finally {
-      if (room.bombRerollPending === requestId) room.bombRerollPending = "";
-    }
-  });
-
   socket.on("bomb:answer", async (payload = {}, cb = () => {}) => {
     const { room, player } = requireMember(socket, payload);
     const bomb = room?.bomb;
@@ -5647,14 +5522,12 @@ io.on("connection", socket => {
     player.connected = false;
     player.lobbyReady = false;
     player.rematchReady = false;
-    let bombTurnAdvanced = false;
     if (room.gameType === "bombe" && room.phase === "bomb" && room.bomb?.status === "playing" && room.bomb.turnPlayerId === player.id) {
       const next = bombNextClockwisePlayer(room, player.id);
       if (next && next.id !== player.id) {
         room.bomb.turnPlayerId = next.id;
         room.bomb.turnVersion += 1;
         room.bomb.checkingPlayerId = null;
-        bombTurnAdvanced = true;
       }
     }
 
@@ -5669,7 +5542,6 @@ io.on("connection", socket => {
       ensureLetterChooser(room);
     }
     emitRoom(room);
-    if (bombTurnAdvanced) scheduleBombBotTurn(room);
     scheduleMatchmakingBotFill(room);
 
     // Nettoyage après 3 heures d'inactivité totale.
