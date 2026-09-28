@@ -126,6 +126,7 @@ socket.on("room:state", state => {
   });
   session.state = state;
   if (state.phase === "bomb" && previous?.phase === "bomb" &&
+      state.bomb?.status === "playing" && previous.bomb?.status === "playing" &&
       state.bomb?.cycle === previous.bomb?.cycle &&
       state.bomb?.turnVersion === previous.bomb?.turnVersion &&
       state.bomb?.checkingPlayerId === previous.bomb?.checkingPlayerId &&
