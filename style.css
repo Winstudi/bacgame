@@ -2333,12 +2333,12 @@ html body .screen.bomb-screen {
 .bomb-content.has-bomb-reroll .bomb-arena { margin-bottom:1px; }
 .bomb-content.has-bomb-reroll .bomb-status { margin-bottom:0; }
 .bomb-content.has-bomb-reroll .bomb-prompt { margin-top:0; }
-.bomb-reroll-button { position:relative;box-sizing:border-box;width:141px;height:30px;min-height:30px;margin:0 auto;padding:4px 8px;display:flex;align-items:center;justify-content:center;color:#f5eaff;border:1px solid #bd71ff;border-radius:9px;background:linear-gradient(120deg,#32136f,#25114f);box-shadow:0 0 11px #a84dff66,inset 0 0 8px #bd63ff22;font:inherit;cursor:pointer; }
+.bomb-reroll-button { position:relative;box-sizing:border-box;width:85px;height:30px;min-height:30px;margin:0 auto;padding:0 3px;display:flex;align-items:center;justify-content:center;transform:translateY(-4px);color:#f5eaff;border:1px solid #bd71ff;border-radius:9px;background:linear-gradient(120deg,#32136f,#25114f);box-shadow:0 0 11px #a84dff66,inset 0 0 8px #bd63ff22;font:inherit;cursor:pointer; }
 .bomb-reroll-button:focus-visible { outline:2px solid #f0d4ff;outline-offset:2px; }
-.bomb-reroll-copy { display:grid;line-height:1.05;text-align:center; }
-.bomb-reroll-copy strong { font-size:12px;font-weight:900; }
-.bomb-reroll-button > b { position:absolute;right:7px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:3px;color:#ffdfa0;font-size:10px;font-weight:900; }
-.bomb-reroll-button > b img { width:16px;height:16px;object-fit:contain; }
+.bomb-reroll-copy { position:absolute;left:50%;transform:translateX(-50%);display:grid;line-height:1.05;text-align:center; }
+.bomb-reroll-copy strong { font-size:9px;font-weight:900; }
+.bomb-reroll-button > b { position:absolute;right:3px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:2px;color:#ffdfa0;font-size:8.5px;font-weight:900; }
+.bomb-reroll-button > b img { width:10px;height:10px;object-fit:contain; }
 .bomb-reroll-button:disabled { color:#aaa6b7;border-color:#625d72;background:linear-gradient(120deg,#34313f,#252333);box-shadow:none;cursor:not-allowed;filter:grayscale(1);opacity:.68; }
 .bomb-reroll-button:disabled > b { color:#aaa6b7; }
 .bomb-reroll-button.is-loading { cursor:wait;opacity:.75; }

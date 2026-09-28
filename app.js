@@ -743,7 +743,9 @@ function renderBombGame() {
       </div>
     </div>`;
   }).join("");
-  const status = explosion && Date.now() - explosion.at < 4500 && unlucky
+  const explosionAge = explosion?.at ? Math.max(0, serverNowMs() - Number(explosion.at)) : Infinity;
+  const showExplosionStatus = !!(explosion && explosionAge < 3000 && unlucky);
+  const status = showExplosionStatus
       ? `${escapeHtml(unlucky.name)} perd une vie${explosion.eliminated ? " et quitte cette manche" : ""} !`
       : myTurn ? "À toi de jouer !" : `Au tour de ${escapeHtml(current?.name || "un joueur")}`;
 
@@ -773,6 +775,17 @@ function renderBombGame() {
   animateBombTension(state);
   animateBombExplosion(state);
   animateBombLastWord(state);
+  if (showExplosionStatus) {
+    const statusNode = document.querySelector(".bomb-status");
+    window.setTimeout(() => {
+      if (!statusNode?.isConnected || session.state?.bomb?.lastExplosion?.at !== explosion.at) return;
+      const latest = session.state;
+      const latestPlayer = latest?.players?.find(player => player.id === latest?.bomb?.turnPlayerId);
+      statusNode.textContent = latest?.bomb?.turnPlayerId === session.playerId
+        ? "À toi de jouer !"
+        : `Au tour de ${latestPlayer?.name || "un joueur"}`;
+    }, Math.max(0, 3000 - explosionAge));
+  }
   document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
   document.getElementById("bombRerollButton")?.addEventListener("click", event => {
     const button = event.currentTarget;
