@@ -640,8 +640,6 @@ function animateBombLastWord(state) {
 function renderBombIntermission(state) {
   const bomb = state.bomb;
   const winner = state.players.find(player => player.id === bomb.lastWinnerId);
-  const answer = bomb.lastCorrectAnswer;
-  const answerPlayer = answer ? state.players.find(player => player.id === answer.playerId) : null;
   const players = state.players.map(player => {
     const lives = Math.max(0, Number(bomb.lives?.[player.id] || 0));
     const frame = !!window.PtitBacFrames?.asset?.(player.frameId);
@@ -658,17 +656,12 @@ function renderBombIntermission(state) {
     <header class="bomb-header"><button id="bombLeave" type="button" aria-label="Quitter la partie"><img src="/back-arrow.png" alt=""></button><img class="bomb-brand" src="/ptitbac.logo.png" alt="P'tit Bac"><span>Manche ${bomb.round}/${state.rounds}</span></header>
     <section class="bomb-intermission-content" aria-labelledby="bombIntermissionTitle">
       <div class="bomb-intermission-heading"><span>PAUSE ENTRE LES MANCHES</span><h1 id="bombIntermissionTitle">Manche ${bomb.round} terminée</h1></div>
-      <section class="bomb-intermission-card bomb-round-players" aria-labelledby="bombRoundPlayersTitle">
-        <h2 id="bombRoundPlayersTitle">Joueurs</h2><div class="bomb-summary-player-list">${players}</div>
-      </section>
       <section class="bomb-intermission-card bomb-round-winner" aria-labelledby="bombRoundWinnerTitle">
         <h2 id="bombRoundWinnerTitle">Gagnant de la manche</h2>
         ${winner ? `<div class="bomb-summary-winner"><span class="bomb-summary-avatar bomb-player-avatar ${window.PtitBacFrames?.asset?.(winner.frameId) ? "ptb-has-equipped-frame" : ""}">${bombAvatarMarkup(winner)}</span><strong>${escapeHtml(winner.name)}</strong></div>` : `<p>Aucun gagnant</p>`}
       </section>
-      <section class="bomb-intermission-card bomb-round-answer" aria-labelledby="bombRoundAnswerTitle">
-        <h2 id="bombRoundAnswerTitle">Mot correct</h2>
-        <strong>${answer?.answer ? escapeHtml(answer.answer) : "Aucun mot valide"}</strong>
-        ${answerPlayer && answer?.answer ? `<small>Écrit par ${escapeHtml(answerPlayer.name)}</small>` : ""}
+      <section class="bomb-round-players" aria-labelledby="bombRoundPlayersTitle">
+        <h2 id="bombRoundPlayersTitle">Joueurs</h2><div class="bomb-summary-player-list">${players}</div>
       </section>
       <p class="bomb-intermission-countdown" aria-live="polite">La prochaine manche commence dans <strong id="bombIntermissionCountdown">5</strong>s</p>
     </section>
@@ -814,7 +807,7 @@ function renderBombResults() {
     ${remaining.length ? `<section class="fin-ranking ${ranking.length >= 5 ? "is-many" : ""}">${rows}</section>` : ""}
     <div class="fin-actions">
       <button id="bombRematch" class="fin-primary bomb-rematch-button" type="button" aria-pressed="${ready}"><span>${ready ? "✓ Partant · Annuler" : "↻ Je rejoue"}</span><span class="bomb-rematch-count" role="status">${Number(state.rematch?.readyCount || 0)} / ${Number(state.rematch?.count || 0)} joueurs partants</span></button>
-      ${host ? `<button id="bombRestart" class="fin-secondary" type="button" ${allReady ? "" : "disabled"}>Retour au même salon</button>` : ""}
+      ${host ? `<button id="bombRestart" class="fin-secondary" type="button" ${allReady ? "" : "disabled"}>Retour au salon</button>` : ""}
       <button id="bombLeave" class="fin-secondary" type="button">⌂ Retour à l’accueil</button>
     </div>
   </main>`);
