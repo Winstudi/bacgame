@@ -270,23 +270,46 @@ test("un salon Bombe joue, explose et garde ses règles séparées", { timeout:3
     assert.equal(launch.ok, true);
     const initial = await initialPromise;
     assert.equal(initial.bomb.round, 1);
+    assert.equal(initial.bombRerollCost, 20);
     assert.equal("endsAt" in initial.bomb, false);
     assert.deepEqual(Object.values(initial.bomb.lives), [2, 2]);
     const currentSocket = initial.bomb.turnPlayerId === created.playerId ? host : guest;
     const currentId = initial.bomb.turnPlayerId;
+    const currentWallet = currentId === created.playerId ? hostWallet : guestWallet;
+    const rerolledPromise = waitForEvent(host, "room:state", state => state?.phase === "bomb" && state?.bomb?.turnVersion > initial.bomb.turnVersion);
+    const reroll = await emitAck(currentSocket, "bomb:reroll", {
+      code:created.code,
+      playerId:currentId,
+      cycle:initial.bomb.cycle,
+      turnVersion:initial.bomb.turnVersion,
+      requestId:`smoke-bomb-reroll:${created.code}:${currentId}`
+    });
+    assert.equal(reroll.ok, true);
+    assert.equal(reroll.balance, currentWallet.balance - 20);
+    const afterReroll = await rerolledPromise;
+    assert.notEqual(afterReroll.bomb.category, initial.bomb.category);
+    assert.notEqual(afterReroll.bomb.letter, initial.bomb.letter);
+    const staleReroll = await emitAck(currentSocket, "bomb:reroll", {
+      code:created.code,
+      playerId:currentId,
+      cycle:initial.bomb.cycle,
+      turnVersion:initial.bomb.turnVersion,
+      requestId:`smoke-bomb-reroll-stale:${created.code}:${currentId}`
+    });
+    assert.equal(staleReroll.ok, false);
     const playerOrder = initial.players.map(player => player.id);
     const expectedNextPlayerId = playerOrder[(playerOrder.indexOf(currentId) + 1) % playerOrder.length];
-    const wrongLetter = initial.bomb.letter === "Z" ? "A" : "Z";
+    const wrongLetter = afterReroll.bomb.letter === "Z" ? "A" : "Z";
     const invalid = await emitAck(currentSocket, "bomb:answer", { code:created.code, playerId:currentId, answer:`${wrongLetter}èbre` });
     assert.equal(invalid.ok, false);
-    const word = `${initial.bomb.letter}${initial.bomb.category === "Mot de 4 lettres" ? "ami" : "urite"}`;
-    const passedPromise = waitForEvent(host, "room:state", state => state?.phase === "bomb" && state?.bomb?.turnVersion > initial.bomb.turnVersion && state?.bomb?.turnPlayerId !== currentId);
+    const word = `${afterReroll.bomb.letter}${afterReroll.bomb.category === "Mot de 4 lettres" ? "ami" : "urite"}`;
+    const passedPromise = waitForEvent(host, "room:state", state => state?.phase === "bomb" && state?.bomb?.turnVersion > afterReroll.bomb.turnVersion && state?.bomb?.turnPlayerId !== currentId);
     const accepted = await emitAck(currentSocket, "bomb:answer", { code:created.code, playerId:currentId, answer:word });
     assert.equal(accepted.ok, true);
     assert.equal(accepted.nextPlayerId, expectedNextPlayerId);
     const afterPass = await passedPromise;
-    assert.notEqual(afterPass.bomb.letter, initial.bomb.letter);
-    assert.notEqual(afterPass.bomb.category, initial.bomb.category);
+    assert.notEqual(afterPass.bomb.letter, afterReroll.bomb.letter);
+    assert.notEqual(afterPass.bomb.category, afterReroll.bomb.category);
     assert.equal(afterPass.bomb.usedWords.length, 1);
     assert.equal(afterPass.bomb.lastAnswer.playerId, currentId);
     assert.equal(afterPass.bomb.lastAnswer.answer, word);

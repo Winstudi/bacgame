@@ -92,6 +92,10 @@ function toast(message) {
 socket.on("toast", toast);
 socket.on("wallet:update", ({ balance } = {}) => {
   setWalletState(session.walletToken, balance);
+  const bombRerollButton = document.getElementById("bombRerollButton");
+  if (bombRerollButton && bombRerollButton.dataset.pending !== "true") {
+    bombRerollButton.disabled = getCoins() < Number(bombRerollButton.dataset.cost || 20);
+  }
   if (!session.state) renderHome();
 });
 socket.on("room:kicked", () => {
@@ -704,6 +708,8 @@ function renderBombGame() {
   const active = bomb.status === "playing";
   const myTurn = active && bomb.turnPlayerId === session.playerId;
   const checking = bomb.checkingPlayerId === session.playerId;
+  const rerollCost = Math.max(0, Number(state.bombRerollCost || 20));
+  const canAffordReroll = getCoins() >= rerollCost;
   const current = state.players.find(player => player.id === bomb.turnPlayerId);
   const explosion = bomb.lastExplosion;
   const exploding = bomb.status === "exploding";
@@ -749,6 +755,9 @@ function renderBombGame() {
         ${active && current ? `<div class="bomb-pointer" style="--bomb-angle:${360 * state.players.indexOf(current) / state.players.length - 90}deg" aria-hidden="true"><img src="/bomb-arrow-neon.png?v=1.48.0-bombe-assets2" alt=""></div>` : ""}
       </div>
       <p class="bomb-status" role="status">${status}</p>
+      ${myTurn && !checking ? `<button id="bombRerollButton" class="bomb-reroll-button" type="button" data-cost="${rerollCost}" aria-label="Relancer la catégorie et la lettre pour ${rerollCost} pièces" title="Relancer la catégorie et la lettre" ${canAffordReroll ? "" : "disabled"}>
+        <span class="bomb-reroll-copy"><strong>Relancer</strong><small>Catégorie et lettre</small></span><b><img src="/coin.png" alt="">${rerollCost}</b>
+      </button>` : ""}
       <div class="bomb-prompt"><div class="bomb-category"><span>Catégorie</span><strong>${escapeHtml(bomb.category || "—")}</strong></div><div class="bomb-letter"><span>Lettre</span><b>${escapeHtml(bomb.letter || "—")}</b></div></div>
       ${myTurn ? `
       <form id="bombAnswerForm" class="bomb-form">
@@ -762,6 +771,29 @@ function renderBombGame() {
   animateBombExplosion(state);
   animateBombLastWord(state);
   document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
+  document.getElementById("bombRerollButton")?.addEventListener("click", event => {
+    const button = event.currentTarget;
+    if (!myTurn || checking || !canAffordReroll || button.disabled) return;
+    const requestId = `bomb-reroll:${state.code}:${session.playerId}:${bomb.cycle}:${bomb.turnVersion}:${Date.now()}:${Math.random().toString(16).slice(2)}`;
+    button.disabled = true;
+    button.dataset.pending = "true";
+    button.classList.add("is-loading");
+    socket.emit("bomb:reroll", {
+      code:state.code,
+      playerId:session.playerId,
+      cycle:bomb.cycle,
+      turnVersion:bomb.turnVersion,
+      requestId
+    }, response => {
+      if (response?.ok) return;
+      toast(response?.error || "Impossible de relancer la catégorie et la lettre.");
+      if (button.isConnected) {
+        button.dataset.pending = "false";
+        button.classList.remove("is-loading");
+        button.disabled = getCoins() < rerollCost;
+      }
+    });
+  });
   document.getElementById("bombAnswerForm")?.addEventListener("submit", event => {
     event.preventDefault();
     const input = document.getElementById("bombAnswerInput");

@@ -2327,6 +2327,16 @@ html body .screen.bomb-screen {
 .bomb-pointer { position:absolute;left:50%;top:auto;bottom:50%;z-index:1;width:clamp(38px,14%,56px);height:calc(32% - 36px);transform-origin:50% 100%;transform:translateX(-50%) rotate(calc(var(--bomb-angle) + 90deg));filter:drop-shadow(0 0 7px #ffba47c9); }
 .bomb-pointer > img { display:block;width:100%;height:100%;object-fit:contain; }
 .bomb-status { min-height:32px;margin:0 auto 8px;display:grid;place-items:center;color:#ffdf9d;font-weight:800;font-size:14px;line-height:1.35; }
+.bomb-reroll-button { min-height:38px;margin:0 auto 8px;padding:5px 10px;display:flex;align-items:center;justify-content:center;gap:12px;color:#f5eaff;border:1px solid #bd71ff;border-radius:11px;background:linear-gradient(120deg,#32136f,#25114f);box-shadow:0 0 11px #a84dff66,inset 0 0 8px #bd63ff22;font:inherit;cursor:pointer; }
+.bomb-reroll-button:focus-visible { outline:2px solid #f0d4ff;outline-offset:2px; }
+.bomb-reroll-copy { display:grid;gap:1px;text-align:left;line-height:1.05; }
+.bomb-reroll-copy strong { font-size:12px;font-weight:900; }
+.bomb-reroll-copy small { color:#cdb5ff;font-size:9px; }
+.bomb-reroll-button > b { display:flex;align-items:center;gap:4px;color:#ffdfa0;font-size:11px;font-weight:900; }
+.bomb-reroll-button > b img { width:16px;height:16px;object-fit:contain; }
+.bomb-reroll-button:disabled { color:#aaa6b7;border-color:#625d72;background:linear-gradient(120deg,#34313f,#252333);box-shadow:none;cursor:not-allowed;filter:grayscale(1);opacity:.68; }
+.bomb-reroll-button:disabled > b { color:#aaa6b7; }
+.bomb-reroll-button.is-loading { cursor:wait;opacity:.75; }
 .bomb-next { margin:14px auto;color:#cbbffa;font-size:.85rem; }
 .bomb-form { display:grid;width:min(100%,370px);gap:7px;margin:14px auto 0;text-align:left; }
 .bomb-form label { font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;color:#c6b7ff; }

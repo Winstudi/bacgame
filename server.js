@@ -1829,6 +1829,7 @@ function publicRoom(room, viewerPlayerId = null) {
     letterSpinVersion: room.letterSpinVersion || 0,
     letterRerollCost: LETTER_REROLL_COST,
     categoryRerollCost: CATEGORY_REROLL_COST,
+    bombRerollCost: CATEGORY_REROLL_COST,
     roundEndsAt: room.roundEndsAt,
     roundStartsAt: room.roundStartsAt || null,
     validation: room.validation
@@ -5149,6 +5150,82 @@ io.on("connection", socket => {
       console.error("Lancement:", err.message);
       socket.emit("toast", "Le lancement a échoué. Réessaie.");
     });
+  });
+
+  socket.on("bomb:reroll", async (payload = {}, cb = () => {}) => {
+    const { room, player } = requireMember(socket, payload);
+    const bomb = room?.bomb;
+    const cycle = Number(payload?.cycle);
+    const turnVersion = Number(payload?.turnVersion);
+    if (!room || room.gameType !== "bombe" || room.phase !== "bomb" || bomb?.status !== "playing" ||
+        bomb.turnPlayerId !== player?.id || bomb.checkingPlayerId || player?.isBot || !player?.walletToken ||
+        cycle !== bomb.cycle || turnVersion !== bomb.turnVersion) {
+      return cb({ ok:false, error:"La relance n’est plus disponible pour ce tour." });
+    }
+    if (room.bombRerollPending) return cb({ ok:false, error:"Une relance est déjà en cours." });
+
+    const requestId = String(payload?.requestId || "").trim().slice(0, 160) ||
+      `bomb-reroll:${room.code}:${player.id}:${cycle}:${turnVersion}`;
+    const previousCategory = bomb.category;
+    const previousLetter = bomb.letter;
+    room.bombRerollPending = requestId;
+
+    try {
+      const debit = await changeWalletCoinsDurably({
+        walletToken:player.walletToken,
+        delta:-CATEGORY_REROLL_COST,
+        kind:"BOMB_REROLL",
+        details:{
+          roomCode:room.code,
+          category:previousCategory,
+          letter:previousLetter,
+          note:`Relance catégorie + lettre (-${CATEGORY_REROLL_COST})`
+        },
+        idempotencyKey:requestId
+      });
+      emitWallet(player);
+      if (!debit?.ok) {
+        return cb({
+          ok:false,
+          error:debit?.code === "insufficient"
+            ? `Il te faut ${CATEGORY_REROLL_COST} pièces pour relancer.`
+            : debit?.error || "Impossible de relancer pour le moment."
+        });
+      }
+      if (debit.duplicate) {
+        emitRoom(room);
+        return cb({ ok:true, duplicate:true, balance:walletBalance(player.walletToken) });
+      }
+
+      const current = rooms.get(room.code);
+      if (current !== room || room.phase !== "bomb" || room.bomb !== bomb || bomb.status !== "playing" ||
+          bomb.cycle !== cycle || bomb.turnVersion !== turnVersion || bomb.turnPlayerId !== player.id ||
+          bomb.category !== previousCategory || bomb.letter !== previousLetter || !room.players.includes(player)) {
+        if (!debit.infinite) {
+          await changeWalletCoinsDurably({
+            walletToken:player.walletToken,
+            delta:CATEGORY_REROLL_COST,
+            kind:"BOMB_REROLL_REFUND",
+            details:{ roomCode:room.code, note:`Relance Bombe annulée (+${CATEGORY_REROLL_COST})` },
+            idempotencyKey:`refund:${requestId}`
+          });
+          emitWallet(player);
+        }
+        return cb({ ok:false, error:"Le tour a changé avant la relance. Les pièces ont été rendues." });
+      }
+
+      bomb.category = bombNextCategory(room);
+      bomb.letter = bombNextLetter(room);
+      bomb.turnVersion += 1;
+      emitRoom(room);
+      cb({ ok:true, category:bomb.category, letter:bomb.letter, balance:walletBalance(player.walletToken) });
+    } catch (err) {
+      console.error("Relance Bombe atomique:", err.message);
+      emitWallet(player);
+      cb({ ok:false, error:"Impossible de relancer pour le moment." });
+    } finally {
+      if (room.bombRerollPending === requestId) room.bombRerollPending = "";
+    }
   });
 
   socket.on("bomb:answer", async (payload = {}, cb = () => {}) => {
