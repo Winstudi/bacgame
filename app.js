@@ -640,14 +640,32 @@ function animateBombLastWord(state) {
 function renderBombIntermission(state) {
   const bomb = state.bomb;
   const winner = state.players.find(player => player.id === bomb.lastWinnerId);
-  const players = state.players.map(player => {
+  const originalOrder = new Map(state.players.map((player, index) => [player.id, index]));
+  const eliminatedAt = new Map((bomb.eliminationOrder || []).map((playerId, index) => [playerId, index]));
+  const orderedPlayers = [...state.players].sort((a, b) => {
+    if (a.id === bomb.lastWinnerId) return -1;
+    if (b.id === bomb.lastWinnerId) return 1;
+    const aLives = Math.max(0, Number(bomb.lives?.[a.id] || 0));
+    const bLives = Math.max(0, Number(bomb.lives?.[b.id] || 0));
+    if (aLives > 0 && bLives === 0) return -1;
+    if (bLives > 0 && aLives === 0) return 1;
+    const aOut = eliminatedAt.get(a.id);
+    const bOut = eliminatedAt.get(b.id);
+    if (aOut !== undefined && bOut !== undefined) return bOut - aOut;
+    if (aLives !== bLives) return bLives - aLives;
+    return originalOrder.get(a.id) - originalOrder.get(b.id);
+  });
+  const players = orderedPlayers.map(player => {
     const lives = Math.max(0, Number(bomb.lives?.[player.id] || 0));
     const frame = !!window.PtitBacFrames?.asset?.(player.frameId);
-    return `<div class="bomb-summary-player ${lives ? "" : "is-out"}">
+    const isWinner = player.id === bomb.lastWinnerId;
+    const validatedAnswers = Math.max(0, Number(bomb.validAnswers?.[player.id] || 0));
+    return `<div class="bomb-summary-player ${lives ? "" : "is-out"} ${isWinner ? "is-winner" : ""}">
       <span class="bomb-summary-avatar bomb-player-avatar ${frame ? "ptb-has-equipped-frame" : ""}">${bombAvatarMarkup(player)}</span>
       <strong>${escapeHtml(player.name)}</strong>
       <span class="bomb-summary-lives" aria-label="${lives} vie${lives > 1 ? "s" : ""}">${"♥".repeat(lives)}${"♡".repeat(Math.max(0, Number(state.bombLives || 3) - lives))}</span>
-      <small>${lives ? "En jeu" : "Éliminé"}</small>
+      <small>${isWinner ? "Gagnant" : "Éliminé"}</small>
+      <span class="bomb-summary-validated"><small>Réponses validées</small><strong>${validatedAnswers}</strong></span>
     </div>`;
   }).join("");
   const nextRoundAt = Number(bomb.nextRoundAt || serverNowMs() + 5000);

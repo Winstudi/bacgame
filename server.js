@@ -3253,6 +3253,8 @@ function scheduleBombBotTurn(room) {
     const answer = choices[Math.floor(Math.random() * choices.length)];
     currentBomb.usedWords ||= [];
     currentBomb.usedWords.push(normalizeAnswer(answer));
+    currentBomb.validAnswers ||= {};
+    currentBomb.validAnswers[player.id] = (Number(currentBomb.validAnswers[player.id]) || 0) + 1;
     currentBomb.lastAnswer = { playerId:player.id, answer, at:Date.now() };
     currentBomb.lastCorrectAnswer = currentBomb.lastAnswer;
     currentBomb.category = bombNextCategory(room);
@@ -3362,6 +3364,8 @@ function bombBeginRound(room, round) {
   const bomb = room.bomb;
   bomb.round = round;
   bomb.lives = Object.fromEntries(room.players.map(player => [player.id, room.bombLives || 3]));
+  bomb.validAnswers = Object.fromEntries(room.players.map(player => [player.id, 0]));
+  bomb.eliminationOrder = [];
   bomb.lastExplosion = null;
   bomb.nextRoundAt = null;
   bomb.lastCorrectAnswer = null;
@@ -3372,7 +3376,7 @@ function bombStart(room) {
   if (room.gameType !== "bombe" || room.mode !== "private" || room.phase !== "lobby") return false;
   if (!privateLobbyReady(room)) return false;
   room.phase = "bomb";
-  room.bomb = { round:0, cycle:0, turnVersion:0, wins:{}, lives:{}, usedWords:[], lastAnswer:null, lastCorrectAnswer:null, status:"playing", lastExplosion:null };
+  room.bomb = { round:0, cycle:0, turnVersion:0, wins:{}, lives:{}, validAnswers:{}, eliminationOrder:[], usedWords:[], lastAnswer:null, lastCorrectAnswer:null, status:"playing", lastExplosion:null };
   bombBeginRound(room, 1);
   return true;
 }
@@ -3408,7 +3412,13 @@ function scheduleBombExplosionEnd(room) {
         room.bomb?.status !== "exploding" || room.bomb.lastExplosion?.at !== at) return;
     const bomb = room.bomb;
     const unlucky = getPlayer(room, bomb.lastExplosion.playerId);
-    if (unlucky) bomb.lives[unlucky.id] = Math.max(0, (bomb.lives[unlucky.id] || 0) - 1);
+    if (unlucky) {
+      bomb.lives[unlucky.id] = Math.max(0, (bomb.lives[unlucky.id] || 0) - 1);
+      if (bomb.lives[unlucky.id] === 0) {
+        bomb.eliminationOrder ||= [];
+        if (!bomb.eliminationOrder.includes(unlucky.id)) bomb.eliminationOrder.push(unlucky.id);
+      }
+    }
     const alive = bombActivePlayers(room);
     if (alive.length <= 1) {
       if (alive[0]) bombFinishRound(room, alive[0]);
@@ -5142,6 +5152,8 @@ io.on("connection", socket => {
     if (Date.now() >= bomb.endsAt) { bombExplode(room); return cb({ ok:false, error:"La bombe a explosé." }); }
     if (!verdict.ok) { emitRoom(room); return cb(verdict); }
     bomb.usedWords.push(normalized);
+    bomb.validAnswers ||= {};
+    bomb.validAnswers[player.id] = (Number(bomb.validAnswers[player.id]) || 0) + 1;
     bomb.lastAnswer = { playerId:player.id, answer, at:Date.now() };
     bomb.lastCorrectAnswer = bomb.lastAnswer;
     bomb.category = bombNextCategory(room);

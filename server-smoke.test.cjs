@@ -291,6 +291,8 @@ test("un salon Bombe joue, explose et garde ses règles séparées", { timeout:3
     assert.equal(afterPass.bomb.lastAnswer.playerId, currentId);
     assert.equal(afterPass.bomb.lastAnswer.answer, word);
     assert.ok(Number.isFinite(afterPass.bomb.lastAnswer.at));
+    assert.equal(afterPass.bomb.validAnswers[currentId], 1);
+    assert.equal(afterPass.bomb.validAnswers[expectedNextPlayerId], 0);
     const nextSocket = accepted.nextPlayerId === created.playerId ? host : guest;
     const repeated = await emitAck(nextSocket, "bomb:answer", { code:created.code, playerId:accepted.nextPlayerId, answer:word });
     assert.equal(repeated.ok, false);
