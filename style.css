@@ -2350,6 +2350,21 @@ html body .screen.bomb-screen {
 .bomb-ranking > div b { color:#ffdf9d;font-size:.79rem; }
 .bomb-result-content > button { min-width:190px; }
 .bomb-result-content > small { color:#b9ade4; }
+.bomb-final-mobile .fin-back { display:none !important; }
+.bomb-final-mobile .fin-avatar:not(.ptb-has-equipped-frame) { border-radius:6px !important; }
+.bomb-final-mobile .fin-avatar:not(.ptb-has-equipped-frame) > img:not(.ptb-equipped-frame-overlay),
+.bomb-final-mobile .fin-avatar:not(.ptb-has-equipped-frame) > span { border-radius:6px !important; }
+.bomb-final-mobile .fin-avatar.ptb-has-equipped-frame > span { width:85% !important;height:85% !important;display:grid !important;place-items:center !important;border-radius:0 !important; }
+.bomb-final-mobile .bomb-result-tag { min-height:17px;margin:2px 0 0;padding:2px 6px;gap:3px;border-radius:6px;font-size:8px;line-height:1; }
+.bomb-final-mobile .bomb-result-tag img { display:block;width:auto;height:auto;max-width:100%;max-height:20px;object-fit:contain; }
+.bomb-final-mobile .bomb-result-tag strong { max-width:100%;font-size:8px;line-height:1; }
+.bomb-final-mobile .bomb-result-player-copy { min-width:0;display:flex;align-items:flex-start;flex-direction:column;gap:2px; }
+.bomb-final-mobile .bomb-result-player-copy > strong { max-width:100%; }
+.bomb-final-mobile .bomb-result-player-copy > .bomb-result-tag { align-self:flex-start; }
+.bomb-final-mobile .fin-podium-card > .bomb-result-tag { max-width:100%; }
+.bomb-final-mobile .fin-actions .bomb-rematch-button { display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left; }
+.bomb-final-mobile .bomb-rematch-button > span:first-child { flex:0 0 auto; }
+.bomb-final-mobile .bomb-rematch-count { max-width:55%;color:#f0e4ff;font-size:9px;line-height:1.15;text-align:right;font-weight:750; }
 @media(max-width:350px) { .bomb-player { width:65px; }.bomb-player-badge { min-width:58px;padding:4px 4px 3px; }.bomb-player-avatar { width:38px;height:38px; }.bomb-player-badge strong { max-width:64px; } }
 
 html body:has(.bomb-screen) #economyHud { display:none!important; }

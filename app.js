@@ -396,8 +396,24 @@ function bombAvatarMarkup(player) {
     : "");
 }
 
-function bombLeave() {
-  if (!window.confirm("Quitter la partie Bombe ?")) return;
+function bombResultAvatarMarkup(player) {
+  const frameId = String(player.frameId || "");
+  const frame = window.PtitBacFrames?.asset?.(frameId) || "";
+  return `<span class="fin-avatar ${frame ? "ptb-has-equipped-frame" : ""}" ${frame ? `data-frame-id="${escapeHtml(frameId)}"` : ""}>${bombAvatarMarkup({...player, frameId:""})}${frame ? `<img class="ptb-equipped-frame-overlay" src="${escapeHtml(frame)}" alt="" aria-hidden="true" draggable="false">` : ""}</span>`;
+}
+
+function bombResultTagMarkup(player) {
+  const tag = window.PtitBacInventory?.tags?.[String(player.tagId || "")];
+  if (!tag) return "";
+  const classes = `inv-tag bomb-result-tag ${escapeHtml(tag.className || "")}`;
+  if (tag.asset) {
+    return `<span class="${classes} inv-tag-image"><img src="${escapeHtml(tag.asset)}" alt="${escapeHtml(tag.name || "Tag")}" draggable="false"></span>`;
+  }
+  return `<span class="${classes}"><span aria-hidden="true">${escapeHtml(tag.icon || "")}</span><strong>${escapeHtml(tag.name || "")}</strong></span>`;
+}
+
+function bombLeave(confirmBeforeLeave = true) {
+  if (confirmBeforeLeave && !window.confirm("Quitter la partie Bombe ?")) return;
   socket.emit("room:leave", { code:session.code, playerId:session.playerId }, response => {
     if (!response?.ok) return toast(response?.error || "Impossible de quitter la partie.");
     clearSession();
@@ -729,8 +745,9 @@ function renderBombResults() {
     return `<article class="fin-podium-card place-${Math.min(place, 3)}">
       <div class="fin-medal">${place}</div>
       ${place === 1 ? '<img class="fin-rank-crown" src="/admin-crown.png" alt="" aria-hidden="true">' : ""}
-      <span class="fin-avatar">${bombAvatarMarkup(player)}</span>
+      ${bombResultAvatarMarkup(player)}
       <strong>${escapeHtml(player.name)}</strong>
+      ${bombResultTagMarkup(player)}
       ${player.id === session.playerId ? '<small class="fin-you">Toi</small>' : ""}
       <b>${count(player)} manche${count(player) > 1 ? "s" : ""}</b>
     </article>`;
@@ -739,7 +756,7 @@ function renderBombResults() {
   const remaining = ranking.filter(player => !podiumIds.has(String(player.id)));
   const rows = remaining.map(player => `<div class="fin-row ${player.id === session.playerId ? "is-me" : ""}">
     <span class="fin-rank place-${Math.min(rank(player), 4)}">${rank(player)}</span>
-    <div class="fin-player"><span class="fin-avatar">${bombAvatarMarkup(player)}</span><strong>${escapeHtml(player.name)}</strong>${player.id === session.playerId ? '<small class="fin-you">Toi</small>' : ""}</div>
+    <div class="fin-player">${bombResultAvatarMarkup(player)}<div class="bomb-result-player-copy"><strong>${escapeHtml(player.name)}</strong>${bombResultTagMarkup(player)}${player.id === session.playerId ? '<small class="fin-you">Toi</small>' : ""}</div></div>
     <b>${count(player)} manche${count(player) > 1 ? "s" : ""}</b>
   </div>`).join("");
   const ready = !!me()?.rematchReady;
@@ -751,13 +768,12 @@ function renderBombResults() {
     <section class="fin-podium fin-podium-${Math.min(top.length, 3)} ${leaders.length > 1 ? "fin-podium-shared-win" : ""}" aria-label="Classement">${podium}</section>
     ${remaining.length ? `<section class="fin-ranking ${ranking.length >= 5 ? "is-many" : ""}">${rows}</section>` : ""}
     <div class="fin-actions">
-      <p role="status">Revanche · ${Number(state.rematch?.readyCount || 0)} / ${Number(state.rematch?.count || 0)} joueurs partants</p>
-      <button id="bombRematch" class="fin-primary" type="button" aria-pressed="${ready}">${ready ? "✓ Partant · Annuler" : "↻ Je rejoue"}</button>
+      <button id="bombRematch" class="fin-primary bomb-rematch-button" type="button" aria-pressed="${ready}"><span>${ready ? "✓ Partant · Annuler" : "↻ Je rejoue"}</span><span class="bomb-rematch-count" role="status">${Number(state.rematch?.readyCount || 0)} / ${Number(state.rematch?.count || 0)} joueurs partants</span></button>
       ${host ? `<button id="bombRestart" class="fin-secondary" type="button" ${allReady ? "" : "disabled"}>Retour au même salon</button>` : ""}
       <button id="bombLeave" class="fin-secondary" type="button">⌂ Retour à l’accueil</button>
     </div>
   </main>`);
-  document.getElementById("bombLeave")?.addEventListener("click", bombLeave);
+  document.getElementById("bombLeave")?.addEventListener("click", () => bombLeave(false));
   document.getElementById("bombRematch")?.addEventListener("click", () => {
     socket.emit("game:rematchReady", { code:state.code, playerId:session.playerId, ready:!ready }, response => {
       if (!response?.ok) toast(response?.error || "Impossible de rejouer.");

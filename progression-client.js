@@ -1194,6 +1194,7 @@
     if (!root) return;
 
     root.querySelector(".fin-top")?.remove();
+    if (root.classList.contains("bomb-final-mobile")) return;
 
     const heading = root.querySelector(".fin-heading");
     if (heading && heading.dataset.redesigned !== "1") {
