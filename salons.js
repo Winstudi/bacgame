@@ -2803,6 +2803,8 @@
     deafened: false,
     stream: null,
     peers: new Map(),
+    participants: new Map(),
+    mutedPeers: new Set(),
     audios: new Map(),
     meters: new Map(),
     audioContext: null,
@@ -3398,7 +3400,7 @@
       roomVoiceState.audios.set(id, audio);
     }
 
-    audio.muted = roomVoiceState.deafened;
+    audio.muted = roomVoiceState.deafened || roomVoiceState.mutedPeers.has(id);
     return audio;
   }
 
@@ -3410,6 +3412,9 @@
       try { peer.close(); } catch {}
       roomVoiceState.peers.delete(id);
     }
+
+    roomVoiceState.participants.delete(id);
+    roomVoiceState.mutedPeers.delete(id);
 
     roomVoiceStopMeter(id);
 
@@ -3446,9 +3451,23 @@
 
     peer = new RTCPeerConnection(ROOM_VOICE_RTC_CONFIG);
     roomVoiceState.peers.set(id, peer);
+    if (!roomVoiceState.participants.has(id)) {
+      const roomPlayer = currentLobbyState()?.players?.find(item =>
+        String(item?.id || item?.playerId || "") === id
+      );
+      roomVoiceState.participants.set(id, {
+        name: String(roomPlayer?.name || "Joueur")
+      });
+    }
 
     for (const track of roomVoiceState.stream?.getAudioTracks?.() || []) {
-      peer.addTrack(track, roomVoiceState.stream);
+      const sender = peer.addTrack(track, roomVoiceState.stream);
+      if (track.kind === "audio") {
+        peer.__ptitAudioSender = sender;
+        if (roomVoiceState.mutedPeers.has(id)) {
+          try { await sender.replaceTrack(null); } catch {}
+        }
+      }
     }
 
     peer.onicecandidate = event => {
@@ -3467,7 +3486,7 @@
 
       const audio = roomVoiceAudioElement(id);
       audio.srcObject = stream;
-      audio.muted = roomVoiceState.deafened;
+      audio.muted = roomVoiceState.deafened || roomVoiceState.mutedPeers.has(id);
 
       try { await audio.play(); } catch {}
 
@@ -3593,8 +3612,16 @@
 
         roomVoiceState.joined = true;
         roomVoiceState.roomCode = String(res.roomCode || state.code || "");
+        roomVoiceState.participants.clear();
+        roomVoiceState.mutedPeers.clear();
+        roomVoiceState.participants.set(String(session?.playerId || ""), {
+          name: String(currentLobbyUser()?.name || "Toi")
+        });
 
         for (const remote of res.peers || []) {
+          roomVoiceState.participants.set(String(remote.playerId || ""), {
+            name: String(remote.name || "Joueur")
+          });
           await roomVoicePeer(remote.playerId, true);
         }
 
@@ -3650,7 +3677,8 @@
     roomVoiceState.deafened = !roomVoiceState.deafened;
 
     for (const audio of roomVoiceState.audios.values()) {
-      audio.muted = roomVoiceState.deafened;
+      audio.muted = roomVoiceState.deafened ||
+        roomVoiceState.mutedPeers.has(String(audio.dataset.voicePlayerId || ""));
     }
 
     updateRoomVoiceUi();
@@ -3689,6 +3717,8 @@
     roomVoiceState.roomCode = "";
     roomVoiceState.micEnabled = false;
     roomVoiceState.deafened = false;
+    roomVoiceState.participants.clear();
+    roomVoiceState.mutedPeers.clear();
 
     document.querySelectorAll(".pl-player.is-voice-speaking")
       .forEach(card => card.classList.remove("is-voice-speaking"));
@@ -3737,15 +3767,13 @@
           <strong>Réglages vocaux</strong>
           <button id="plRoomVoiceSettingsClose" type="button" aria-label="Fermer">×</button>
         </header>
-        <button id="plRoomVoiceSettingsMic" type="button">
-          <span>Micro</span><b>—</b>
-        </button>
-        <button id="plRoomVoiceSettingsSound" type="button">
-          <span>Son reçu</span><b>—</b>
-        </button>
-        <button id="plRoomVoiceSettingsLeave" class="danger" type="button">
-          Quitter le vocal
-        </button>
+        <div class="pl-room-voice-toolbar">
+          <button id="plRoomVoiceSettingsLeave" class="danger" type="button">Quitter le vocal</button>
+          <button id="plRoomVoiceSettingsMic" type="button"><span>Micro</span><b>—</b></button>
+          <button id="plRoomVoiceSettingsSound" type="button"><span>Audio</span><b>—</b></button>
+        </div>
+        <strong class="pl-room-voice-participants-title">Joueurs dans le vocal</strong>
+        <div id="plRoomVoiceParticipants" class="pl-room-voice-participants" role="list"></div>
       </section>
     `;
 
@@ -3767,6 +3795,13 @@
     overlay.querySelector("#plRoomVoiceSettingsLeave")
       ?.addEventListener("click", () => leaveRoomVoice());
 
+    overlay.querySelector("#plRoomVoiceParticipants")
+      ?.addEventListener("click", event => {
+        const button = event.target.closest?.("[data-voice-peer-mute]");
+        if (!button) return;
+        toggleRoomVoicePeerAudio(button.dataset.voicePeerMute);
+      });
+
     return overlay;
   }
 
@@ -3781,16 +3816,87 @@
     if (mic) {
       mic.textContent = roomVoiceState.joined
         ? (roomVoiceState.micEnabled ? "Activé" : "Coupé")
-        : "Hors ligne";
+        : "Activer";
     }
 
     if (sound) {
       sound.textContent = roomVoiceState.joined
         ? (roomVoiceState.deafened ? "Coupé" : "Activé")
-        : "Hors ligne";
+        : "Activer";
     }
 
     if (leave) leave.disabled = !roomVoiceState.joined;
+
+    const list = overlay.querySelector("#plRoomVoiceParticipants");
+    if (list) {
+      const selfId = String(session?.playerId || "");
+      const participants = [...roomVoiceState.participants.entries()];
+      list.replaceChildren();
+
+      if (!participants.length) {
+        const empty = document.createElement("p");
+        empty.className = "pl-room-voice-empty";
+        empty.textContent = "Aucun joueur dans le vocal.";
+        list.appendChild(empty);
+      }
+
+      for (const [playerId, participant] of participants) {
+        const row = document.createElement("div");
+        row.className = "pl-room-voice-player";
+        row.setAttribute("role", "listitem");
+
+        const name = document.createElement("span");
+        name.className = "pl-room-voice-player-name";
+        name.textContent = playerId === selfId
+          ? `${participant.name || "Toi"} (toi)`
+          : String(participant.name || "Joueur");
+        row.appendChild(name);
+
+        if (playerId !== selfId) {
+          const isMuted = roomVoiceState.mutedPeers.has(playerId);
+          const button = document.createElement("button");
+          button.type = "button";
+          button.dataset.voicePeerMute = playerId;
+          button.className = isMuted ? "is-muted" : "";
+          button.setAttribute("aria-pressed", String(isMuted));
+          button.textContent = isMuted ? "Rétablir son" : "Couper son";
+          button.title = isMuted
+            ? "Rétablir l’audio dans les deux sens avec ce joueur"
+            : "Couper l’audio dans les deux sens avec ce joueur";
+          row.appendChild(button);
+        } else {
+          const self = document.createElement("small");
+          self.textContent = roomVoiceState.micEnabled ? "Micro actif" : "Micro coupé";
+          row.appendChild(self);
+        }
+
+        list.appendChild(row);
+      }
+    }
+  }
+
+  async function toggleRoomVoicePeerAudio(playerId) {
+    const id = String(playerId || "");
+    if (!id || id === String(session?.playerId || "")) return;
+
+    const muted = !roomVoiceState.mutedPeers.has(id);
+    if (muted) roomVoiceState.mutedPeers.add(id);
+    else roomVoiceState.mutedPeers.delete(id);
+
+    const audio = roomVoiceState.audios.get(id);
+    if (audio) audio.muted = roomVoiceState.deafened || muted;
+
+    const peer = roomVoiceState.peers.get(id);
+    const sender = peer?.__ptitAudioSender;
+    if (sender) {
+      const micTrack = muted
+        ? null
+        : roomVoiceState.stream?.getAudioTracks?.()[0] || null;
+      try { await sender.replaceTrack(micTrack); }
+      catch (error) { console.warn("[Vocal] mute joueur:", error); }
+    }
+
+    updateRoomVoiceSettingsUi();
   }
 
   function openRoomVoiceSettings() {
@@ -3810,8 +3916,13 @@
 
   function receiveRoomVoicePeerJoined(payload = {}) {
     if (!roomVoiceState.joined) return;
+    const id = String(payload.playerId || "");
+    if (id) roomVoiceState.participants.set(id, {
+      name: String(payload.name || "Joueur")
+    });
     // Le nouveau joueur crée l'offre vers les participants déjà présents.
     updateRoomVoiceUi();
+    updateRoomVoiceSettingsUi();
   }
 
   function receiveRoomVoicePeerLeft(payload = {}) {

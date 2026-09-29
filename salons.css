@@ -4311,7 +4311,7 @@ html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-q
 }
 
 .pl-room-voice-settings {
-  width:min(100%,320px)!important;
+  width:min(100%,420px)!important;
   padding:10px!important;
   display:grid!important;
   gap:8px!important;
@@ -4355,36 +4355,116 @@ html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-q
   font-size:21px!important;
 }
 
-.pl-room-voice-settings > button:not(#plRoomVoiceSettingsClose) {
+.pl-room-voice-toolbar {
+  display:grid!important;
+  grid-template-columns:minmax(0,1.35fr) repeat(2,minmax(0,1fr))!important;
+  gap:6px!important;
+}
+
+.pl-room-voice-toolbar button {
   width:100%!important;
-  min-height:40px!important;
-  padding:0 11px!important;
+  min-width:0!important;
+  min-height:42px!important;
+  padding:4px 6px!important;
   display:flex!important;
   align-items:center!important;
   justify-content:space-between!important;
-  gap:10px!important;
+  gap:4px!important;
   border:1px solid rgba(83,110,188,.50)!important;
   border-radius:11px!important;
   background:rgba(10,28,72,.46)!important;
   color:#e8edff!important;
-  font-size:10px!important;
+  font-size:9px!important;
   font-weight:800!important;
 }
 
-.pl-room-voice-settings > button b {
+.pl-room-voice-toolbar button b {
   color:#6ce6d0!important;
-  font-size:9px!important;
+  font-size:8px!important;
+  white-space:nowrap!important;
 }
 
-.pl-room-voice-settings > button.danger {
+.pl-room-voice-toolbar button.danger {
   justify-content:center!important;
   border-color:rgba(240,89,124,.62)!important;
   color:#ff91a8!important;
   background:rgba(93,27,49,.38)!important;
 }
 
-.pl-room-voice-settings > button:disabled {
+.pl-room-voice-toolbar button:disabled {
   opacity:.38!important;
+}
+
+.pl-room-voice-participants-title {
+  margin-top:2px!important;
+  color:#dcd7ff!important;
+  font-size:11px!important;
+  font-weight:900!important;
+}
+
+.pl-room-voice-participants {
+  display:grid!important;
+  gap:5px!important;
+  max-height:min(38vh,280px)!important;
+  overflow:auto!important;
+}
+
+.pl-room-voice-player {
+  min-height:38px!important;
+  padding:5px 7px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  border:1px solid rgba(83,110,188,.4)!important;
+  border-radius:10px!important;
+  background:rgba(10,28,72,.34)!important;
+}
+
+.pl-room-voice-player-name {
+  min-width:0!important;
+  overflow:hidden!important;
+  color:#f4f2ff!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+
+.pl-room-voice-player small {
+  flex:0 0 auto!important;
+  color:#75e6cd!important;
+  font-size:8px!important;
+}
+
+.pl-room-voice-player button {
+  flex:0 0 auto!important;
+  min-height:28px!important;
+  padding:0 8px!important;
+  border:1px solid rgba(121,101,227,.65)!important;
+  border-radius:8px!important;
+  background:rgba(65,43,132,.45)!important;
+  color:#e8ddff!important;
+  font-size:8px!important;
+  font-weight:800!important;
+}
+
+.pl-room-voice-player button.is-muted {
+  border-color:rgba(240,89,124,.62)!important;
+  color:#ff91a8!important;
+}
+
+.pl-room-voice-empty {
+  margin:0!important;
+  color:#aeb9e1!important;
+  font-size:10px!important;
+  text-align:center!important;
+}
+
+@media (max-width:380px) {
+  .pl-room-voice-toolbar { grid-template-columns:minmax(0,1.2fr) repeat(2,minmax(0,.9fr))!important; gap:4px!important; }
+  .pl-room-voice-toolbar button { padding:3px!important; font-size:8px!important; }
+  .pl-room-voice-toolbar button b { font-size:7px!important; }
 }
 
 
