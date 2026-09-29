@@ -4643,7 +4643,7 @@ html body main.lobby-v5.pl-private-v3.pl-quick-v3
   box-shadow:0 0 14px rgba(130,67,255,.28)!important;
   backdrop-filter:blur(10px)!important;
   -webkit-backdrop-filter:blur(10px)!important;
-  transform:scale(.5)!important;
+  transform:scale(.85)!important;
   transform-origin:top right!important;
 }
 .pl-game-voice-hud button {
