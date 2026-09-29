@@ -3204,136 +3204,42 @@ try{renderScoreboard=render;}catch{}
       "#ffffff"
     ];
 
-    const lanes = 12;
+    // Positions et départs indépendants : pas de rangées ni de vagues par paquets.
+    const count = 52;
+    const random = (min, max) => min + Math.random() * (max - min);
+    const pick = values => values[Math.floor(Math.random() * values.length)];
 
-    return Array.from(
-      { length:60 },
-      (_, index) => {
-        const lane =
-          index % lanes;
+    return Array.from({ length:count }, () => {
+      const left = random(1, 99);
+      const delay = random(0, 3.8);
+      const duration = random(3.7, 5.4);
+      const drift = random(-64, 64);
+      const sway = () => random(-25, 25);
+      const spin = () => Math.round(random(150, 700));
+      const width = random(4, 8);
+      const height = random(8, 15);
+      const color = pick(colors);
+      const round = pick(["0", "1px", "2px", "50%"]);
 
-        const wave =
-          Math.floor(
-            index / lanes
-          );
-
-        /*
-          12 couloirs répartissent les confettis sur toute
-          la largeur. Un petit décalage évite l'effet grille.
-        */
-        const laneCenter =
-          (
-            lane + 0.5
-          ) *
-          (
-            100 / lanes
-          );
-
-        const jitter =
-          (
-            (
-              index * 17
-            ) % 7
-          ) - 3;
-
-        const left =
-          Math.max(
-            2,
-            Math.min(
-              98,
-              laneCenter +
-              jitter * 0.72
-            )
-          );
-
-        /*
-          Les groupes arrivent progressivement au lieu
-          de tomber en gros paquets simultanés.
-        */
-        const delay =
-          wave * 0.70 +
-          (
-            (
-              lane * 7
-            ) % lanes
-          ) * 0.018;
-
-        const duration =
-          2.55 +
-          (
-            (
-              index * 19
-            ) % 58
-          ) / 100;
-
-        const drift =
-          -26 +
-          (
-            (
-              index * 23
-            ) % 53
-          );
-
-        const sway =
-          10 +
-          (
-            (
-              index * 11
-            ) % 17
-          );
-
-        const spin =
-          220 +
-          (
-            (
-              index * 67
-            ) % 420
-          );
-
-        const width =
-          4 +
-          (
-            (
-              index * 7
-            ) % 4
-          );
-
-        const height =
-          7 +
-          (
-            (
-              index * 13
-            ) % 5
-          );
-
-        const color =
-          colors[
-            index % colors.length
-          ];
-
-        const round =
-          index % 6 === 0
-            ? "50%"
-            : index % 4 === 0
-              ? "2px"
-              : "1px";
-
-        return (
-          '<i class="fin-confetti-piece" style="' +
-            '--fin-left:' + left + '%;' +
-            '--fin-delay:' + delay + 's;' +
-            '--fin-duration:' + duration + 's;' +
-            '--fin-drift:' + drift + 'px;' +
-            '--fin-sway:' + sway + 'px;' +
-            '--fin-spin:' + spin + 'deg;' +
-            '--fin-width:' + width + 'px;' +
-            '--fin-height:' + height + 'px;' +
-            '--fin-color:' + color + ';' +
-            '--fin-round:' + round + ';' +
-          '"></i>'
-        );
-      }
-    ).join("");
+      return (
+        '<i class="fin-confetti-piece" style="' +
+          '--fin-left:' + left.toFixed(2) + '%;' +
+          '--fin-delay:' + delay.toFixed(2) + 's;' +
+          '--fin-duration:' + duration.toFixed(2) + 's;' +
+          '--fin-drift:' + drift.toFixed(1) + 'px;' +
+          '--fin-x1:' + sway().toFixed(1) + 'px;' +
+          '--fin-x2:' + sway().toFixed(1) + 'px;' +
+          '--fin-x3:' + sway().toFixed(1) + 'px;' +
+          '--fin-spin1:' + spin() + 'deg;' +
+          '--fin-spin2:' + spin() + 'deg;' +
+          '--fin-spin3:' + spin() + 'deg;' +
+          '--fin-width:' + width.toFixed(1) + 'px;' +
+          '--fin-height:' + height.toFixed(1) + 'px;' +
+          '--fin-color:' + color + ';' +
+          '--fin-round:' + round + ';' +
+        '"></i>'
+      );
+    }).join("");
   }
 
   function launchFinalConfetti(
@@ -3421,7 +3327,7 @@ try{renderScoreboard=render;}catch{}
               0;
           }
         },
-        6500
+        9200
       );
   }
 
