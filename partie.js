@@ -3204,22 +3204,29 @@ try{renderScoreboard=render;}catch{}
       "#ffffff"
     ];
 
-    // Positions et départs indépendants : pas de rangées ni de vagues par paquets.
-    const count = 52;
+    // Répartir les départs dans le temps et sur la largeur évite les paquets.
+    const count = 56;
     const random = (min, max) => min + Math.random() * (max - min);
     const pick = values => values[Math.floor(Math.random() * values.length)];
+    const starts = Array.from({ length:count }, (_, index) =>
+      (index + random(0, 0.8)) * 6.2 / count
+    );
+    for (let index = starts.length - 1; index > 0; index--) {
+      const other = Math.floor(Math.random() * (index + 1));
+      [starts[index], starts[other]] = [starts[other], starts[index]];
+    }
 
-    return Array.from({ length:count }, () => {
-      const left = random(1, 99);
-      const delay = random(0, 3.8);
-      const duration = random(3.7, 5.4);
-      const drift = random(-64, 64);
-      const sway = () => random(-25, 25);
-      const spin = () => Math.round(random(150, 700));
-      const width = random(4, 8);
-      const height = random(8, 15);
+    return Array.from({ length:count }, (_, index) => {
+      const left = (index + random(0.1, 0.9)) * 100 / count;
+      const delay = starts[index];
+      const duration = random(5.2, 7.1);
+      const drift = random(-78, 78);
+      const sway = random(12, 38) * (Math.random() < 0.5 ? -1 : 1);
+      const spin = Math.round(random(390, 860)) * (Math.random() < 0.5 ? -1 : 1);
+      const width = random(4, 7);
+      const height = random(7, 13);
       const color = pick(colors);
-      const round = pick(["0", "1px", "2px", "50%"]);
+      const round = pick(["0", "1px", "2px"]);
 
       return (
         '<i class="fin-confetti-piece" style="' +
@@ -3227,12 +3234,13 @@ try{renderScoreboard=render;}catch{}
           '--fin-delay:' + delay.toFixed(2) + 's;' +
           '--fin-duration:' + duration.toFixed(2) + 's;' +
           '--fin-drift:' + drift.toFixed(1) + 'px;' +
-          '--fin-x1:' + sway().toFixed(1) + 'px;' +
-          '--fin-x2:' + sway().toFixed(1) + 'px;' +
-          '--fin-x3:' + sway().toFixed(1) + 'px;' +
-          '--fin-spin1:' + spin() + 'deg;' +
-          '--fin-spin2:' + spin() + 'deg;' +
-          '--fin-spin3:' + spin() + 'deg;' +
+          '--fin-drift-mid:' + (drift * 0.45).toFixed(1) + 'px;' +
+          '--fin-drift-sway:' + (drift + sway).toFixed(1) + 'px;' +
+          '--fin-sway:' + sway.toFixed(1) + 'px;' +
+          '--fin-spin-early:' + Math.round(spin * 0.22) + 'deg;' +
+          '--fin-spin-mid:' + Math.round(spin * 0.48) + 'deg;' +
+          '--fin-spin-late:' + Math.round(spin * 0.74) + 'deg;' +
+          '--fin-spin:' + spin + 'deg;' +
           '--fin-width:' + width.toFixed(1) + 'px;' +
           '--fin-height:' + height.toFixed(1) + 'px;' +
           '--fin-color:' + color + ';' +
@@ -3327,7 +3335,7 @@ try{renderScoreboard=render;}catch{}
               0;
           }
         },
-        9200
+        13800
       );
   }
 

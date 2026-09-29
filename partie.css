@@ -5068,7 +5068,7 @@ html body .fsv1-screen.final-mobile .fin-avatar.ptb-has-equipped-frame > .ptb-eq
 
 .fin-confetti-piece {
   position:absolute;
-  top:-8vh;
+  top:-18px;
   left:var(--fin-left);
   width:var(--fin-width);
   height:var(--fin-height);
@@ -5078,17 +5078,17 @@ html body .fsv1-screen.final-mobile .fin-avatar.ptb-has-equipped-frame > .ptb-eq
   transform-origin:center;
   backface-visibility:hidden;
   will-change:transform,opacity;
-  animation:finConfettiFall var(--fin-duration) var(--fin-delay) linear forwards;
+  animation:finConfettiFall var(--fin-duration) var(--fin-delay) linear both;
 }
 
 @keyframes finConfettiFall {
-  0% {opacity:0;transform:translate3d(0,-8vh,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg);}
-  10% {opacity:.95;}
-  /* Accélération verticale et petits changements de vent pendant la chute. */
-  20% {opacity:1;transform:translate3d(var(--fin-x1),10vh,0) rotateX(130deg) rotateY(100deg) rotateZ(var(--fin-spin1));}
-  45% {transform:translate3d(var(--fin-x2),38vh,0) rotateX(330deg) rotateY(270deg) rotateZ(var(--fin-spin2));}
-  70% {transform:translate3d(var(--fin-x3),78vh,0) rotateX(570deg) rotateY(460deg) rotateZ(var(--fin-spin3));}
-  100% {opacity:0;transform:translate3d(var(--fin-drift),112vh,0) rotateX(760deg) rotateY(650deg) rotateZ(calc(var(--fin-spin1) + var(--fin-spin2) + var(--fin-spin3)));}
+  0% {opacity:0;transform:translate3d(0,0,0) rotate(0deg) rotateY(0deg);}
+  6% {opacity:.9;}
+  23% {transform:translate3d(var(--fin-sway),16vh,0) rotate(var(--fin-spin-early)) rotateY(100deg);}
+  48% {opacity:1;transform:translate3d(var(--fin-drift-mid),43vh,0) rotate(var(--fin-spin-mid)) rotateY(260deg);}
+  74% {transform:translate3d(var(--fin-drift-sway),78vh,0) rotate(var(--fin-spin-late)) rotateY(430deg);}
+  94% {opacity:.95;}
+  100% {opacity:0;transform:translate3d(var(--fin-drift),114vh,0) rotate(var(--fin-spin)) rotateY(580deg);}
 }
 
 /* ---------- Responsive ---------- */
