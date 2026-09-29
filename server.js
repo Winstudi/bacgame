@@ -3458,7 +3458,7 @@ function bombExplode(room) {
   scheduleBombExplosionEnd(room);
 }
 
-async function bombValidateAnswer(category, letter, answer) {
+async function bombValidateAnswer(category, letter, answer, onSlowValidation = () => {}) {
   const item = { id:id(), category, answer };
   if (localSemanticDecision(item)?.status === "invalid") return { ok:false, error:"Ce mot ne correspond pas à la catégorie." };
   if ((BOT_ANSWER_BANK[category] || []).some(value => normalizeAnswer(value) === normalizeAnswer(answer))) return { ok:true };
@@ -3471,19 +3471,16 @@ async function bombValidateAnswer(category, letter, answer) {
     return { ok:cached.status === "valid", error:"Ce mot n'est pas accepté pour cette catégorie." };
   }
   if (!OPENAI_API_KEY) return { ok:false, error:"Correction momentanément indisponible. Réessaie avec un autre mot." };
+  onSlowValidation();
   try {
-    const deadline = Date.now() + 7000;
-    let response = (await validateInBatches([item], letter, {
-      timeoutMs:Math.min(AUTO_VALIDATION_TIMEOUT_MS, deadline - Date.now())
+    // Le tour continue pendant l'appel : une seconde vérification bloquerait
+    // le joueur et pourrait laisser exploser la bombe pendant la correction.
+    const response = (await validateInBatches([item], letter, {
+      timeoutMs:3500
     }))[0];
-    if (!shouldAcceptPrimary(item, response)) {
-      const remainingMs = deadline - Date.now();
-      response = remainingMs > 150
-        ? (await validateInBatches([item], letter, { review:true, timeoutMs:remainingMs }))[0]
-        : null;
-    }
     const decision = normalizeAiResult(response);
-    if (decision && shouldAcceptPrimary(item, response) && decision.confidence >= 90) {
+    const confirmed = shouldAcceptPrimary(item, response);
+    if (decision && confirmed && decision.confidence >= 90) {
       validationCache.set(validationCacheKey(category, answer), {
         engineVersion:VALIDATION_ENGINE_VERSION,
         status:decision.verdict,
@@ -3496,8 +3493,8 @@ async function bombValidateAnswer(category, letter, answer) {
       });
       setImmediate(saveValidationCache);
     }
-    if (decision?.verdict === "valid" && decision.confidence >= decisionThresholds(category).valid) return { ok:true };
-    return { ok:false, error:decision?.verdict === "invalid" ? "Ce mot ne correspond pas à la catégorie." : "Réponse non confirmée. Essaie un autre mot." };
+    if (decision?.verdict === "valid" && confirmed) return { ok:true };
+    return { ok:false, error:decision?.verdict === "invalid" && confirmed ? "Ce mot ne correspond pas à la catégorie." : "Réponse non confirmée. Essaie un autre mot." };
   } catch {
     return { ok:false, error:"Correction momentanément indisponible. Réessaie avec un autre mot." };
   }
@@ -5287,9 +5284,10 @@ io.on("connection", socket => {
     player.bombLastAnswerAt = Date.now();
     const cycle = bomb.cycle;
     const turn = bomb.turnVersion;
-    bomb.checkingPlayerId = player.id;
-    emitRoom(room);
-    const verdict = await bombValidateAnswer(bomb.category, bomb.letter, answer);
+    const verdict = await bombValidateAnswer(bomb.category, bomb.letter, answer, () => {
+      bomb.checkingPlayerId = player.id;
+      emitRoom(room);
+    });
     if (rooms.get(room.code) !== room || room.phase !== "bomb" || bomb.status !== "playing" || bomb.cycle !== cycle || bomb.turnVersion !== turn || bomb.turnPlayerId !== player.id) {
       return cb({ ok:false, error:"Le tour a changé pendant la correction." });
     }
