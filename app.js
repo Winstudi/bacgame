@@ -125,6 +125,7 @@ socket.on("room:state", state => {
     overwrite: previous?.phase !== "round"
   });
   session.state = state;
+  syncBombAudio(state);
   if (state.phase === "bomb" && previous?.phase === "bomb" &&
       state.bomb?.status === "playing" && previous.bomb?.status === "playing" &&
       state.bomb?.cycle === previous.bomb?.cycle &&
@@ -186,6 +187,7 @@ function saveSession(code, playerId) {
 function clearSession() {
   clearInterval(session.timerHandle);
   session.timerHandle = null;
+  stopBombAudio(true);
   session.code = "";
   session.playerId = "";
   session.state = null;
@@ -364,6 +366,7 @@ function renderShop() {
 }
 
 function render() {
+  syncBombAudio(session.state);
   if (!session.state) return renderHome();
   clearInterval(session.timerHandle);
   session.timerHandle = null;
@@ -424,6 +427,126 @@ function bombLeave(confirmBeforeLeave = true) {
 
 // Keep the animation clock across room snapshots, which replace the screen DOM.
 let bombTurnVisual = null;
+
+// Le son est piloté par l'état serveur : les mises à jour de tour ne relancent
+// pas le tic-tac et l'explosion n'est jouée qu'une fois pour chaque explosion.
+const bombAudio = {
+  tickling:null,
+  explosion:null,
+  snapshot:null,
+  lastExplosionKey:"",
+  shouldPlayLoops:false,
+  primed:false
+};
+
+function getBombAudio() {
+  if (!bombAudio.tickling) {
+    bombAudio.tickling = new Audio("/bomb-tickling.wav");
+    bombAudio.explosion = new Audio("/bomb-explosion.wav");
+    bombAudio.tickling.loop = true;
+    bombAudio.tickling.preload = "auto";
+    bombAudio.explosion.preload = "auto";
+    bombAudio.tickling.volume = .32;
+    bombAudio.explosion.volume = .8;
+  }
+  return bombAudio;
+}
+
+function startBombLoops() {
+  const audio = getBombAudio();
+  bombAudio.shouldPlayLoops = true;
+  if (!audio.tickling.paused) return;
+  const playback = audio.tickling.play();
+  playback?.catch?.(() => {});
+}
+
+function pauseBombLoops(reset = true) {
+  const track = bombAudio.tickling;
+  if (!track) return;
+  track.pause();
+  if (reset) try { track.currentTime = 0; } catch {}
+  bombAudio.shouldPlayLoops = false;
+}
+
+function stopBombAudio(resetSnapshot = false) {
+  pauseBombLoops();
+  if (bombAudio.explosion) {
+    bombAudio.explosion.pause();
+    try { bombAudio.explosion.currentTime = 0; } catch {}
+  }
+  if (resetSnapshot) {
+    bombAudio.snapshot = null;
+    bombAudio.lastExplosionKey = "";
+  }
+}
+
+function primeBombAudioFromGesture() {
+  if (bombAudio.primed) return;
+  bombAudio.primed = true;
+  const audio = getBombAudio();
+  Promise.allSettled([audio.tickling, audio.explosion].map(track => {
+    track.muted = true;
+    const playback = track.play();
+    if (!playback?.then) {
+      track.pause();
+      track.muted = false;
+      return Promise.resolve();
+    }
+    return playback.then(() => {
+      track.pause();
+      try { track.currentTime = 0; } catch {}
+      track.muted = false;
+    }).catch(() => { track.muted = false; });
+  })).then(() => {
+    if (bombAudio.shouldPlayLoops) startBombLoops();
+  });
+}
+
+document.addEventListener("pointerdown", primeBombAudioFromGesture, { capture:true, once:true });
+document.addEventListener("keydown", primeBombAudioFromGesture, { capture:true, once:true });
+
+function syncBombAudio(state) {
+  if (state?.gameType !== "bombe") {
+    stopBombAudio(true);
+    return;
+  }
+
+  const bomb = state.phase === "bomb" ? state.bomb : null;
+  if (!bomb) {
+    // À l'intermission et au classement, le tic-tac s'arrête mais le son
+    // d'explosion déjà lancé a le temps de se terminer.
+    pauseBombLoops();
+    if (state.phase === "lobby") stopBombAudio(true);
+    bombAudio.snapshot = null;
+    return;
+  }
+
+  const snapshot = {
+    code:state.code,
+    round:bomb.round,
+    cycle:bomb.cycle,
+    status:bomb.status,
+    explosionAt:bomb.lastExplosion?.at || null
+  };
+  bombAudio.snapshot = snapshot;
+
+  if (bomb.status === "playing") {
+    startBombLoops();
+    return;
+  }
+
+  pauseBombLoops();
+  if (bomb.status !== "exploding" || !snapshot.explosionAt) return;
+
+  const explosionKey = `${snapshot.code}:${snapshot.round}:${snapshot.explosionAt}`;
+  if (explosionKey === bombAudio.lastExplosionKey) return;
+  bombAudio.lastExplosionKey = explosionKey;
+  const track = getBombAudio().explosion;
+  track.pause();
+  try { track.currentTime = 0; } catch {}
+  const playback = track.play();
+  playback?.catch?.(() => {});
+}
 
 function prepareBombTurnVisual(state) {
   const bomb = state.bomb;
