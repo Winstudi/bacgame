@@ -140,7 +140,6 @@
   }
 
   function roomModeToggleMarkup(state, user) {
-    if (state.gameType === "bombe") return `<div class="pl-title-mode"><h1>Bombe - Salon Privé</h1></div>`;
     const publicMode = state.mode === "public";
     const host = user?.isHost === true;
     const label = publicMode ? "Public" : "Privé";
@@ -148,7 +147,7 @@
 
     return `
       <div class="pl-title-mode">
-        <h1>Baccalauréat - Salon ${publicMode ? "Public" : "Privé"}</h1>
+        <h1>Salon ${publicMode ? "public" : "privé"}</h1>
         <button
           id="plModeToggle"
           class="pl-mode-toggle ${publicMode ? "is-public" : ""}"
@@ -166,7 +165,7 @@
   }
 
   function changeRoomMode(state, user) {
-    if (!user?.isHost || lobbyModeSwitching || state.mode === "quick" || state.gameType === "bombe") return;
+    if (!user?.isHost || lobbyModeSwitching || state.mode === "quick") return;
 
     const nextMode = state.mode === "public" ? "private" : "public";
     lobbyModeSwitching = true;
@@ -334,8 +333,6 @@
 
     const difficulty = difficultyInfo(state.categoryDifficulty);
     const categoryCount = Number(state.categoryCount || state.categories?.length || 6);
-    const bomb = state.gameType === "bombe";
-    const speedLabel = { fast: "Rapide", medium: "Moyen", slow: "Lent" }[state.bombSpeed] || "Moyen";
 
     const card = ({ key, label, value, icon, difficultyClass = "" }) => `
       <article class="lobby-v5-edit-card ${difficultyClass}">
@@ -371,13 +368,13 @@
               value: state.rounds,
               icon: "/lightning.png"
             })}
-            ${bomb ? card({ key: "bombLives", label: "Vies", value: state.bombLives || 3, icon: "/heart.png" }) : card({
+            ${card({
               key: "categoryCount",
               label: "Catégories",
               value: categoryCount,
               icon: "/lobby-categories.png"
             })}
-            ${bomb ? card({ key: "bombSpeed", label: "Bombe", value: speedLabel, icon: "/lobby-clock.png" }) : card({
+            ${card({
               key: "duration",
               label: "Temps",
               value: `${Number(state.duration || 60)}s`,
@@ -509,7 +506,7 @@
       tag_debutant: { label:"Débutant", icon:"★" }
     };
 
-    if (known[id]) return { id, ...known[id] };
+    if (known[id]) return known[id];
 
     const label = id
       .replace(/^tag[_-]?/i, "")
@@ -517,26 +514,12 @@
       .replace(/\b\w/g, char => char.toUpperCase())
       .trim();
 
-    return label ? { id, label, icon:"★" } : null;
+    return label ? { label, icon:"★" } : null;
   }
 
   function privateLobbyTagMarkup(player) {
     const tag = privateLobbyTagInfo(player);
     if (!tag) return "";
-
-    const knownAssets = {
-      tag_quantique: { asset:"/tag-quantique.png", name:"Tag Quantique" },
-      tag_game_over: { asset:"/tag-game-over.png", name:"Game Over" }
-    };
-    const catalogItem = window.PtitBacInventory?.tags?.[tag.id];
-    const item = catalogItem || knownAssets[tag.id];
-    const visual = item?.asset ? { asset:item.asset, name:item.name || tag.label } : null;
-    if (visual) {
-      return `
-        <span class="pl-player-title private-tag-image" title="${escapeHtml(visual.name)}" data-private-tag-asset="${escapeHtml(visual.asset)}">
-          <img src="${escapeHtml(visual.asset)}" alt="${escapeHtml(visual.name)}" draggable="false">
-        </span>`;
-    }
 
     return `
       <span class="pl-player-title" title="Titre équipé">
@@ -1429,7 +1412,6 @@
   }
 
   function privateMarkup(state, user) {
-    const maxPlayers = LOBBY_MAX_PLAYERS;
     ensurePrivateLobbyV2Styles();
 
     const quickMode = state.mode === "quick";
@@ -1496,7 +1478,7 @@
     }).join("");
 
     const emptySlots = Array.from(
-      { length:Math.max(0, maxPlayers - state.players.length) },
+      { length:Math.max(0, LOBBY_MAX_PLAYERS - state.players.length) },
       () => `
         <div class="pl-empty" aria-label="Place libre">
           <b aria-hidden="true">＋</b>
@@ -1537,7 +1519,7 @@
 
           ${quickMode
             ? `<div class="pl-title-mode">
-                <h1>${state.gameType === "bombe" ? "Bombe" : "Baccalauréat"} - Partie Rapide</h1>
+                <h1>Partie Classique Rapide</h1>
               </div>`
             : roomModeToggleMarkup(state, user)}
 
@@ -1559,15 +1541,14 @@
 
           <div class="pl-setting-grid">
             ${settingCard({label:"Manches",value:state.rounds,icon:"/lightning.png"})}
-            ${state.gameType === "bombe"
-              ? `${settingCard({label:"Vies",value:state.bombLives || 3,icon:"/heart.png"})}${settingCard({label:"Bombe",value:({fast:"Rapide",medium:"Moyen",slow:"Lent"})[state.bombSpeed] || "Moyen",icon:"/lobby-clock.png"})}`
-              : `${settingCard({label:"Catégories",value:state.categoryCount || 6,icon:"/lobby-categories.png"})}${settingCard({label:"Temps",value:state.duration+"s",icon:"/lobby-clock.png"})}`}
+            ${settingCard({label:"Catégories",value:state.categoryCount || 6,icon:"/lobby-categories.png"})}
+            ${settingCard({label:"Temps",value:state.duration+"s",icon:"/lobby-clock.png"})}
             ${settingCard({label:"Difficulté",value:difficulty.label,icon:difficulty.icon,difficulty:true})}
           </div>
         </section>
 
         <section class="pl-players">
-          <h2>Joueurs <span>${state.players.length}/${maxPlayers}</span></h2>
+          <h2>Joueurs <span>${state.players.length}/${LOBBY_MAX_PLAYERS}</span></h2>
           <div class="pl-grid">${cards}${emptySlots}</div>
         </section>
 
@@ -1597,11 +1578,10 @@
               : user?.isHost
                 ? `<button id="startBtn" type="button" ${allReady ? "" : "disabled"}>▶ Lancer la partie</button>`
                 : `<span class="pl-wait">L’hôte lancera la partie.</span>`}
-
           </div>
 
           ${!quickMode && user?.isHost && state.mode === "private"
-            ? `<button class="pl-test" data-add-bot="0" type="button" ${state.players.length >= maxPlayers ? "disabled" : ""}>Ajouter un joueur test</button>`
+            ? `<button class="pl-test" data-add-bot="0" type="button" ${state.players.length >= LOBBY_MAX_PLAYERS ? "disabled" : ""}>Ajouter un bot de test</button>`
             : ""}
         </div>
 
@@ -1714,12 +1694,9 @@
         lobbyDifficultyLockUntil = now + 260;
       }
 
-      const rounds = state.gameType === "bombe" ? [1, 2, 3] : [1, 3, 5];
+      const rounds = [1, 3, 5];
       const durations = [30, 60, 90, 120];
       const difficulties = ["beginner", "medium", "hard"];
-      const bomb = state.gameType === "bombe";
-      let nextBombLives = Number(state.bombLives || 3);
-      let nextBombSpeed = state.bombSpeed || "medium";
 
       let nextRounds = Number(state.rounds || 1);
       let nextDuration = Number(state.duration || 60);
@@ -1734,8 +1711,6 @@
       };
 
       if (setting === "rounds") nextRounds = cycle(rounds, nextRounds, dir);
-      if (bomb && setting === "bombLives") nextBombLives = cycle([1, 2, 3], nextBombLives, dir);
-      if (bomb && setting === "bombSpeed") nextBombSpeed = cycle(["fast", "medium", "slow"], nextBombSpeed, dir);
       if (setting === "duration") nextDuration = cycle(durations, nextDuration, dir);
       if (setting === "categoryDifficulty") nextDifficulty = cycle(difficulties, nextDifficulty, dir);
       if (setting === "categoryCount") {
@@ -1753,9 +1728,7 @@
         rounds: nextRounds,
         duration: nextDuration,
         categoryCount: nextCategoryCount,
-        categoryDifficulty: nextDifficulty,
-        bombLives: nextBombLives,
-        bombSpeed: nextBombSpeed
+        categoryDifficulty: nextDifficulty
       }, res => {
         if (!res?.ok) {
           lobbyDifficultyLockUntil = 0;
@@ -3075,13 +3048,6 @@
       state?.categoryDifficulty === "medium" ? "Moyen" :
       "Facile";
 
-    if (state?.gameType === "bombe") return [
-      { key: "rounds", label: "Manches", value: String(state.rounds || 1), icon: "/lightning.png" },
-      { key: "bombLives", label: "Vies", value: String(state.bombLives || 3), icon: "/heart.png" },
-      { key: "bombSpeed", label: "Bombe", value: ({ fast: "Rapide", medium: "Moyen", slow: "Lent" })[state.bombSpeed] || "Moyen", icon: "/lobby-clock.png" },
-      { key: "categoryDifficulty", label: "Difficulté", value: difficulty, icon: "/difficulty.png", difficulty: true }
-    ];
-
     return [
       {
         key: "rounds",
@@ -3380,6 +3346,35 @@
     );
 
     updateRoomVoiceSettingsUi();
+  }
+
+  function syncRoomVoiceHud() {
+    const state = currentLobbyState();
+    const allowedRoom = ["private", "public", "quick"].includes(state?.mode) &&
+      String(state?.code || "");
+    const main = document.querySelector("#app > main");
+    const inGame = !!allowedRoom && state.phase !== "lobby" && !!main;
+    let hud = document.getElementById("plGameVoiceHud");
+
+    if (!inGame) {
+      hud?.remove();
+      return;
+    }
+
+    if (!hud) {
+      hud = document.createElement("aside");
+      hud.id = "plGameVoiceHud";
+      hud.className = "pl-game-voice-hud pl-v3-voice";
+      hud.setAttribute("aria-label", "Commandes du chat vocal");
+      hud.innerHTML = `
+        <small class="pl-voice-status"><i aria-hidden="true"></i><span>Vocal</span></small>
+        <button id="plVoiceMic" type="button" aria-label="Activer ou couper le micro" title="Micro">${micSvg}</button>
+        <button id="plVoiceHeadphones" type="button" aria-label="Activer ou couper le son reçu" title="Casque">${headphonesSvg}</button>
+        <button id="plVoiceSettings" type="button" aria-label="Réglages vocaux" title="Réglages">${settingsSvg}</button>`;
+      document.body.appendChild(hud);
+    }
+
+    updateRoomVoiceUi();
   }
 
   function roomVoiceAudioElement(playerId) {
@@ -3702,15 +3697,14 @@
 
   function syncRoomVoiceContext() {
     const state = currentLobbyState();
-    const voiceLobby =
+    const voiceRoom =
       ["private", "public", "quick"].includes(state?.mode) &&
-      state?.phase === "lobby" &&
       String(state?.code || "");
 
     if (
-      roomVoiceState.joined &&
+      (roomVoiceState.joined || roomVoiceState.joining) &&
       (
-        !voiceLobby ||
+        !voiceRoom ||
         String(state.code) !== String(roomVoiceState.roomCode)
       )
     ) {
@@ -3719,6 +3713,7 @@
     }
 
     updateRoomVoiceUi();
+    syncRoomVoiceHud();
   }
 
   function ensureRoomVoiceSettings() {
@@ -3978,7 +3973,7 @@
         <header class="pl-room-chat-header">
           <div>
             <strong>Chat du salon</strong>
-            <small id="plRoomChatSubtitle">Baccalauréat - Salon Privé</small>
+            <small id="plRoomChatSubtitle">Salon privé</small>
           </div>
           <button id="plRoomChatClose" type="button" aria-label="Fermer">×</button>
         </header>
@@ -4270,13 +4265,11 @@
     const subtitle = overlay.querySelector("#plRoomChatSubtitle");
     if (subtitle) {
       subtitle.textContent =
-        state.gameType === "bombe"
-          ? "Bombe - Salon Privé"
-          : state.mode === "quick"
-          ? "Baccalauréat - Partie Rapide"
+        state.mode === "quick"
+          ? "Partie rapide"
           : state.mode === "public"
-            ? "Baccalauréat - Salon Public"
-            : "Baccalauréat - Salon Privé";
+            ? "Salon public"
+            : "Salon privé";
     }
 
     roomChatState.open = true;
@@ -4600,7 +4593,31 @@
         overflow:hidden!important;
       }
 
+      html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
+        .pl-title-mode > h1 {
+        flex:0 1 auto!important;
+        min-width:0!important;
+        margin:0!important;
+        font-size:0!important;
+        line-height:1!important;
+        white-space:nowrap!important;
+      }
 
+      html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
+        .pl-title-mode > h1::after {
+        content:"Salon Public"!important;
+        display:inline-block!important;
+        color:#fff!important;
+        font-size:1.12rem!important;
+        line-height:1!important;
+        font-weight:1000!important;
+        letter-spacing:-.03em!important;
+        white-space:nowrap!important;
+        text-shadow:
+          0 2px 0 #5d20b3,
+          0 0 8px #eb52ff,
+          0 0 15px rgba(129,71,255,.72)!important;
+      }
 
       html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
         .pl-mode-toggle {
@@ -4664,6 +4681,10 @@
           gap:4px!important;
         }
 
+        html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
+          .pl-title-mode > h1::after {
+          font-size:.94rem!important;
+        }
 
         html body main.lobby-v5.pl-private.pl-private-v3.pl-public-mode[data-mode="public"]
           .pl-mode-toggle {
@@ -4916,7 +4937,7 @@
     title.innerHTML = `
       <img src="/friends.png" alt="">
       <span class="pl-v3-player-label">Joueurs</span>
-      <span class="pl-v3-player-count">(${count}/${LOBBY_MAX_PLAYERS})</span>
+      <span class="pl-v3-player-count">(${count}/6)</span>
     `;
 
     bar.appendChild(title);
@@ -5003,6 +5024,7 @@
   }
 
   function decorateBottom(root) {
+    root.querySelector(".pl-test")?.remove();
     root.querySelector(".pl-launch-hint")?.remove();
 
     if (
@@ -5046,13 +5068,11 @@
       const roomTitle = root.querySelector(".pl-title-mode > h1");
       if (roomTitle) {
         roomTitle.textContent =
-          currentLobbyState()?.gameType === "bombe"
-            ? "Bombe - Salon Privé"
-            : liveMode === "quick"
-            ? "Baccalauréat - Partie Rapide"
+          liveMode === "quick"
+            ? "Partie Classique Rapide"
             : liveMode === "public"
-              ? "Baccalauréat - Salon Public"
-              : "Baccalauréat - Salon Privé";
+              ? "Salon Public"
+              : "Salon Privé";
       }
 
       if (liveMode === "quick") {
@@ -5118,7 +5138,7 @@
       return privateLobbyToast("Seul l’hôte peut modifier les paramètres.");
     }
 
-    const rounds = state.gameType === "bombe" ? [1, 2, 3] : [1, 3, 5];
+    const rounds = [1, 3, 5];
     const categoryCounts = [6, 8, 10];
     const durations = [30, 60, 90];
     const difficulties = ["beginner", "medium", "hard"];
@@ -5129,15 +5149,9 @@
     );
     let nextDuration = Number(state.duration || 60);
     let nextDifficulty = state.categoryDifficulty || "medium";
-    let nextBombLives = Number(state.bombLives || 3);
-    let nextBombSpeed = state.bombSpeed || "medium";
 
     if (setting === "rounds") {
       nextRounds = cycleValue(rounds, nextRounds, direction);
-    } else if (state.gameType === "bombe" && setting === "bombLives") {
-      nextBombLives = cycleValue([1, 2, 3], nextBombLives, direction);
-    } else if (state.gameType === "bombe" && setting === "bombSpeed") {
-      nextBombSpeed = cycleValue(["fast", "medium", "slow"], nextBombSpeed, direction);
     } else if (setting === "categoryCount") {
       const normalized = categoryCounts.includes(nextCategoryCount)
         ? nextCategoryCount
@@ -5176,9 +5190,7 @@
         rounds: nextRounds,
         duration: nextDuration,
         categoryCount: nextCategoryCount,
-        categoryDifficulty: nextDifficulty,
-        bombLives: nextBombLives,
-        bombSpeed: nextBombSpeed
+        categoryDifficulty: nextDifficulty
       },
       res => {
         privateLobbyV3State.busy = false;

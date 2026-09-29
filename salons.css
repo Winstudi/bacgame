@@ -1748,6 +1748,26 @@ html body main.pl-private-v3:is(
 }
 
 
+/* =========================================================
+   FIX — titre réel de la Partie Classique Rapide
+   index.html applique encore "Salon Privé" via h1::after
+   aux écrans data-mode="private". Ce sélecteur Quick est
+   volontairement plus spécifique pour neutraliser ce vieux patch.
+   ========================================================= */
+
+html body main.lobby-v5.pl-private.pl-private-v3.pl-quick-v3[data-mode="private"][data-lobby-kind="quick"]
+  .pl-title-mode > h1 {
+  font-size:1.05rem!important;
+  line-height:1!important;
+  color:#fff!important;
+}
+
+html body main.lobby-v5.pl-private.pl-private-v3.pl-quick-v3[data-mode="private"][data-lobby-kind="quick"]
+  .pl-title-mode > h1::after {
+  content:none!important;
+  display:none!important;
+}
+
 /* ==== private-lobby.css ==== */
 /* P'tit Bac — Salon privé/public configurable
    Source canonique du layout compact du lobby hors partie rapide. */
@@ -2212,25 +2232,6 @@ html main.lobby-v5.pl-private {
   line-height:14px;
 }
 
-.pl-private[data-mode="private"]:not(.pl-quick-v3) > .pl-actions > .pl-test {
-  justify-self:center;
-  min-width:min(100%,260px);
-  min-height:38px;
-  padding:7px 16px;
-  border:1px solid #bd72ff;
-  border-radius:12px;
-  background:linear-gradient(135deg,#4c286f,#302052);
-  box-shadow:0 0 14px rgba(173,94,255,.25);
-  color:#f2dcff!important;
-  font-size:13px!important;
-  font-weight:800;
-  line-height:18px;
-}
-
-.pl-private[data-mode="private"]:not(.pl-quick-v3) > .pl-actions > .pl-test:disabled {
-  opacity:.48;
-}
-
 @media(max-height:620px) {
   html main.lobby-v5.pl-private {
     gap:6px!important;
@@ -2323,6 +2324,11 @@ html main.lobby-v5.pl-private {
   gap:7px;
 }
 
+.pl-private .pl-title-mode > h1 {
+  min-width:0;
+  margin:0!important;
+  white-space:nowrap;
+}
 
 .pl-private .pl-mode-toggle {
   flex:none;
@@ -2517,6 +2523,22 @@ html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-q
   gap:6px!important;
 }
 
+html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-title-mode > h1 {
+  min-width:0!important;
+  margin:0!important;
+
+  color:#fff!important;
+  font-size:1.05rem!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:-.03em!important;
+  white-space:nowrap!important;
+
+  text-shadow:
+    0 2px 0 #5d20b3,
+    0 0 8px #eb52ff,
+    0 0 15px rgba(129,71,255,.78)!important;
+}
 
 /* Garde le bouton simple "Privé", comme demandé précédemment. */
 html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-mode-toggle {
@@ -2620,6 +2642,9 @@ html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-q
     gap:4px!important;
   }
 
+  html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-title-mode > h1 {
+    font-size:.95rem!important;
+  }
 
   html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-mode-toggle {
     min-width:48px!important;
@@ -3450,7 +3475,8 @@ html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-q
   filter:saturate(.55)!important;
 }
 
-html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-launch-hint {
+html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-launch-hint,
+html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-test {
   display:none!important;
 }
 
@@ -3480,6 +3506,9 @@ html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-q
     grid-template-columns:42px minmax(0,1fr) 80px!important;
   }
 
+  html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-title-mode > h1 {
+    font-size:17px!important;
+  }
 
   html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-quick-v3) .pl-mode-toggle {
     min-width:54px!important;
@@ -4405,7 +4434,18 @@ html body main.pl-private-v3:is([data-mode="private"],[data-mode="public"],.pl-q
    PUBLIC V3.1 — correction des anciens conflits visuels
    ========================================================= */
 
+html body main.pl-private-v3.pl-public-mode[data-mode="public"] .pl-title-mode > h1::after {
+  content:none!important;
+  display:none!important;
+}
 
+html body main.pl-private-v3.pl-public-mode[data-mode="public"] .pl-title-mode > h1 {
+  font-size:1.05rem!important;
+  line-height:1!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
 
 html body main.pl-private-v3.pl-public-mode[data-mode="public"] .pl-title-mode {
   min-width:0!important;
@@ -4432,6 +4472,20 @@ html body main.lobby-v5.pl-private.pl-private-v3.pl-quick-v3
   overflow:hidden!important;
 }
 
+html body main.lobby-v5.pl-private.pl-private-v3.pl-quick-v3
+  .pl-title-mode > h1 {
+  margin:0!important;
+  color:#fff!important;
+  font-size:1.12rem!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:-.03em!important;
+  white-space:nowrap!important;
+  text-shadow:
+    0 2px 0 #5d20b3,
+    0 0 8px #eb52ff,
+    0 0 15px rgba(129,71,255,.72)!important;
+}
 
 html body main.lobby-v5.pl-private.pl-private-v3.pl-quick-v3
   .pl-mode-toggle,
@@ -4462,6 +4516,13 @@ html body main.lobby-v5.pl-private.pl-private-v3.pl-quick-v3
 html body main.lobby-v5.pl-private.pl-private-v3.pl-quick-v3
   .pl-quick-static {
   pointer-events:none!important;
+}
+
+@media(max-width:370px) {
+  html body main.lobby-v5.pl-private.pl-private-v3.pl-quick-v3
+    .pl-title-mode > h1 {
+    font-size:.94rem!important;
+  }
 }
 
 
@@ -4566,36 +4627,60 @@ html body main.lobby-v5.pl-private-v3.pl-quick-v3
   .pl-mode-toggle {
   display:none!important;
 }
-
-/* Titre unique des salons Baccalauréat : le texte provient du <h1>. */
-html body main.lobby-v5.pl-private.pl-private-v3 .pl-title-mode > h1 {
-  flex:1 1 auto!important;
-  min-width:0!important;
-  margin:0!important;
-  color:#fff!important;
-  font-size:clamp(.72rem,2.8vw,.88rem)!important;
-  line-height:1.08!important;
-  font-weight:1000!important;
-  letter-spacing:-.03em!important;
-  white-space:normal!important;
-  overflow:visible!important;
-  text-overflow:clip!important;
-  text-shadow:0 2px 0 #5d20b3,0 0 8px #eb52ff,0 0 15px rgba(129,71,255,.72)!important;
+/* HUD vocal persistant au-dessus des écrans de jeu privés et rapides. */
+.pl-game-voice-hud {
+  position:fixed!important;
+  z-index:12000!important;
+  top:calc(env(safe-area-inset-top, 0px) + 70px)!important;
+  right:12px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  padding:6px 8px!important;
+  border:1px solid rgba(132,86,255,.72)!important;
+  border-radius:18px!important;
+  background:rgba(10,18,54,.92)!important;
+  box-shadow:0 0 14px rgba(130,67,255,.28)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
 }
-
-/* Les tags PNG équipés restent dans leur carte, y compris sur iPhone. */
-html body main.pl-private-v3 .pl-player .pl-player-title-row .pl-player-title.private-tag-image {
-  width:100%!important;
-  max-width:100%!important;
+.pl-game-voice-hud .pl-voice-status {
+  display:flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  max-width:88px!important;
+  overflow:hidden!important;
+  color:#d9d2ff!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  white-space:nowrap!important;
+}
+.pl-game-voice-hud .pl-voice-status i {
+  flex:0 0 7px!important;
+  width:7px!important;
+  height:7px!important;
+  border-radius:50%!important;
+  background:#9295ad!important;
+}
+.pl-game-voice-hud.is-connected .pl-voice-status i { background:#55e6bd!important; box-shadow:0 0 8px #55e6bd!important; }
+.pl-game-voice-hud.is-joining .pl-voice-status i { background:#ffd66c!important; }
+.pl-game-voice-hud button {
+  display:grid!important;
+  place-items:center!important;
+  width:32px!important;
+  height:32px!important;
   padding:0!important;
-  border:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
+  border:1px solid rgba(162,135,255,.6)!important;
+  border-radius:50%!important;
+  color:#e9e3ff!important;
+  background:rgba(51,38,105,.8)!important;
 }
-
-html body main.pl-private-v3 .pl-player .pl-player-title-row .pl-player-title.private-tag-image > img {
-  width:100%!important;
-  max-width:100%!important;
-  height:100%!important;
-  object-fit:contain!important;
+.pl-game-voice-hud button.is-active { color:#63e7c1!important; border-color:#63e7c1!important; }
+.pl-game-voice-hud button.is-muted { color:#ff687f!important; border-color:#ff687f!important; }
+.pl-game-voice-hud button svg { width:17px!important; height:17px!important; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.pl-game-voice-hud.is-speaking { border-color:#55e6bd!important; box-shadow:0 0 18px rgba(85,230,189,.34)!important; }
+@media (max-width:380px) {
+  .pl-game-voice-hud { top:calc(env(safe-area-inset-top, 0px) + 62px)!important; right:7px!important; gap:4px!important; padding:5px!important; }
+  .pl-game-voice-hud button { width:29px!important; height:29px!important; }
+  .pl-game-voice-hud .pl-voice-status { max-width:54px!important; }
 }
