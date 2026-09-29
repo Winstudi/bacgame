@@ -3309,16 +3309,18 @@
   function updateRoomVoiceUi() {
     const voice = document.querySelector(".pl-v3-voice");
     const status = voice?.querySelector(".pl-voice-status span");
-    const gameVoiceStatus = voice?.id === "plGameVoiceHud"
-      ? voice.querySelector(".pl-voice-status")
-      : null;
+    const gameVoiceButton = document.getElementById("plGameVoiceSettings");
     const mic = document.getElementById("plVoiceMic");
     const headphones = document.getElementById("plVoiceHeadphones");
 
     voice?.classList.toggle("is-connected", roomVoiceState.joined);
     voice?.classList.toggle("is-joining", roomVoiceState.joining);
     voice?.classList.toggle("is-deafened", roomVoiceState.deafened);
-    gameVoiceStatus?.classList.toggle(
+    gameVoiceButton?.classList.toggle(
+      "is-active",
+      roomVoiceState.joined && roomVoiceState.micEnabled
+    );
+    gameVoiceButton?.classList.toggle(
       "is-muted",
       roomVoiceState.joined && !roomVoiceState.micEnabled
     );
@@ -3374,10 +3376,7 @@
       hud.className = "pl-game-voice-hud pl-v3-voice";
       hud.setAttribute("aria-label", "Commandes du chat vocal");
       hud.innerHTML = `
-        <small class="pl-voice-status" aria-label="État du micro" title="Micro">
-          <i aria-hidden="true"></i>${micSvg}
-        </small>
-        <button id="plGameVoiceSettings" type="button" aria-label="Réglages vocaux" title="Réglages">${settingsSvg}</button>`;
+        <button id="plGameVoiceSettings" type="button" aria-label="Ouvrir les réglages vocaux" title="Réglages vocaux">${micSvg}</button>`;
       document.body.appendChild(hud);
     }
 
