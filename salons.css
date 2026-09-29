@@ -4647,13 +4647,13 @@ html body main.lobby-v5.pl-private-v3.pl-quick-v3
 .pl-game-voice-hud .pl-voice-status {
   display:flex!important;
   align-items:center!important;
+  justify-content:center!important;
   gap:5px!important;
-  max-width:88px!important;
-  overflow:hidden!important;
+  flex:0 0 24px!important;
+  width:24px!important;
+  height:24px!important;
+  overflow:visible!important;
   color:#d9d2ff!important;
-  font-size:10px!important;
-  font-weight:700!important;
-  white-space:nowrap!important;
 }
 .pl-game-voice-hud .pl-voice-status i {
   flex:0 0 7px!important;
@@ -4662,6 +4662,9 @@ html body main.lobby-v5.pl-private-v3.pl-quick-v3
   border-radius:50%!important;
   background:#9295ad!important;
 }
+.pl-game-voice-hud .pl-voice-status svg { width:16px!important; height:16px!important; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.pl-game-voice-hud .pl-voice-status.is-muted { color:#ff687f!important; }
+.pl-game-voice-hud .pl-voice-status.is-muted i { background:#ff687f!important; box-shadow:0 0 8px #ff687f!important; }
 .pl-game-voice-hud.is-connected .pl-voice-status i { background:#55e6bd!important; box-shadow:0 0 8px #55e6bd!important; }
 .pl-game-voice-hud.is-joining .pl-voice-status i { background:#ffd66c!important; }
 .pl-game-voice-hud button {
@@ -4682,5 +4685,5 @@ html body main.lobby-v5.pl-private-v3.pl-quick-v3
 @media (max-width:380px) {
   .pl-game-voice-hud { top:calc(env(safe-area-inset-top, 0px) + 62px)!important; right:7px!important; gap:4px!important; padding:5px!important; }
   .pl-game-voice-hud button { width:29px!important; height:29px!important; }
-  .pl-game-voice-hud .pl-voice-status { max-width:54px!important; }
+  .pl-game-voice-hud .pl-voice-status { flex-basis:22px!important; width:22px!important; }
 }

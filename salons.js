@@ -3309,12 +3309,19 @@
   function updateRoomVoiceUi() {
     const voice = document.querySelector(".pl-v3-voice");
     const status = voice?.querySelector(".pl-voice-status span");
+    const gameVoiceStatus = voice?.id === "plGameVoiceHud"
+      ? voice.querySelector(".pl-voice-status")
+      : null;
     const mic = document.getElementById("plVoiceMic");
     const headphones = document.getElementById("plVoiceHeadphones");
 
     voice?.classList.toggle("is-connected", roomVoiceState.joined);
     voice?.classList.toggle("is-joining", roomVoiceState.joining);
     voice?.classList.toggle("is-deafened", roomVoiceState.deafened);
+    gameVoiceStatus?.classList.toggle(
+      "is-muted",
+      roomVoiceState.joined && !roomVoiceState.micEnabled
+    );
 
     if (status) {
       if (roomVoiceState.joining) {
@@ -3367,10 +3374,10 @@
       hud.className = "pl-game-voice-hud pl-v3-voice";
       hud.setAttribute("aria-label", "Commandes du chat vocal");
       hud.innerHTML = `
-        <small class="pl-voice-status"><i aria-hidden="true"></i><span>Vocal</span></small>
-        <button id="plVoiceMic" type="button" aria-label="Activer ou couper le micro" title="Micro">${micSvg}</button>
-        <button id="plVoiceHeadphones" type="button" aria-label="Activer ou couper le son reçu" title="Casque">${headphonesSvg}</button>
-        <button id="plVoiceSettings" type="button" aria-label="Réglages vocaux" title="Réglages">${settingsSvg}</button>`;
+        <small class="pl-voice-status" aria-label="État du micro" title="Micro">
+          <i aria-hidden="true"></i>${micSvg}
+        </small>
+        <button id="plGameVoiceSettings" type="button" aria-label="Réglages vocaux" title="Réglages">${settingsSvg}</button>`;
       document.body.appendChild(hud);
     }
 
@@ -3790,16 +3797,16 @@
   function openRoomVoiceSettings() {
     const overlay = ensureRoomVoiceSettings();
     overlay.hidden = false;
-    document.getElementById("plVoiceSettings")
-      ?.classList.add("is-active");
+    document.querySelectorAll("#plVoiceSettings, #plGameVoiceSettings")
+      .forEach(button => button.classList.add("is-active"));
     updateRoomVoiceSettingsUi();
   }
 
   function closeRoomVoiceSettings() {
     const overlay = document.getElementById("plRoomVoiceSettingsOverlay");
     if (overlay) overlay.hidden = true;
-    document.getElementById("plVoiceSettings")
-      ?.classList.remove("is-active");
+    document.querySelectorAll("#plVoiceSettings, #plGameVoiceSettings")
+      .forEach(button => button.classList.remove("is-active"));
   }
 
   function receiveRoomVoicePeerJoined(payload = {}) {
@@ -5269,7 +5276,7 @@
       return;
     }
 
-    if (event.target.closest?.("#plVoiceSettings")) {
+    if (event.target.closest?.("#plVoiceSettings, #plGameVoiceSettings")) {
       event.preventDefault();
       event.stopPropagation();
       openRoomVoiceSettings();
