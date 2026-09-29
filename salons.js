@@ -241,7 +241,7 @@
     const canSocial = !self && !player.isBot && !!code;
     return `
       <div class="lobby-v5-profile-backdrop pl-profile-v2-backdrop" id="lobbyPlayerProfileBackdrop">
-        <section class="lobby-v5-profile-modal pl-profile-v2-modal" role="dialog" aria-modal="true" aria-label="Profil de ${escapeHtml(player.name || "Joueur")}">
+        <section class="lobby-v5-profile-modal pl-profile-v2-modal" data-lobby-modal-player-id="${escapeHtml(player.id)}" role="dialog" aria-modal="true" aria-label="Profil de ${escapeHtml(player.name || "Joueur")}">
           <button id="lobbyPlayerProfileClose" class="lobby-v5-profile-close pl-profile-v2-close" type="button" aria-label="Fermer">×</button>
 
           <div class="pl-profile-v2-card ${!quickMode && player.isHost ? "is-host" : ""} ${self ? "is-self" : ""}">
@@ -497,29 +497,11 @@
 
 
   function privateLobbyTagInfo(player) {
-    let id = String(player?.tagId || "").trim();
-
-    if (!id && String(player?.id || "") === String(session?.playerId || "")) {
-      try {
-        id = String(window.PtitBacInventory?.state?.()?.equipped?.tag || "").trim();
-      } catch {}
-    }
-
+    const id = String(player?.tagId || "").trim();
     if (!id) return null;
 
-    const known = {
-      tag_debutant: { label:"Débutant", icon:"★" }
-    };
-
-    if (known[id]) return known[id];
-
-    const label = id
-      .replace(/^tag[_-]?/i, "")
-      .replace(/[_-]+/g, " ")
-      .replace(/\b\w/g, char => char.toUpperCase())
-      .trim();
-
-    return label ? { label, icon:"★" } : null;
+    const catalog = window.PtitBacInventory?.tags?.[id] || LOBBY_TAG_ASSETS[id];
+    return catalog?.name ? { label:catalog.name } : null;
   }
 
   function privateLobbyTagMarkup(player) {
@@ -4944,7 +4926,6 @@
     if (!root) return;
 
     const players = currentLobbyState()?.players || [];
-    const myId = String(session?.playerId || "");
 
     root
       .querySelectorAll(".pl-player-v2[data-lobby-player-profile]")
@@ -4957,15 +4938,7 @@
           item => String(item?.id || "") === playerId
         );
 
-        let tagId = String(player?.tagId || "").trim();
-
-        if (!tagId && playerId === myId) {
-          try {
-            tagId = String(
-              window.PtitBacInventory?.state?.()?.equipped?.tag || ""
-            ).trim();
-          } catch {}
-        }
+        const tagId = String(player?.tagId || "").trim();
 
         if (!tagId) return;
 
@@ -4983,28 +4956,12 @@
 
     if (!modalTarget) return;
 
-    const modalName = String(
-      root.querySelector(
-        ".pl-profile-v2-name-row > strong"
-      )?.textContent || ""
-    ).trim();
+    const modalPlayerId = String(root.querySelector(
+      ".pl-profile-v2-modal[data-lobby-modal-player-id]"
+    )?.dataset.lobbyModalPlayerId || "");
+    const modalPlayer = players.find(item => String(item?.id || "") === modalPlayerId);
 
-    const modalPlayer = players.find(
-      item => String(item?.name || "").trim() === modalName
-    );
-
-    let modalTagId = String(modalPlayer?.tagId || "").trim();
-
-    if (
-      !modalTagId &&
-      String(modalPlayer?.id || "") === myId
-    ) {
-      try {
-        modalTagId = String(
-          window.PtitBacInventory?.state?.()?.equipped?.tag || ""
-        ).trim();
-      } catch {}
-    }
+    const modalTagId = String(modalPlayer?.tagId || "").trim();
 
     if (modalTagId) {
       applyLobbyTagImage(modalTarget, modalTagId);
