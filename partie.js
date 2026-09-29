@@ -3096,6 +3096,7 @@ try{renderScoreboard=render;}catch{}
   ) {
     const key =
       [
+        state.gameType || "classic",
         state.code || "",
         state.gameSessionId ||
           state.matchId ||
@@ -3156,6 +3157,23 @@ try{renderScoreboard=render;}catch{}
       audio.currentTime = 0;
     } catch {}
   }
+
+  window.playFinalVictoryEffects = (state, ranked) => {
+    if (!state || !Array.isArray(ranked) || !ranked.length) return;
+    launchFinalConfetti(state, ranked);
+    launchFinalSound(state, ranked);
+  };
+
+  window.stopFinalVictoryEffects = () => {
+    stopFinalSound();
+    document.getElementById("finConfetti")?.remove();
+    if (finalFxRuntime.confettiTimer) {
+      clearTimeout(finalFxRuntime.confettiTimer);
+      finalFxRuntime.confettiTimer = 0;
+    }
+    finalFxRuntime.confettiKey = "";
+    finalFxRuntime.soundKey = "";
+  };
 
   /*
     Le fichier final est chargé dès le début du jeu.
@@ -3332,6 +3350,7 @@ try{renderScoreboard=render;}catch{}
 
     const key =
       [
+        state.gameType || "classic",
         state.code || "",
         state.gameSessionId ||
           state.matchId ||

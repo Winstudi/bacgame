@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/style.css?v=1.48.0" />
+  <link rel="stylesheet" href="/style.css?v=1.48.0-bombe-results-intermission3" />
   <link rel="stylesheet" href="/design-v2.css?v=1.48.0" />
   <link rel="stylesheet" href="/amis.css?v=1.48.0" />
   <link rel="stylesheet" href="/economy.css?v=1.48.0" />
@@ -31,8 +31,8 @@
   <link rel="stylesheet" href="/wallet.css?v=1.48.0" />
   <link rel="preload" as="image" href="/shared-footer-v1.png" />
   <link rel="preload" as="image" href="/lobby-exit.png" />
-  <link rel="stylesheet" href="/partie.css?v=1.48.0-rebuild" />
-  <link rel="stylesheet" href="/salons.css?v=1.48.0-voice-bombe6" />
+  <link rel="stylesheet" href="/partie.css?v=1.48.0-bombe-classement2" />
+  <link rel="stylesheet" href="/salons.css?v=1.48.0-bombe-lobby8" />
   <link rel="stylesheet" href="/reward-chests.css?v=1.48.0-rewards13" />
 
   <!-- Partie Rapide : même bandeau supérieur que la page Mon profil. -->
@@ -481,33 +481,6 @@
       overflow:hidden!important;
     }
 
-    /* Affiche exactement "Salon Privé". */
-    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
-      .pl-title-mode > h1{
-      flex:0 1 auto!important;
-      min-width:0!important;
-      margin:0!important;
-      font-size:0!important;
-      line-height:1!important;
-      white-space:nowrap!important;
-    }
-
-    html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
-      .pl-title-mode > h1::after{
-      content:"Salon Privé";
-      display:inline-block;
-      color:#fff;
-      font-size:1.12rem;
-      line-height:1;
-      font-weight:1000;
-      letter-spacing:-.03em;
-      white-space:nowrap;
-      text-shadow:
-        0 2px 0 #5d20b3,
-        0 0 8px #eb52ff,
-        0 0 15px rgba(129,71,255,.72);
-    }
-
     html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
       .pl-mode-toggle{
       flex:none!important;
@@ -712,10 +685,6 @@
         gap:4px!important;
       }
 
-      html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
-        .pl-title-mode > h1::after{
-        font-size:.94rem;
-      }
 
       html body main.lobby-v5.pl-private[data-mode="private"]:not(.pl-public-mode)
         .pl-mode-toggle{
@@ -1923,14 +1892,14 @@
 
   <script defer src="/socket.io/socket.io.js"></script>
   <script defer src="/mobile-runtime.js?v=1.48.0"></script>
-  <script defer src="/app.js?v=1.48.0"></script>
+  <script defer src="/app.js?v=1.48.0-bombe-results-effects1"></script>
   <script defer src="/account-v1.js?v=1.48.0"></script>
   <script defer src="/avatar-system-v1.js?v=1.48.0-prestige1"></script>
   <script defer src="/inventory-client.js?v=1.48.0-prestige1"></script>
-  <script defer src="/progression-client.js?v=1.48.0-levels-constellation12-xp-fill13"></script>
+  <script defer src="/progression-client.js?v=1.48.0-bombe-results1"></script>
   <script defer src="/reward-chests-client.js?v=1.48.0-rewards15-rates1"></script>
   <script defer src="/icon-theme-v1.js?v=1.48.0"></script>
-  <script defer src="/home-screen-v1.js?v=1.48.0-modes-v3"></script>
+  <script defer src="/home-screen-v1.js?v=1.48.0-bombe1"></script>
   <script defer src="/quests-client.js?v=1.48.0-quests8-active-first"></script>
   <script defer src="/profile-module-v1.js?v=1.48.0-member-month-year"></script>
   <script defer src="/amis.js?v=1.48.0"></script>
@@ -1939,8 +1908,8 @@
   <script defer src="/admin-v1.js?v=1.48.0"></script>
   <script defer src="/admin-extra-v1.js?v=1.48.0-admin-shop6"></script>
   <script defer src="/inbox-v1.js?v=1.48.0"></script>
-  <script defer src="/salons.js?v=1.48.0-voice-bombe6"></script>
-  <script defer src="/partie.js?v=1.48.0-rebuild"></script>
+  <script defer src="/salons.js?v=1.48.0-bombe-lobby8"></script>
+  <script defer src="/partie.js?v=1.48.0-bombe-results-effects1"></script>
   <script defer src="/wallet-client.js?v=1.48.0"></script>
 
   <script>
