@@ -373,7 +373,7 @@
               value: state.rounds,
               icon: "/lightning.png"
             })}
-            ${bomb ? card({ key: "bombLives", label: "Vies", value: state.bombLives || 3, icon: "/lobby-categories.png" }) : card({
+            ${bomb ? card({ key: "bombLives", label: "Vies", value: state.bombLives || 3, icon: "/heart.png" }) : card({
               key: "categoryCount",
               label: "Catégories",
               value: categoryCount,
@@ -1526,7 +1526,7 @@
 
           ${quickMode
             ? `<div class="pl-title-mode">
-                <h1>Baccalauréat - Partie Rapide</h1>
+                <h1>${state.gameType === "bombe" ? "Bombe" : "Baccalauréat"} - Partie Rapide</h1>
               </div>`
             : roomModeToggleMarkup(state, user)}
 
@@ -1549,7 +1549,7 @@
           <div class="pl-setting-grid">
             ${settingCard({label:"Manches",value:state.rounds,icon:"/lightning.png"})}
             ${state.gameType === "bombe"
-              ? `${settingCard({label:"Vies",value:state.bombLives || 3,icon:"/lobby-categories.png"})}${settingCard({label:"Bombe",value:({fast:"Rapide",medium:"Moyen",slow:"Lent"})[state.bombSpeed] || "Moyen",icon:"/lobby-clock.png"})}`
+              ? `${settingCard({label:"Vies",value:state.bombLives || 3,icon:"/heart.png"})}${settingCard({label:"Bombe",value:({fast:"Rapide",medium:"Moyen",slow:"Lent"})[state.bombSpeed] || "Moyen",icon:"/lobby-clock.png"})}`
               : `${settingCard({label:"Catégories",value:state.categoryCount || 6,icon:"/lobby-categories.png"})}${settingCard({label:"Temps",value:state.duration+"s",icon:"/lobby-clock.png"})}`}
             ${settingCard({label:"Difficulté",value:difficulty.label,icon:difficulty.icon,difficulty:true})}
           </div>
@@ -1703,7 +1703,7 @@
         lobbyDifficultyLockUntil = now + 260;
       }
 
-      const rounds = [1, 3, 5];
+      const rounds = state.gameType === "bombe" ? [1, 2, 3] : [1, 3, 5];
       const durations = [30, 60, 90, 120];
       const difficulties = ["beginner", "medium", "hard"];
       const bomb = state.gameType === "bombe";
@@ -2819,6 +2819,8 @@
     deafened: false,
     stream: null,
     peers: new Map(),
+    participants: new Map(),
+    mutedPeers: new Set(),
     audios: new Map(),
     meters: new Map(),
     audioContext: null,
@@ -3066,7 +3068,7 @@
 
     if (state?.gameType === "bombe") return [
       { key: "rounds", label: "Manches", value: String(state.rounds || 1), icon: "/lightning.png" },
-      { key: "bombLives", label: "Vies", value: String(state.bombLives || 3), icon: "/lobby-categories.png" },
+      { key: "bombLives", label: "Vies", value: String(state.bombLives || 3), icon: "/heart.png" },
       { key: "bombSpeed", label: "Bombe", value: ({ fast: "Rapide", medium: "Moyen", slow: "Lent" })[state.bombSpeed] || "Moyen", icon: "/lobby-clock.png" },
       { key: "categoryDifficulty", label: "Difficulté", value: difficulty, icon: "/difficulty.png", difficulty: true }
     ];
@@ -3332,12 +3334,21 @@
   function updateRoomVoiceUi() {
     const voice = document.querySelector(".pl-v3-voice");
     const status = voice?.querySelector(".pl-voice-status span");
+    const gameVoiceButton = document.getElementById("plGameVoiceSettings");
     const mic = document.getElementById("plVoiceMic");
     const headphones = document.getElementById("plVoiceHeadphones");
 
     voice?.classList.toggle("is-connected", roomVoiceState.joined);
     voice?.classList.toggle("is-joining", roomVoiceState.joining);
     voice?.classList.toggle("is-deafened", roomVoiceState.deafened);
+    gameVoiceButton?.classList.toggle(
+      "is-active",
+      roomVoiceState.joined && roomVoiceState.micEnabled
+    );
+    gameVoiceButton?.classList.toggle(
+      "is-muted",
+      roomVoiceState.joined && !roomVoiceState.micEnabled
+    );
 
     if (status) {
       if (roomVoiceState.joining) {
@@ -3371,6 +3382,32 @@
     updateRoomVoiceSettingsUi();
   }
 
+  function syncRoomVoiceHud() {
+    const state = currentLobbyState();
+    const allowedRoom = ["private", "public", "quick"].includes(state?.mode) &&
+      String(state?.code || "");
+    const main = document.querySelector("#app > main");
+    const inGame = !!allowedRoom && state.phase !== "lobby" && !!main;
+    let hud = document.getElementById("plGameVoiceHud");
+
+    if (!inGame) {
+      hud?.remove();
+      return;
+    }
+
+    if (!hud) {
+      hud = document.createElement("aside");
+      hud.id = "plGameVoiceHud";
+      hud.className = "pl-game-voice-hud pl-v3-voice";
+      hud.setAttribute("aria-label", "Commandes du chat vocal");
+      hud.innerHTML = `
+        <button id="plGameVoiceSettings" type="button" aria-label="Ouvrir les réglages vocaux" title="Réglages vocaux">${micSvg}</button>`;
+      document.body.appendChild(hud);
+    }
+
+    updateRoomVoiceUi();
+  }
+
   function roomVoiceAudioElement(playerId) {
     const id = String(playerId || "");
     let audio = roomVoiceState.audios.get(id);
@@ -3386,7 +3423,7 @@
       roomVoiceState.audios.set(id, audio);
     }
 
-    audio.muted = roomVoiceState.deafened;
+    audio.muted = roomVoiceState.deafened || roomVoiceState.mutedPeers.has(id);
     return audio;
   }
 
@@ -3398,6 +3435,9 @@
       try { peer.close(); } catch {}
       roomVoiceState.peers.delete(id);
     }
+
+    roomVoiceState.participants.delete(id);
+    roomVoiceState.mutedPeers.delete(id);
 
     roomVoiceStopMeter(id);
 
@@ -3434,9 +3474,23 @@
 
     peer = new RTCPeerConnection(ROOM_VOICE_RTC_CONFIG);
     roomVoiceState.peers.set(id, peer);
+    if (!roomVoiceState.participants.has(id)) {
+      const roomPlayer = currentLobbyState()?.players?.find(item =>
+        String(item?.id || item?.playerId || "") === id
+      );
+      roomVoiceState.participants.set(id, {
+        name: String(roomPlayer?.name || "Joueur")
+      });
+    }
 
     for (const track of roomVoiceState.stream?.getAudioTracks?.() || []) {
-      peer.addTrack(track, roomVoiceState.stream);
+      const sender = peer.addTrack(track, roomVoiceState.stream);
+      if (track.kind === "audio") {
+        peer.__ptitAudioSender = sender;
+        if (roomVoiceState.mutedPeers.has(id)) {
+          try { await sender.replaceTrack(null); } catch {}
+        }
+      }
     }
 
     peer.onicecandidate = event => {
@@ -3455,7 +3509,7 @@
 
       const audio = roomVoiceAudioElement(id);
       audio.srcObject = stream;
-      audio.muted = roomVoiceState.deafened;
+      audio.muted = roomVoiceState.deafened || roomVoiceState.mutedPeers.has(id);
 
       try { await audio.play(); } catch {}
 
@@ -3581,8 +3635,16 @@
 
         roomVoiceState.joined = true;
         roomVoiceState.roomCode = String(res.roomCode || state.code || "");
+        roomVoiceState.participants.clear();
+        roomVoiceState.mutedPeers.clear();
+        roomVoiceState.participants.set(String(session?.playerId || ""), {
+          name: String(currentLobbyUser()?.name || "Toi")
+        });
 
         for (const remote of res.peers || []) {
+          roomVoiceState.participants.set(String(remote.playerId || ""), {
+            name: String(remote.name || "Joueur")
+          });
           await roomVoicePeer(remote.playerId, true);
         }
 
@@ -3638,7 +3700,8 @@
     roomVoiceState.deafened = !roomVoiceState.deafened;
 
     for (const audio of roomVoiceState.audios.values()) {
-      audio.muted = roomVoiceState.deafened;
+      audio.muted = roomVoiceState.deafened ||
+        roomVoiceState.mutedPeers.has(String(audio.dataset.voicePlayerId || ""));
     }
 
     updateRoomVoiceUi();
@@ -3677,6 +3740,8 @@
     roomVoiceState.roomCode = "";
     roomVoiceState.micEnabled = false;
     roomVoiceState.deafened = false;
+    roomVoiceState.participants.clear();
+    roomVoiceState.mutedPeers.clear();
 
     document.querySelectorAll(".pl-player.is-voice-speaking")
       .forEach(card => card.classList.remove("is-voice-speaking"));
@@ -3691,15 +3756,14 @@
 
   function syncRoomVoiceContext() {
     const state = currentLobbyState();
-    const voiceLobby =
+    const voiceRoom =
       ["private", "public", "quick"].includes(state?.mode) &&
-      state?.phase === "lobby" &&
       String(state?.code || "");
 
     if (
-      roomVoiceState.joined &&
+      (roomVoiceState.joined || roomVoiceState.joining) &&
       (
-        !voiceLobby ||
+        !voiceRoom ||
         String(state.code) !== String(roomVoiceState.roomCode)
       )
     ) {
@@ -3708,6 +3772,7 @@
     }
 
     updateRoomVoiceUi();
+    syncRoomVoiceHud();
   }
 
   function ensureRoomVoiceSettings() {
@@ -3725,15 +3790,13 @@
           <strong>Réglages vocaux</strong>
           <button id="plRoomVoiceSettingsClose" type="button" aria-label="Fermer">×</button>
         </header>
-        <button id="plRoomVoiceSettingsMic" type="button">
-          <span>Micro</span><b>—</b>
-        </button>
-        <button id="plRoomVoiceSettingsSound" type="button">
-          <span>Son reçu</span><b>—</b>
-        </button>
-        <button id="plRoomVoiceSettingsLeave" class="danger" type="button">
-          Quitter le vocal
-        </button>
+        <div class="pl-room-voice-toolbar">
+          <button id="plRoomVoiceSettingsLeave" class="danger" type="button">Quitter le vocal</button>
+          <button id="plRoomVoiceSettingsMic" type="button"><span>Micro</span><b>—</b></button>
+          <button id="plRoomVoiceSettingsSound" type="button"><span>Audio</span><b>—</b></button>
+        </div>
+        <strong class="pl-room-voice-participants-title">Joueurs dans le vocal</strong>
+        <div id="plRoomVoiceParticipants" class="pl-room-voice-participants" role="list"></div>
       </section>
     `;
 
@@ -3755,6 +3818,13 @@
     overlay.querySelector("#plRoomVoiceSettingsLeave")
       ?.addEventListener("click", () => leaveRoomVoice());
 
+    overlay.querySelector("#plRoomVoiceParticipants")
+      ?.addEventListener("click", event => {
+        const button = event.target.closest?.("[data-voice-peer-mute]");
+        if (!button) return;
+        toggleRoomVoicePeerAudio(button.dataset.voicePeerMute);
+      });
+
     return overlay;
   }
 
@@ -3769,37 +3839,113 @@
     if (mic) {
       mic.textContent = roomVoiceState.joined
         ? (roomVoiceState.micEnabled ? "Activé" : "Coupé")
-        : "Hors ligne";
+        : "Activer";
     }
 
     if (sound) {
       sound.textContent = roomVoiceState.joined
         ? (roomVoiceState.deafened ? "Coupé" : "Activé")
-        : "Hors ligne";
+        : "Activer";
     }
 
     if (leave) leave.disabled = !roomVoiceState.joined;
+
+    const list = overlay.querySelector("#plRoomVoiceParticipants");
+    if (list) {
+      const selfId = String(session?.playerId || "");
+      const participants = [...roomVoiceState.participants.entries()];
+      list.replaceChildren();
+
+      if (!participants.length) {
+        const empty = document.createElement("p");
+        empty.className = "pl-room-voice-empty";
+        empty.textContent = "Aucun joueur dans le vocal.";
+        list.appendChild(empty);
+      }
+
+      for (const [playerId, participant] of participants) {
+        const row = document.createElement("div");
+        row.className = "pl-room-voice-player";
+        row.setAttribute("role", "listitem");
+
+        const name = document.createElement("span");
+        name.className = "pl-room-voice-player-name";
+        name.textContent = playerId === selfId
+          ? `${participant.name || "Toi"} (toi)`
+          : String(participant.name || "Joueur");
+        row.appendChild(name);
+
+        if (playerId !== selfId) {
+          const isMuted = roomVoiceState.mutedPeers.has(playerId);
+          const button = document.createElement("button");
+          button.type = "button";
+          button.dataset.voicePeerMute = playerId;
+          button.className = isMuted ? "is-muted" : "";
+          button.setAttribute("aria-pressed", String(isMuted));
+          button.textContent = isMuted ? "Rétablir son" : "Couper son";
+          button.title = isMuted
+            ? "Rétablir l’audio dans les deux sens avec ce joueur"
+            : "Couper l’audio dans les deux sens avec ce joueur";
+          row.appendChild(button);
+        } else {
+          const self = document.createElement("small");
+          self.textContent = roomVoiceState.micEnabled ? "Micro actif" : "Micro coupé";
+          row.appendChild(self);
+        }
+
+        list.appendChild(row);
+      }
+    }
+  }
+
+  async function toggleRoomVoicePeerAudio(playerId) {
+    const id = String(playerId || "");
+    if (!id || id === String(session?.playerId || "")) return;
+
+    const muted = !roomVoiceState.mutedPeers.has(id);
+    if (muted) roomVoiceState.mutedPeers.add(id);
+    else roomVoiceState.mutedPeers.delete(id);
+
+    const audio = roomVoiceState.audios.get(id);
+    if (audio) audio.muted = roomVoiceState.deafened || muted;
+
+    const peer = roomVoiceState.peers.get(id);
+    const sender = peer?.__ptitAudioSender;
+    if (sender) {
+      const micTrack = muted
+        ? null
+        : roomVoiceState.stream?.getAudioTracks?.()[0] || null;
+      try { await sender.replaceTrack(micTrack); }
+      catch (error) { console.warn("[Vocal] mute joueur:", error); }
+    }
+
+    updateRoomVoiceSettingsUi();
   }
 
   function openRoomVoiceSettings() {
     const overlay = ensureRoomVoiceSettings();
     overlay.hidden = false;
-    document.getElementById("plVoiceSettings")
-      ?.classList.add("is-active");
+    document.querySelectorAll("#plVoiceSettings, #plGameVoiceSettings")
+      .forEach(button => button.classList.add("is-active"));
     updateRoomVoiceSettingsUi();
   }
 
   function closeRoomVoiceSettings() {
     const overlay = document.getElementById("plRoomVoiceSettingsOverlay");
     if (overlay) overlay.hidden = true;
-    document.getElementById("plVoiceSettings")
-      ?.classList.remove("is-active");
+    document.querySelectorAll("#plVoiceSettings, #plGameVoiceSettings")
+      .forEach(button => button.classList.remove("is-active"));
   }
 
   function receiveRoomVoicePeerJoined(payload = {}) {
     if (!roomVoiceState.joined) return;
+    const id = String(payload.playerId || "");
+    if (id) roomVoiceState.participants.set(id, {
+      name: String(payload.name || "Joueur")
+    });
     // Le nouveau joueur crée l'offre vers les participants déjà présents.
     updateRoomVoiceUi();
+    updateRoomVoiceSettingsUi();
   }
 
   function receiveRoomVoicePeerLeft(payload = {}) {
@@ -4260,7 +4406,7 @@
     if (subtitle) {
       subtitle.textContent =
         state.gameType === "bombe"
-          ? "Bombe - Salon Privé"
+          ? state.mode === "quick" ? "Bombe - Partie Rapide" : "Bombe - Salon Privé"
           : state.mode === "quick"
           ? "Baccalauréat - Partie Rapide"
           : state.mode === "public"
@@ -5038,7 +5184,7 @@
           currentLobbyState()?.gameType === "bombe"
             ? "Bombe - Salon Privé"
             : liveMode === "quick"
-            ? "Baccalauréat - Partie Rapide"
+            ? `${currentLobbyState()?.gameType === "bombe" ? "Bombe" : "Baccalauréat"} - Partie Rapide`
             : liveMode === "public"
               ? "Baccalauréat - Salon Public"
               : "Baccalauréat - Salon Privé";
@@ -5107,7 +5253,7 @@
       return privateLobbyToast("Seul l’hôte peut modifier les paramètres.");
     }
 
-    const rounds = [1, 3, 5];
+    const rounds = state.gameType === "bombe" ? [1, 2, 3] : [1, 3, 5];
     const categoryCounts = [6, 8, 10];
     const durations = [30, 60, 90];
     const difficulties = ["beginner", "medium", "hard"];
@@ -5246,7 +5392,7 @@
       return;
     }
 
-    if (event.target.closest?.("#plVoiceSettings")) {
+    if (event.target.closest?.("#plVoiceSettings, #plGameVoiceSettings")) {
       event.preventDefault();
       event.stopPropagation();
       openRoomVoiceSettings();
