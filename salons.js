@@ -1498,6 +1498,7 @@
       "screen",
       "lobby-v5",
       "pl-private",
+      "pl-app-v2",
       publicMode ? "pl-public-mode" : "",
       quickMode ? "pl-private-v3" : "",
       quickMode ? "pl-quick-v3" : ""
@@ -5146,14 +5147,14 @@
 
       const roomTitle = root.querySelector(".pl-title-mode > h1");
       if (roomTitle) {
-        roomTitle.textContent =
-          currentLobbyState()?.gameType === "bombe"
-            ? "Bombe - Salon Privé"
-            : liveMode === "quick"
-            ? `${currentLobbyState()?.gameType === "bombe" ? "Bombe" : "Baccalauréat"} - Partie Rapide`
-            : liveMode === "public"
-              ? "Baccalauréat - Salon Public"
-              : "Baccalauréat - Salon Privé";
+        const gameLabel = currentLobbyState()?.gameType === "bombe"
+          ? "Bombe"
+          : "Baccalauréat";
+        roomTitle.textContent = liveMode === "quick"
+          ? `${gameLabel} - Partie Rapide`
+          : liveMode === "public"
+            ? `${gameLabel} - Salon Public`
+            : `${gameLabel} - Salon Privé`;
       }
 
       if (liveMode === "quick") {
