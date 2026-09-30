@@ -5,6 +5,10 @@
   const LOBBY_MAX_PLAYERS = 6;
   const BOMB_LOBBY_MAX_PLAYERS = 6;
   const lobbyMaxPlayers = state => state?.gameType === "bombe" ? BOMB_LOBBY_MAX_PLAYERS : LOBBY_MAX_PLAYERS;
+  const LOBBY_TAG_ASSETS = Object.freeze({
+    tag_quantique: { name:"Tag Quantique", asset:"/tag-quantique.png" },
+    tag_game_over: { name:"Game Over", asset:"/tag-game-over.png" }
+  });
   const DIFFICULTY_ICON_URLS = {
     beginner: "/difficulty.png",
     medium: "/difficulty.png",
@@ -497,11 +501,27 @@
 
 
   function privateLobbyTagInfo(player) {
-    const id = String(player?.tagId || "").trim();
+    let id = String(player?.tagId || "").trim();
+    if (!id) {
+      try {
+        const currentPlayerId = typeof session !== "undefined" ? session?.playerId : "";
+        if (currentPlayerId && String(player?.id || "") === String(currentPlayerId)) {
+          id = String(window.PtitBacInventory?.state?.()?.equipped?.tag || "").trim();
+        }
+      } catch {}
+    }
     if (!id) return null;
 
-    const catalog = window.PtitBacInventory?.tags?.[id] || LOBBY_TAG_ASSETS[id];
-    return catalog?.name ? { label:catalog.name } : null;
+    let catalog = null;
+    try { catalog = window.PtitBacInventory?.tags?.[id] || null; } catch {}
+    catalog = catalog || LOBBY_TAG_ASSETS[id] || null;
+    if (!catalog?.name) return null;
+
+    return {
+      id,
+      label:String(catalog.name),
+      asset:String(catalog.asset || LOBBY_TAG_ASSETS[id]?.asset || "")
+    };
   }
 
   function privateLobbyTagMarkup(player) {
@@ -509,8 +529,8 @@
     if (!tag) return "";
 
     return `
-      <span class="pl-player-title" title="Titre équipé">
-        <strong>${escapeHtml(tag.label)}</strong>
+      <span class="pl-player-title${tag.asset ? " private-tag-image" : ""}" title="Titre équipé"${tag.asset ? ` data-private-tag-asset="${escapeHtml(tag.asset)}"` : ""}>
+        ${tag.asset ? `<img src="${escapeHtml(tag.asset)}" alt="${escapeHtml(tag.label)}" draggable="false">` : `<strong>${escapeHtml(tag.label)}</strong>`}
       </span>`;
   }
 
@@ -4855,17 +4875,6 @@
 
     document.head.appendChild(style);
   }
-
-  const LOBBY_TAG_ASSETS = Object.freeze({
-    tag_quantique: {
-      name:"Tag Quantique",
-      asset:"/tag-quantique.png"
-    },
-    tag_game_over: {
-      name:"Game Over",
-      asset:"/tag-game-over.png"
-    }
-  });
 
   function lobbyTagVisual(tagId) {
     const id = String(tagId || "").trim();
