@@ -146,7 +146,7 @@
   }
 
   function roomModeToggleMarkup(state, user) {
-    if (state.gameType === "bombe") return `<div class="pl-title-mode"><h1>Bombe - Salon Privé</h1></div>`;
+    if (state.gameType === "bombe") return `<div class="pl-title-mode"><span class="pl-room-kicker">Bombe</span><h1>Salon privé</h1></div>`;
     const publicMode = state.mode === "public";
     const host = user?.isHost === true;
     const label = publicMode ? "Public" : "Privé";
@@ -154,7 +154,8 @@
 
     return `
       <div class="pl-title-mode">
-        <h1>Baccalauréat - Salon ${publicMode ? "Public" : "Privé"}</h1>
+        <span class="pl-room-kicker">Baccalauréat</span>
+        <h1>Salon ${publicMode ? "public" : "privé"}</h1>
         <button
           id="plModeToggle"
           class="pl-mode-toggle ${publicMode ? "is-public" : ""}"
@@ -1485,20 +1486,13 @@
         </article>`;
     }).join("");
 
-    const emptySlots = Array.from(
-      { length:Math.max(0, maxPlayers - state.players.length) },
-      () => `
-        <div class="pl-empty" aria-label="Place libre">
-          <b aria-hidden="true">＋</b>
-          <span>Place libre</span>
-        </div>`
-    ).join("");
-
     const rootClasses = [
       "screen",
       "lobby-v5",
       "pl-private",
       "pl-app-v2",
+      "pl-lobby-v2-redesign",
+      state.players.length >= 4 ? "pl-roster-two-columns" : "pl-roster-one-column",
       publicMode ? "pl-public-mode" : "",
       quickMode ? "pl-private-v3" : "",
       quickMode ? "pl-quick-v3" : ""
@@ -1520,25 +1514,32 @@
         data-mode="${domMode}"
         data-lobby-kind="${quickMode ? "quick" : publicMode ? "public" : "private"}"
         data-game-type="${state.gameType === "bombe" ? "bombe" : "baccalaureat"}"
+        data-player-count="${state.players.length}"
+        data-player-limit="${maxPlayers}"
         ${quickMode ? `data-quick-v3-upgraded="1"` : ""}
       >
         <header class="pl-header">
           <button id="lobbyV5Leave" type="button" aria-label="Quitter le salon">
             <img src="/back-arrow.png" alt="">
           </button>
-
-          ${quickMode
-            ? `<div class="pl-title-mode">
-                <h1>${state.gameType === "bombe" ? "Bombe" : "Baccalauréat"} - Partie Rapide</h1>
-              </div>`
-            : roomModeToggleMarkup(state, user)}
-
-          <button id="copyCode" class="pl-header-code" type="button" aria-label="Copier le code du salon">
-            <small>Code salon</small>
-            <strong>${escapeHtml(state.code)}</strong>
-            <img src="/lobby-copy.png" alt="">
-          </button>
+          <img class="pl-header-logo" src="/ptitbac.logo.png" alt="P’tit Bac">
+          <div class="pl-header-actions">
+            <button id="copyCode" class="pl-header-code" type="button" aria-label="Copier le code du salon">
+              <small>Code salon</small>
+              <strong>${escapeHtml(state.code)}</strong>
+              <img src="/lobby-copy.png" alt="">
+            </button>
+            <button id="plShare" class="pl-header-share" type="button" aria-label="Partager le salon">
+              ${privateLobbyShareIcon()}
+            </button>
+          </div>
         </header>
+
+        <section class="pl-room-heading" aria-label="Type de salon">
+          ${quickMode
+            ? `<div class="pl-title-mode"><span class="pl-room-kicker">${state.gameType === "bombe" ? "Bombe" : "Baccalauréat"}</span><h1>Partie rapide</h1></div>`
+            : roomModeToggleMarkup(state, user)}
+        </section>
 
         <section class="pl-settings">
           <h2>
@@ -1560,22 +1561,18 @@
 
         <section class="pl-players">
           <h2>Joueurs <span>${state.players.length}/${maxPlayers}</span></h2>
-          <div class="pl-grid">${cards}${emptySlots}</div>
+          <div class="pl-grid" data-roster-count="${state.players.length}">${cards}</div>
+          ${state.players.length < maxPlayers
+            ? `<button id="inviteFriendsBtn" class="pl-invite-panel" type="button">
+                <span class="pl-invite-plus" aria-hidden="true">＋</span>
+                <span class="pl-invite-copy"><strong>Inviter des joueurs</strong><small>${maxPlayers - state.players.length} places disponibles</small></span>
+              </button>`
+            : ""}
         </section>
 
+        <aside class="pl-v3-comms" aria-label="Communication du salon"></aside>
+
         <div class="pl-actions">
-          <div class="pl-social">
-            <button id="inviteFriendsBtn" class="pl-invite" type="button">
-              <img src="/friends.png" alt="">
-              <span>Inviter des amis</span>
-            </button>
-
-            <button id="plShare" class="pl-share" type="button" aria-label="Partager le code du salon">
-              ${privateLobbyShareIcon()}
-              <span>Partager</span>
-            </button>
-          </div>
-
           <div class="pl-launch">
             <button
               id="plReady"
@@ -5006,7 +5003,6 @@
     if (!players || players.querySelector(".pl-v3-players-bar")) return;
 
     const title = players.querySelector(":scope > h2");
-    const actions = root.querySelector(":scope > .pl-actions > .pl-social");
     if (!title) return;
 
     const state = currentLobbyState();
@@ -5018,20 +5014,10 @@
     title.innerHTML = `
       <img src="/friends.png" alt="">
       <span class="pl-v3-player-label">Joueurs</span>
-      <span class="pl-v3-player-count">(${count}/${lobbyMaxPlayers(state)})</span>
+      <span class="pl-v3-player-count">${count}/${lobbyMaxPlayers(state)}</span>
     `;
 
     bar.appendChild(title);
-
-    if (actions) {
-      const inviteText = actions.querySelector(".pl-invite span");
-      if (inviteText) inviteText.textContent = "Inviter des amis";
-
-      const shareText = actions.querySelector(".pl-share span");
-      if (shareText) shareText.remove();
-
-      bar.appendChild(actions);
-    }
 
     players.insertBefore(bar, players.firstChild);
   }
@@ -5146,16 +5132,14 @@
             : currentLobbyState()?.mode || root.dataset.mode;
 
       const roomTitle = root.querySelector(".pl-title-mode > h1");
-      if (roomTitle) {
-        const gameLabel = currentLobbyState()?.gameType === "bombe"
-          ? "Bombe"
-          : "Baccalauréat";
-        roomTitle.textContent = liveMode === "quick"
-          ? `${gameLabel} - Partie Rapide`
-          : liveMode === "public"
-            ? `${gameLabel} - Salon Public`
-            : `${gameLabel} - Salon Privé`;
-      }
+      const roomKicker = root.querySelector(".pl-title-mode > .pl-room-kicker");
+      const gameLabel = currentLobbyState()?.gameType === "bombe"
+        ? "Bombe"
+        : "Baccalauréat";
+      if (roomKicker) roomKicker.textContent = gameLabel;
+      if (roomTitle) roomTitle.textContent = liveMode === "quick"
+        ? "Partie rapide"
+        : liveMode === "public" ? "Salon public" : "Salon privé";
 
       if (liveMode === "quick") {
         root.querySelector("#plModeToggle")?.remove();
@@ -5163,9 +5147,17 @@
 
       decorateSettings(root);
 
-      if (!root.querySelector(":scope > .pl-v3-comms")) {
-        const settings = root.querySelector(":scope > .pl-settings");
-        settings?.insertAdjacentElement("afterend", buildCommsPanel());
+      let comms = root.querySelector(":scope > .pl-v3-comms");
+      if (!comms) comms = buildCommsPanel();
+      else if (!comms.querySelector(".pl-v3-voice")) {
+        comms.replaceWith(buildCommsPanel());
+        comms = root.querySelector(":scope > .pl-v3-comms");
+      }
+      const playersSection = root.querySelector(":scope > .pl-players");
+      if (playersSection && comms.parentElement !== root) {
+        playersSection.insertAdjacentElement("afterend", comms);
+      } else if (playersSection && comms.previousElementSibling !== playersSection) {
+        playersSection.insertAdjacentElement("afterend", comms);
       }
 
       decoratePlayersHeader(root);
