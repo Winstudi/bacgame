@@ -292,11 +292,7 @@ body:has(.home-mobile) .economy-hud {
   scrollbar-width:none;
   color:var(--hm-text);
   font-family:"DM Sans",system-ui,sans-serif;
-  background:
-    radial-gradient(circle at 50% 24%,rgba(104,42,239,.42),transparent 27%),
-    radial-gradient(circle at 3% 33%,rgba(31,84,221,.27),transparent 32%),
-    radial-gradient(circle at 100% 42%,rgba(82,34,205,.24),transparent 29%),
-    linear-gradient(180deg,#080b43 0%,#07103b 70%,#060d34 100%);
+  background:#39266b url("/home-background-v1.png") center center / cover no-repeat !important;
 }
 
 .home-mobile::-webkit-scrollbar {
@@ -304,18 +300,7 @@ body:has(.home-mobile) .economy-hud {
 }
 
 .home-mobile::before {
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:-2;
-  opacity:.28;
-  pointer-events:none;
-  background-image:
-    radial-gradient(circle at 18% 16%,#7c58ff 0 1px,transparent 1.5px),
-    radial-gradient(circle at 74% 12%,#5178ff 0 1px,transparent 1.4px),
-    radial-gradient(circle at 88% 31%,#8e56ff 0 1px,transparent 1.5px),
-    radial-gradient(circle at 42% 37%,#7145ff 0 1px,transparent 1.5px);
-  background-size:90px 105px,120px 132px,136px 148px,154px 170px;
+  content:none;
 }
 
 .home-mobile button,
@@ -659,6 +644,9 @@ body:has(.home-mobile) .economy-hud {
 }
 
 .hm-brand-glow {
+  /* Le décor est désormais intégré à l’image de fond ; garder l’espace existant. */
+  visibility:hidden !important;
+  pointer-events:none;
   position:absolute;
   width:92%;
   aspect-ratio:1;
@@ -676,6 +664,9 @@ body:has(.home-mobile) .economy-hud {
 }
 
 .hm-letters {
+  /* Le décor est désormais intégré à l’image de fond ; garder l’espace existant. */
+  visibility:hidden !important;
+  pointer-events:none;
   position:absolute;
   inset:0;
   z-index:0;
@@ -727,6 +718,9 @@ body:has(.home-mobile) .economy-hud {
 }
 
 .hm-book {
+  /* Le décor est désormais intégré à l’image de fond ; garder l’espace existant. */
+  visibility:hidden !important;
+  pointer-events:none;
   position:relative;
   z-index:3;
   width:67%;
@@ -1842,11 +1836,7 @@ body:has(.home-mobile) .economy-hud {
   grid-template-rows:52px minmax(286px,1fr) auto auto !important;
   gap:5px !important;
   padding-top:0 !important;
-  background:
-    radial-gradient(circle at 50% 22%,rgba(136,42,255,.48),transparent 29%),
-    radial-gradient(circle at 8% 43%,rgba(31,82,227,.28),transparent 30%),
-    radial-gradient(circle at 94% 48%,rgba(126,38,229,.26),transparent 30%),
-    linear-gradient(180deg,#090a48 0%,#07103b 67%,#060c32 100%) !important;
+  background:#39266b url("/home-background-v1.png") center center / cover no-repeat !important;
 }
 
 /* ---------- Bandeau supérieur ---------- */
@@ -3337,3 +3327,4 @@ body:has(.home-mobile) .economy-hud {
 .home-mobile .hm-modes.hm-modes-v3{
   top:-12px !important;
 }
+

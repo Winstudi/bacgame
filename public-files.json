@@ -57,6 +57,7 @@
   "/friends.png",
   "/gem.png",
   "/heart.png",
+  "/home-background-v1.png",
   "/home-mobile.css",
   "/home-screen-v1.js",
   "/icon-theme-v1.js",
@@ -122,3 +123,4 @@
   "/wallet-client.js",
   "/wallet.css"
 ]
+
