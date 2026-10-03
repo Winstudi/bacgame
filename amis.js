@@ -59,34 +59,55 @@
     const panel = document.getElementById('friendsPartyPanel');
     if (!panel) return;
     const group = partyState.party;
-    const leader = group?.leaderId === friendsState.profile?.id;
-    const disabled = partyBusy ? ' disabled' : '';
-    const btn = (action, text, data = '') => `<button type="button" data-party-action="${action}" ${data}${disabled}>${text}</button>`;
-    panel.innerHTML = `<h2>Mon groupe${group ? ` · ${group.members.length}/6` : ''}</h2>` +
-      (partyLoading ? '<p>Chargement du groupe…</p>' : group ?
-        `<ul>${group.members.map(member => `<li><strong>${escapeHtml(member.username)}</strong><span>${member.id === group.leaderId ? 'Responsable · ' : ''}${member.online ? 'En ligne' : 'Hors ligne'}</span></li>`).join('')}</ul>
-        <div class="friends-party-actions">${group.roomCode && !leader ? btn('joinRoom','Rejoindre le salon') : ''}${leader ? btn('openRoom',group.roomCode ? 'Ouvrir le salon' : 'Préparer un salon privé') : ''}${btn('leave','Quitter le groupe')}</div>
-        <p>Le groupe reste réuni après les parties et les reconnexions.</p>
-        ${leader ? `<label for="partyFriendSelect">Inviter un ami</label><div class="friends-party-actions"><select id="partyFriendSelect" aria-label="Ami à inviter">${friendsState.friends.filter(f => !group.members.some(m => m.id === f.id)).map(f => `<option value="${escapeHtml(f.id)}">${escapeHtml(f.username)}</option>`).join('')}</select>${btn('invite','Inviter', group.members.length >= 6 ? 'disabled' : '')}</div>` : '<p>Le responsable prépare le salon ; tu pourras le rejoindre ici.</p>'}`
-        : btn('create','Créer mon groupe')) +
-      (!group ? partyState.invitations.map(invite => `<div class="friends-party-invitation"><p>Groupe de <strong>${escapeHtml(invite.leader_name)}</strong></p><div class="friends-party-actions">${btn('accept','Accepter',`data-party-id="${escapeHtml(invite.id)}"`)}${btn('decline','Refuser',`data-party-id="${escapeHtml(invite.id)}"`)}</div></div>`).join('') : '') +
-      `<p role="status">${escapeHtml(partyError)}</p>`;
+    const leader = !group || group.leaderId === friendsState.profile?.id;
+    const members = group?.members || (friendsState.profile ? [friendsState.profile] : []);
+    const disabled = partyBusy || partyLoading ? ' disabled' : '';
+    const btn = (action, text, extra = '') => `<button type="button" data-party-action="${action}" ${extra}${disabled}>${text}</button>`;
+    panel.innerHTML = `<h2>Mon groupe · ${members.length}/6</h2>
+      <div class="friends-party-slots">${members.map(member => {
+        const profile = member.id === friendsState.profile?.id ? friendsState.profile : friendsState.friends.find(f => f.id === member.id);
+        return `<div class="friends-party-member">${member.id === (group?.leaderId || friendsState.profile?.id) ? '<span class="friends-party-crown" aria-label="Responsable">👑</span>' : ''}<div class="friends-v2-avatar">${avatarMarkup(profile?.avatar || member.avatar, 'friends-v2-avatar-img')}</div><strong>${escapeHtml(member.username)}</strong></div>`;
+      }).join('')}${Array.from({length:Math.max(0,6-members.length)}, () => `<button class="friends-party-slot" type="button" data-party-picker ${!leader ? 'disabled' : ''}${disabled}><span>+</span><small>Inviter</small></button>`).join('')}</div>
+      <div class="friends-party-actions">${leader ? btn('openRoom', '🔒 ' + (group?.roomCode ? 'Ouvrir le salon' : 'Préparer un salon privé')) : btn('joinRoom','Rejoindre le salon', group?.roomCode ? '' : 'disabled')}${btn('leave','↪ Quitter le groupe',group ? '' : 'disabled')}</div>
+      ${!group ? partyState.invitations.map(invite => `<div class="friends-party-invitation"><p>Groupe de <strong>${escapeHtml(invite.leader_name)}</strong></p><div class="friends-party-actions">${btn('accept','Accepter',`data-party-id="${escapeHtml(invite.id)}"`)}${btn('decline','Refuser',`data-party-id="${escapeHtml(invite.id)}"`)}</div></div>`).join('') : ''}
+      <p class="friends-party-status" role="status">${escapeHtml(partyLoading ? 'Chargement du groupe…' : partyError)}</p>`;
+    panel.querySelectorAll('[data-party-picker]').forEach(button => button.onclick = () => {
+      if (!friendsState.friends.length) { friendsState.activeTab = 'add'; renderFriends(); }
+      else { document.querySelector('.friends-v4-friends-panel')?.scrollIntoView({behavior:'smooth',block:'start'}); localToast('Appuie sur Inviter à côté de ton ami.'); }
+    });
     panel.querySelectorAll('[data-party-action]').forEach(button => button.onclick = async () => {
       if (partyBusy) return;
       const action = button.dataset.partyAction;
-      const friendId = panel.querySelector('#partyFriendSelect')?.value;
-      if (action === 'invite' && !friendId) return localToast('Ajoute un ami à ta liste pour l’inviter.');
       if (action === 'leave' && !window.confirm('Quitter le groupe ? Tu resteras dans ta partie actuelle.')) return;
       partyBusy = true; paintParty();
       try {
+        if (action === 'openRoom' && !partyState.party) {
+          const created = await partyRequest('create');
+          if (!created?.ok) return localToast(created?.error || 'Création du groupe impossible.');
+        }
         if (action === 'openRoom' || action === 'joinRoom') await enterPartyRoom(action);
         else {
-          const res = await partyRequest(action, { friendId, partyId:button.dataset.partyId });
+          const res = await partyRequest(action, { partyId:button.dataset.partyId });
           if (!res?.ok) localToast(res?.error || 'Action non confirmée.');
-          else if (action === 'invite') localToast('Invitation au groupe envoyée (valable 5 minutes).');
         }
       } finally { partyBusy = false; paintParty(); }
     });
+  }
+
+  async function inviteToParty(friendId) {
+    if (partyBusy || partyLoading) return;
+    if (partyState.party && partyState.party.leaderId !== friendsState.profile?.id) return localToast('Seul le responsable peut inviter.');
+    if (partyState.party?.members.some(member => String(member.id) === String(friendId))) return localToast('Cet ami est déjà dans le groupe.');
+    if ((partyState.party?.members.length || 0) >= 6) return localToast('Le groupe est complet.');
+    partyBusy = true; paintParty();
+    try {
+      if (!partyState.party) {
+        const created = await partyRequest('create');
+        if (!created?.ok) return localToast(created?.error || 'Création du groupe impossible.');
+      }
+      const result = await partyRequest('invite', {friendId});
+      localToast(result?.ok ? 'Invitation au groupe envoyée (valable 5 minutes).' : result?.error || 'Invitation impossible.');
+    } finally { partyBusy = false; paintParty(); }
   }
   async function enterPartyRoom(action) {
     // Recheck shared room availability before leaving or creating any game.
@@ -245,6 +266,7 @@
 
   function tabIcon(type) {
     const icons = {
+      messages: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H9l-5 4V4Z"/><path d="M8 10h.1M12 10h.1M16 10h.1"/></svg>`,
       friends: `
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="9" cy="8" r="3"></circle>
@@ -370,13 +392,13 @@
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M5 5h14v10H9l-4 4V5Z"></path>
             </svg>
-            <span>Message</span>
+            <span>Chat</span>
           </button>
-          <button class="friends-invite-btn invite-friend" type="button" data-id="${escapeHtml(user.id)}" aria-label="Inviter ${escapeHtml(user.username)}">Inviter</button>
+          <button class="friends-invite-btn" type="button" data-party-invite= "${escapeHtml(user.id)}" aria-label="Inviter ${escapeHtml(user.username)} dans mon groupe">${tabIcon("add")}<span>Inviter</span></button>
 
           <button class="friends-v4-more-btn" type="button"
             data-friend-menu="${escapeHtml(user.id)}"
-            aria-label="Plus d'options">⋮</button>
+            aria-label="Plus d'options">•••</button>
         </div>
 
         ${friendsState.quickMenuFriendId === String(user.id) ? `
@@ -597,7 +619,7 @@
 
     return `
       <section class="friends-v4-friends-panel">
-        ${friendTools()}
+        <h2>Mes amis · ${friendsState.friends.length}</h2>
 
         <div class="friends-v4-list">
           ${visible.length
@@ -605,7 +627,7 @@
             : `<div class="friends-v4-no-result">Aucun ami ne correspond à ta recherche.</div>`}
         </div>
 
-        ${addFriendShortcut()}
+        
       </section>`;
   }
 
@@ -619,7 +641,7 @@
 
     document.documentElement.classList.remove("gameplay-flow");
     app.innerHTML = `
-      <main class="screen friends-v2 friends-mobile">
+      <main class="screen friends-v2 friends-mobile friends-library">
         <div class="friends-v2-bg-glow glow-a"></div>
         <div class="friends-v2-bg-glow glow-b"></div>
         <header class="friends-v2-header">
@@ -641,10 +663,10 @@
           <button data-friend-tab="friends" class="${friendsState.activeTab === "friends" ? "active" : ""}">
             <span class="friends-v2-tab-icon">${tabIcon("friends")}</span>
             <span>Mes amis</span>
-            ${friendsState.friends.length ? `<b class="friends-v4-friend-count">${friendsState.friends.length}</b>` : ""}
+            
           </button>
 
-          <button data-friend-tab="messages" class="${friendsState.activeTab === "messages" ? "active" : ""}" type="button"><span>Messages</span></button>
+          <button data-friend-tab="messages" class="${friendsState.activeTab === "messages" ? "active" : ""}" type="button"><span class="friends-v2-tab-icon">${tabIcon("messages")}</span><span>Chat</span></button>
 
           <button data-friend-tab="requests" class="${friendsState.activeTab === "requests" ? "active" : ""}">
             <span class="friends-v2-tab-icon">${tabIcon("requests")}</span>
@@ -676,6 +698,7 @@
   }
 
   function bindFriendsUI() {
+    document.querySelectorAll('[data-party-invite]').forEach(button => button.onclick = () => inviteToParty(button.dataset.partyInvite));
     document.querySelectorAll("[data-menu-report]").forEach(btn=>btn.onclick=()=>{
       const user=friendsState.friends.find(u=>String(u.id)===btn.dataset.menuReport);
       if(user)reportFriend(user);
@@ -1544,4 +1567,5 @@
 
   if (chatSocket.connected) bootstrap();
 })();
+
 

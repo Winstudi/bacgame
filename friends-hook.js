@@ -167,11 +167,11 @@ function createPartyService({ pool, roomAvailable = () => false, online = () => 
     let party = null;
     if (group.rowCount) {
       const row = group.rows[0];
-      const members = await pool.query(`SELECT u.id,u.username FROM public.ptitbac_party_members m
+      const members = await pool.query(`SELECT u.id,u.username,u.avatar FROM public.ptitbac_party_members m
         JOIN public.users u ON u.id=m.user_id WHERE m.party_id=$1 ORDER BY m.joined_at,u.id`, [row.id]);
       party = { id:row.id, leaderId:row.leader_id,
         roomCode:roomAvailable(row.room_code, row.leader_token) ? row.room_code : '',
-        members:members.rows.map(u => ({ id:u.id, username:u.username, online:online(u.id) })) };
+        members:members.rows.map(u => ({ id:u.id, username:u.username, avatar:u.avatar || '🐼', online:online(u.id) })) };
     }
     const invites = await pool.query(`SELECT i.party_id AS id,u.username AS leader_name,i.expires_at
       FROM public.ptitbac_party_invites i JOIN public.ptitbac_parties p ON p.id=i.party_id
@@ -535,3 +535,4 @@ module.exports.createPartyService = createPartyService;
 process.on("SIGTERM", () => {
   pool?.end().catch(() => {});
 });
+

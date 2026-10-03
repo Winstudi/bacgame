@@ -54,6 +54,7 @@
   "/frame-purple-flame.png",
   "/frame-quantique.png",
   "/frame-ruines.png",
+  "/friends-background-v1.png",
   "/friends.png",
   "/gem.png",
   "/heart.png",
@@ -123,4 +124,3 @@
   "/wallet-client.js",
   "/wallet.css"
 ]
-
