@@ -66,9 +66,9 @@
     panel.innerHTML = `<h2>Mon groupe · ${members.length}/6</h2>
       <div class="friends-party-slots">${members.map(member => {
         const profile = member.id === friendsState.profile?.id ? friendsState.profile : friendsState.friends.find(f => f.id === member.id);
-        return `<div class="friends-party-member">${member.id === (group?.leaderId || friendsState.profile?.id) ? '<span class="friends-party-crown" aria-label="Responsable">👑</span>' : ''}<div class="friends-v2-avatar">${avatarMarkup(profile?.avatar || member.avatar, 'friends-v2-avatar-img')}</div><strong>${escapeHtml(member.username)}</strong></div>`;
+        return `<div class="friends-party-member">${member.id === (group?.leaderId || friendsState.profile?.id) ? '<img class="friends-party-crown" src="/admin-crown.png" alt="Responsable">' : ''}<div class="friends-v2-avatar">${avatarMarkup(profile?.avatar || member.avatar, 'friends-v2-avatar-img')}</div><strong>${escapeHtml(member.username)}</strong></div>`;
       }).join('')}${Array.from({length:Math.max(0,6-members.length)}, () => `<button class="friends-party-slot" type="button" data-party-picker ${!leader ? 'disabled' : ''}${disabled}><span>+</span><small>Inviter</small></button>`).join('')}</div>
-      <div class="friends-party-actions">${leader ? btn('openRoom', '🔒 ' + (group?.roomCode ? 'Ouvrir le salon' : 'Préparer un salon privé')) : btn('joinRoom','Rejoindre le salon', group?.roomCode ? '' : 'disabled')}${btn('leave','↪ Quitter le groupe',group ? '' : 'disabled')}</div>
+      <div class="friends-party-actions">${leader ? btn('openRoom', tabIcon('lock') + '<span>' + (group?.roomCode ? 'Ouvrir le salon' : 'Préparer un salon privé') + '</span>') : btn('joinRoom','Rejoindre le salon', group?.roomCode ? '' : 'disabled')}${btn('leave',tabIcon('exit') + '<span>Quitter le groupe</span>',group ? '' : 'disabled')}</div>
       ${!group ? partyState.invitations.map(invite => `<div class="friends-party-invitation"><p>Groupe de <strong>${escapeHtml(invite.leader_name)}</strong></p><div class="friends-party-actions">${btn('accept','Accepter',`data-party-id="${escapeHtml(invite.id)}"`)}${btn('decline','Refuser',`data-party-id="${escapeHtml(invite.id)}"`)}</div></div>`).join('') : ''}
       <p class="friends-party-status" role="status">${escapeHtml(partyLoading ? 'Chargement du groupe…' : partyError)}</p>`;
     panel.querySelectorAll('[data-party-picker]').forEach(button => button.onclick = () => {
@@ -265,29 +265,15 @@
   }
 
   function tabIcon(type) {
-    const icons = {
-      messages: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H9l-5 4V4Z"/><path d="M8 10h.1M12 10h.1M16 10h.1"/></svg>`,
-      friends: `
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="9" cy="8" r="3"></circle>
-          <path d="M3.5 18a5.5 5.5 0 0 1 11 0"></path>
-          <circle cx="17" cy="9" r="2.3"></circle>
-          <path d="M15.5 14.5c2.7.1 4.7 1.4 5 3.7"></path>
-        </svg>`,
-      requests: `
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="9" cy="8" r="3"></circle>
-          <path d="M3.5 18a5.5 5.5 0 0 1 11 0"></path>
-          <path d="M18 7v6M15 10h6"></path>
-        </svg>`,
-      add: `
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="9" cy="8" r="3"></circle>
-          <path d="M3.5 18a5.5 5.5 0 0 1 11 0"></path>
-          <path d="M18 7v6M15 10h6"></path>
-        </svg>`
+    const paths = {
+      friends:'<circle cx="8" cy="6" r="4"/><path d="M0 22v-3a8 8 0 0 1 16 0v3Z"/><circle cx="19" cy="8" r="3"/><path d="M17 14a7 7 0 0 1 7 7h-6a10 10 0 0 0-1-7Z"/>',
+      messages:'<path d="M5 2h14a5 5 0 0 1 5 5v8a5 5 0 0 1-5 5h-8l-7 4v-4a5 5 0 0 1-4-5V7a5 5 0 0 1 5-5Z"/><g fill="#7130c3"><circle cx="7" cy="11" r="1.5"/><circle cx="12" cy="11" r="1.5"/><circle cx="17" cy="11" r="1.5"/></g>',
+      add:'<circle cx="8" cy="6" r="4"/><path d="M0 22v-3a8 8 0 0 1 16 0v3Z"/><path d="M19 6v8m-4-4h8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>',
+      lock:'<path d="M5 10V7a7 7 0 0 1 14 0v3h-3V7a4 4 0 0 0-8 0v3Z"/><rect x="3" y="10" width="18" height="14" rx="3"/><path d="M12 14v5" stroke="#8122dc" stroke-width="3" stroke-linecap="round"/>',
+      exit:'<path d="M3 1h13v22H3Z"/><path d="m16 2 5 2v18h-5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="13" r="1.4" fill="#1764d8"/>',
+      back:'<path d="m12 4-8 8 8 8M5 12h16" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'
     };
-    return icons[type] || icons.friends;
+    return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[type === 'requests' ? 'add' : type] || paths.friends}</svg>`;
   }
 
   function localToast(message) {
@@ -389,9 +375,7 @@
           <button class="friends-v4-chat-btn" type="button"
             data-friend-message="${escapeHtml(user.id)}"
             aria-label="Envoyer un message à ${escapeHtml(user.username)}">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M5 5h14v10H9l-4 4V5Z"></path>
-            </svg>
+            ${tabIcon("messages")}
             <span>Chat</span>
           </button>
           <button class="friends-invite-btn" type="button" data-party-invite= "${escapeHtml(user.id)}" aria-label="Inviter ${escapeHtml(user.username)} dans mon groupe">${tabIcon("add")}<span>Inviter</span></button>
@@ -440,18 +424,7 @@
   }
 
   function emptyFriendsState() {
-    return `
-      <div class="friends-v2-empty">
-        <div class="friends-v2-empty-icon friends-v3-empty-icon">
-          <img src="/friends.png" alt="" aria-hidden="true">
-        </div>
-        <strong>Pas encore d'amis</strong>
-        <p>Ajoute quelqu'un avec son code ami<br>pour commencer !</p>
-        <button id="friendsV2EmptyAdd" class="friends-v2-empty-add" type="button">
-          ${tabIcon("add")}
-          <span>Ajouter un ami</span>
-        </button>
-      </div>`;
+    return `<div class="friends-v2-empty compact"><p>Pas encore d’amis. Retrouve-les dans l’onglet <strong>Ajouter</strong>.</p></div>`;
   }
 
   function genericEmpty(icon, title, text) {
@@ -611,6 +584,7 @@
     if (!friendsState.friends.length) {
       return `
         <section class="friends-v4-friends-panel">
+          <h2>Mes amis · 0</h2>
           ${emptyFriendsState()}
         </section>`;
     }
@@ -646,7 +620,7 @@
         <div class="friends-v2-bg-glow glow-b"></div>
         <header class="friends-v2-header">
           <button class="friends-v2-back" id="friendsBackBtn" aria-label="Retour">
-            <img src="/back-arrow.png" alt="">
+            ${tabIcon("back")}
           </button>
 
           <div class="friends-v2-title">
@@ -1567,5 +1541,6 @@
 
   if (chatSocket.connected) bootstrap();
 })();
+
 
 
